@@ -1,5 +1,6 @@
 from django.db import models
 
+# Abstract Product
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -11,6 +12,7 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+# Abstract Computer
 class Computer(Product):
     ram = models.PositiveIntegerField(help_text="RAM in GB")
     graphics_card = models.CharField(max_length=255)
@@ -18,7 +20,7 @@ class Computer(Product):
     
     class Meta:
         abstract = True
-    
+
 class Laptop(Computer):
     screen_size = models.PositiveIntegerField(help_text="Size in inches")
     resolution = models.CharField(max_length=10)

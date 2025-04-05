@@ -13,6 +13,11 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ('email', 'country', 'city', 'state', 'zip_code', 'street_address')
 
+class CreateCustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ('email', 'country', 'city', 'state', 'zip_code', 'street_address')
+
 class AdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Admin

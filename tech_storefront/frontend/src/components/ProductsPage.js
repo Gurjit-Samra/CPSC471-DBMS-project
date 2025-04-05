@@ -6,6 +6,6 @@ export default class ProductsPage extends Component {
   }
   
   render() {
-    return <p>This is the products page</p>;
+    return <p>This is the Products page</p>;
   }
 }

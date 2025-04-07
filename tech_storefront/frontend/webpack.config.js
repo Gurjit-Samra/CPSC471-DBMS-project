@@ -7,7 +7,9 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "./static/frontend"),
     filename: "[name].js",
+    publicPath: "/static/frontend/",
   },
+
   module: {
     rules: [
       {
@@ -19,12 +21,25 @@ module.exports = {
       },
     ],
   },
+
   optimization: {
     minimize: true,
   },
+
   plugins: [
     new webpack.DefinePlugin({
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development"),
     }),
   ],
+
+  devServer: {
+    static: {
+      directory: path.resolve(__dirname, "./static/frontend"),
+    },
+    port: 3000,
+    hot: true,
+    open: true,
+    historyApiFallback: true, // important for React Router
+  },
+
 };

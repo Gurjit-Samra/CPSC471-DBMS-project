@@ -16,7 +16,15 @@ class CustomerSerializer(serializers.ModelSerializer):
 class CreateCustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ('email', 'country', 'city', 'state', 'zip_code', 'street_address')
+        fields = ('email', 'country', 'city', 'state', 'zip_code', 'street_address', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        customer = Customer(**validated_data)
+        customer.set_password(password)
+        customer.save()
+        return customer
 
 class AdminSerializer(serializers.ModelSerializer):
     class Meta:

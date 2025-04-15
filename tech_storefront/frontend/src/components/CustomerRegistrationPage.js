@@ -1,10 +1,7 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
-import Divider from '@mui/material/Divider';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
 import Link from '@mui/material/Link';
@@ -13,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
+import { Link as RouterLink } from "react-router-dom";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -34,11 +32,10 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 const SignUpContainer = styled(Stack)(({ theme }) => ({
-  height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
   minHeight: '100%',
-  padding: theme.spacing(2),
+  padding: 0,       
   [theme.breakpoints.up('sm')]: {
-    padding: theme.spacing(4),
+    padding: 0,
   },
   '&::before': {
     content: '""',
@@ -63,11 +60,13 @@ export default function SignUp(props) {
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [nameError, setNameError] = React.useState(false);
   const [nameErrorMessage, setNameErrorMessage] = React.useState('');
+  const [serverError, setServerError] = React.useState('');
 
   const validateInputs = () => {
     const email = document.getElementById('email');
     const password = document.getElementById('password');
-    const name = document.getElementById('name');
+    const firstName = document.getElementById('Fname');
+    const lastName = document.getElementById('Lname');
 
     let isValid = true;
 
@@ -89,9 +88,13 @@ export default function SignUp(props) {
       setPasswordErrorMessage('');
     }
 
-    if (!name.value || name.value.length < 1) {
+    if (!firstName.value || firstName.value.length < 1) {
       setNameError(true);
-      setNameErrorMessage('Name is required.');
+      setNameErrorMessage('First name is required.');
+      isValid = false;
+    } else if (!lastName.value || lastName.value.length < 1) {
+      setNameError(true);
+      setNameErrorMessage('Last name is required.');
       isValid = false;
     } else {
       setNameError(false);
@@ -101,120 +104,332 @@ export default function SignUp(props) {
     return isValid;
   };
 
-  const handleSubmit = (event) => {
-    if (!validateInputs()) {
-      event.preventDefault();
-      return;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!validateInputs()) return;
+
+    const form = event.target;
+    const data = {
+      email: form.email.value,
+      country: form.country.value,
+      city: form.city.value,
+      state: form.state.value,
+      zip_code: form.zip_code.value,
+      street_address: form.street_address.value,
+      password: form.password.value,
+    };
+
+    try {
+      const response = await fetch('/api/customer-registration/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        // Check for email error from backend
+        if (errorData.email && errorData.email.length > 0) {
+          setEmailError(true);
+          setEmailErrorMessage(errorData.email[0]);
+        } else {
+          setServerError("Registration failed. Please check your input.");
+        }
+        return;
+      }
+
+      const result = await response.json();
+      console.log("User registered:", result);
+      setServerError(""); // Clear any previous error
+    } catch (error) {
+      setServerError("Network error. Please try again.");
+      console.error("Error submitting form:", error);
     }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      name: data.get('name'),
-      lastName: data.get('lastName'),
-      email: data.get('email'),
-      password: data.get('password'),
-    });
   };
 
   return (
     <>
       <CssBaseline />
-      <SignUpContainer direction="column" justifyContent="space-between">
-        <Card variant="outlined">
-          <Typography
-            component="h1"
-            variant="h4"
-            sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
-          >
-            Sign up
-          </Typography>
+      <Box
+        sx={{
+          minHeight: "100vh",
+          width: "100vw",
+          background: "linear-gradient(120deg, #e3eafc 0%, #f5f7fa 100%)",
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+        }}
+      >
+        {/* Header */}
+        <Box
+          sx={{
+            width: "auto",
+            background: "rgba(255,255,255,0.95)",
+            border: "1.5px solid #e0e0e0",
+            borderRadius: "12px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            py: 3, // vertical padding inside the header
+            px: { xs: 2, md: 3 }, // horizontal padding inside the header
+            mt: 2, // margin-top for space from the top
+            mx: { xs: 1, md: 2 }, // margin left/right for space from the sides
+            maxWidth: "calc(100vw - 16px)", // prevent overflow on small screens
+          }}
+        >
           <Box
-            component="form"
-            onSubmit={handleSubmit}
-            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+            sx={{
+              width: "100%",
+              maxWidth: 1400,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              px: { xs: 2, md: 8 },
+            }}
           >
-            <FormControl>
-              <FormLabel htmlFor="Fname">First name</FormLabel>
-              <TextField
-                autoComplete="Fname"
-                name="Fname"
-                required
-                fullWidth
-                id="Fname"
-                placeholder="Paul"
-                error={nameError}
-                helperText={nameErrorMessage}
-                color={nameError ? 'error' : 'primary'}
+            <RouterLink to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+              <Box
+                component="img"
+                src="/static/favicon2.ico"
+                alt="FGG Tech"
+                sx={{
+                  width: 50,
+                  height: 50,
+                  mr: 3,
+                }}
               />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="Fname">Last name</FormLabel>
-              <TextField
-                autoComplete="Lname"
-                name="Lname"
-                required
-                fullWidth
-                id="Lname"
-                placeholder="Atreides"
-                error={nameError}
-                helperText={nameErrorMessage}
-                color={nameError ? 'error' : 'primary'}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="email">Email</FormLabel>
-              <TextField
-                required
-                fullWidth
-                id="email"
-                placeholder="your@email.com"
-                name="email"
-                autoComplete="email"
+              <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: 0, color: "black" }}>
+                FGG Tech
+              </Typography>
+            </RouterLink>
+            <Stack direction="row" spacing={2}>
+              <Button
+                component={RouterLink}
+                to="/sign-in"
                 variant="outlined"
-                error={emailError}
-                helperText={emailErrorMessage}
-                color={emailError ? 'error' : 'primary'}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="password">Password</FormLabel>
-              <TextField
-                required
-                fullWidth
-                name="password"
-                placeholder="••••••"
-                type="password"
-                id="password"
-                autoComplete="new-password"
-                variant="outlined"
-                error={passwordError}
-                helperText={passwordErrorMessage}
-                color={passwordError ? 'error' : 'primary'}
-              />
-            </FormControl>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              onClick={validateInputs}
+                color="primary"
+                sx={{
+                    fontWeight: 600,
+                    borderRadius: "999px",
+                    boxShadow: "none",
+                    // Custom hover effect:
+                    "&:hover": {
+                      backgroundColor: "1875D2",
+                      boxShadow: "none",
+                    },
+                  }}
+              >
+                Sign In
+              </Button>
+              <Button
+                component={RouterLink}
+                to="/customer-registration"
+                variant="contained"
+                color="primary"
+                sx={{
+                    fontWeight: 600,
+                    borderRadius: "999px",
+                    boxShadow: "none",
+                    // Custom hover effect:
+                    "&:hover": {
+                      backgroundColor: "1875D2",
+                      boxShadow: "none",
+                    },
+                  }}
+              >
+                Create Account
+              </Button>
+            </Stack>
+          </Box>
+        </Box>
+
+        {/* Registration Card */}
+        <SignUpContainer direction="column" justifyContent="space-between" sx={{ flex: 1 }}>
+          <Card
+            variant="outlined"
+            sx={{
+              width: { xs: "100%", sm: 450 },
+              p: 4,
+              m: "auto",
+              maxHeight: "80vh",
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Typography
+              component="h1"
+              variant="h4"
+              sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
             >
               Sign up
-            </Button>
-          </Box>
-          
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Typography sx={{ textAlign: 'center' }}>
-              Already have an account?{' '}
-              <Link
-                href="/material-ui/getting-started/templates/sign-in/"
-                variant="body2"
-                sx={{ alignSelf: 'center' }}
-              >
-                Sign in
-              </Link>
             </Typography>
-          </Box>
-        </Card>
-      </SignUpContainer>
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+            >
+              {/* Name Row */}
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <FormControl fullWidth>
+                  <FormLabel htmlFor="Fname">First name</FormLabel>
+                  <TextField
+                    autoComplete="Fname"
+                    name="Fname"
+                    required
+                    id="Fname"
+                    placeholder="Paul"
+                    error={nameError}
+                    helperText={nameErrorMessage}
+                    color={nameError ? 'error' : 'primary'}
+                  />
+                </FormControl>
+                <FormControl fullWidth>
+                  <FormLabel htmlFor="Lname">Last name</FormLabel>
+                  <TextField
+                    autoComplete="Lname"
+                    name="Lname"
+                    required
+                    id="Lname"
+                    placeholder="Atreides"
+                    error={nameError}
+                    helperText={nameErrorMessage}
+                    color={nameError ? 'error' : 'primary'}
+                  />
+                </FormControl>
+              </Box>
+
+              {/* Email */}
+              <FormControl>
+                <FormLabel htmlFor="email">Email</FormLabel>
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
+                  placeholder="your@email.com"
+                  name="email"
+                  autoComplete="email"
+                  variant="outlined"
+                  error={emailError}
+                  helperText={emailErrorMessage}
+                  color={emailError ? 'error' : 'primary'}
+                />
+              </FormControl>
+
+              {/* Password */}
+              <FormControl>
+                <FormLabel htmlFor="password">Password</FormLabel>
+                <TextField
+                  required
+                  fullWidth
+                  name="password"
+                  placeholder="••••••"
+                  type="password"
+                  id="password"
+                  autoComplete="new-password"
+                  variant="outlined"
+                  error={passwordError}
+                  helperText={passwordErrorMessage}
+                  color={passwordError ? 'error' : 'primary'}
+                />
+              </FormControl>
+
+              {/* Address Row 1: Country & City */}
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <FormControl fullWidth>
+                  <FormLabel htmlFor="country">Country</FormLabel>
+                  <TextField
+                    required
+                    id="country"
+                    name="country"
+                    placeholder="Canada"
+                  />
+                </FormControl>
+                <FormControl fullWidth>
+                  <FormLabel htmlFor="city">City</FormLabel>
+                  <TextField
+                    required
+                    id="city"
+                    name="city"
+                    placeholder="Calgary"
+                  />
+                </FormControl>
+              </Box>
+
+              {/* Address Row 2: State & Zip Code */}
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <FormControl fullWidth>
+                  <FormLabel htmlFor="state">State/Province</FormLabel>
+                  <TextField
+                    id="state"
+                    name="state"
+                    placeholder="Alberta"
+                  />
+                </FormControl>
+                <FormControl fullWidth>
+                  <FormLabel htmlFor="zip_code">Zip Code</FormLabel>
+                  <TextField
+                    required
+                    id="zip_code"
+                    name="zip_code"
+                    placeholder="T2N 1N4"
+                  />
+                </FormControl>
+              </Box>
+
+              {/* Street Address */}
+              <FormControl>
+                <FormLabel htmlFor="street_address">Street Address</FormLabel>
+                <TextField
+                  required
+                  fullWidth
+                  id="street_address"
+                  name="street_address"
+                  placeholder="123 Main St"
+                />
+              </FormControl>
+
+              {serverError && (
+                <Typography color="error" sx={{ textAlign: "center" }}>
+                  {serverError}
+                </Typography>
+              )}
+
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                onClick={validateInputs}
+                sx={{
+                    fontWeight: 600,
+                    borderRadius: "999px",
+                    boxShadow: "none",
+                    // Custom hover effect:
+                    "&:hover": {
+                      backgroundColor: "1875D2",
+                      boxShadow: "none",
+                    },
+                  }}
+              >
+                Sign up
+              </Button>
+            </Box>
+            
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Typography sx={{ textAlign: 'center' }}>
+                Already have an account?{' '}
+                <Link
+                  href="/sign-in/"
+                  variant="body2"
+                  sx={{ alignSelf: 'center' }}
+                >
+                  Sign in
+                </Link>
+              </Typography>
+            </Box>
+          </Card>
+        </SignUpContainer>
+      </Box>
     </>
   );
 }

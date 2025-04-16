@@ -16,6 +16,7 @@ import {
   Divider,
 } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import ShoppingCart from "./ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
@@ -47,8 +48,10 @@ const DUMMY_PRODUCTS = [
 ];
 
 export default function ProductsPage() {
+  
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
+  const [cartOpen, setCartOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
@@ -63,6 +66,14 @@ export default function ProductsPage() {
   const handleAddToCart = (product) => {
     setCart((prev) => [...prev, product]);
   };
+
+  const handleCartOpen = () => {
+    setCartOpen(true);
+  };
+
+  const handleCartClose = () => {
+  setCartOpen(false);
+};
 
   // Menu open/close handlers
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
@@ -276,7 +287,7 @@ export default function ProductsPage() {
               </>
             )}
             {/* Cart Icon */}
-            <IconButton color="primary" sx={{ ml: 2 }}>
+            <IconButton color="primary" sx={{ ml: 2 }} onClick={handleCartOpen}>
               <Badge badgeContent={cart.length} color="secondary">
                 <ShoppingCartIcon />
               </Badge>
@@ -363,6 +374,13 @@ export default function ProductsPage() {
           ))}
         </Grid>
       </Box>
+      {/* Shopping Cart */}
+      <ShoppingCart
+        cart={cart}
+        open={cartOpen}
+        onClose={handleCartClose}
+        //onCheckout={handleCheckout}
+      />
     </Box>
   );
 }

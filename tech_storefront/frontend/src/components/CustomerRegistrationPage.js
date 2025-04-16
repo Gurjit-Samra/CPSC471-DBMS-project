@@ -11,6 +11,23 @@ import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import { Link as RouterLink } from "react-router-dom";
+import { useAuth } from "./AuthContext";
+import { useNavigate } from "react-router-dom";
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -61,6 +78,8 @@ export default function SignUp(props) {
   const [nameError, setNameError] = React.useState(false);
   const [nameErrorMessage, setNameErrorMessage] = React.useState('');
   const [serverError, setServerError] = React.useState('');
+  const { setUser } = useAuth();
+  const navigate = useNavigate();
 
   const validateInputs = () => {
     const email = document.getElementById('email');
@@ -108,9 +127,22 @@ export default function SignUp(props) {
     event.preventDefault();
     if (!validateInputs()) return;
 
+    // Sign out any existing user
+    const csrftoken = getCookie("csrftoken");
+    await fetch("/api/logout/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+      },
+      credentials: "include",
+    });
+
     const form = event.target;
     const data = {
       email: form.email.value,
+      first_name: form.Fname.value,
+      last_name: form.Lname.value,
       country: form.country.value,
       city: form.city.value,
       state: form.state.value,
@@ -122,13 +154,16 @@ export default function SignUp(props) {
     try {
       const response = await fetch('/api/customer-registration/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken,
+        },
         body: JSON.stringify(data),
+        credentials: 'include',
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        // Check for email error from backend
         if (errorData.email && errorData.email.length > 0) {
           setEmailError(true);
           setEmailErrorMessage(errorData.email[0]);
@@ -138,9 +173,32 @@ export default function SignUp(props) {
         return;
       }
 
-      const result = await response.json();
-      console.log("User registered:", result);
-      setServerError(""); // Clear any previous error
+      // Log in the new user
+      const loginRes = await fetch("/api/sign-in/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+        credentials: "include",
+      });
+
+      if (!loginRes.ok) {
+        setServerError("Registration succeeded but automatic sign-in failed. Please sign in manually.");
+        return;
+      }
+
+      // Now fetch the current user and set context
+      const userRes = await fetch("/api/current-user/", { credentials: "include" });
+      const userData = await userRes.json();
+      setUser(userData);
+
+      navigate("/products"); // Redirect to products page
+
     } catch (error) {
       setServerError("Network error. Please try again.");
       console.error("Error submitting form:", error);
@@ -152,13 +210,16 @@ export default function SignUp(props) {
       <CssBaseline />
       <Box
         sx={{
-          minHeight: "100vh",
-          width: "100vw",
-          background: "linear-gradient(120deg, #e3eafc 0%, #f5f7fa 100%)",
-          display: "flex",
-          flexDirection: "column",
-          position: "relative",
-        }}
+            minHeight: "100vh",
+            width: "100vw",
+            backgroundImage: 'url("/static/hero.jpg")',
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
+          }}
       >
         {/* Header */}
         <Box

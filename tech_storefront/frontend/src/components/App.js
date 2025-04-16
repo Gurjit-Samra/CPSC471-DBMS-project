@@ -1,22 +1,29 @@
-import React, { Component } from "react";
+import React from "react";
 import { createRoot } from "react-dom/client";
-import HomePage from "./HomePage";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./AuthContext";
+import LandingPage from "./LandingPage";
 import ProductsPage from "./ProductsPage";
+import SignInPage from "./SignInPage"
+import CustomerRegistrationPage from "./CustomerRegistrationPage";
+import AdminSignInPage from "./AdminSignInPage";
 
-export default class App extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <div>
-        <HomePage />
-      </div>
-    );
-  }
+export default function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/sign-in" element={<SignInPage />} />
+          <Route path="/customer-registration" element={<CustomerRegistrationPage />} />
+          <Route path="/admin-sign-in" element={<AdminSignInPage />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
 
 const appDiv = document.getElementById("app");
 const root = createRoot(appDiv);
-root.render(<App/>);
+root.render(<App />);

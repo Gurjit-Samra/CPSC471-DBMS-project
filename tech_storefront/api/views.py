@@ -1,10 +1,10 @@
-from django.shortcuts import render
-from rest_framework import generics, status
+from rest_framework import status
 from .models.user_models import Customer, Admin
-from .serializers import CustomerSerializer, CreateCustomerSerializer
+from .serializers import CreateCustomerSerializer, CustomerSerializer, UserSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login, logout
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 class CustomerRegistrationView(APIView):
@@ -22,6 +22,7 @@ class CustomerSignInView(APIView):
         user = authenticate(request, email=email, password=password)
         # make sure the user is a customer
         if user is not None and Customer.objects.filter(email=user.email).exists():
+            login(request, user) # create a new session
             return Response({'message': 'Sign in successful'}, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -34,3 +35,19 @@ class AdminSignInView(APIView):
         if user is not None and Admin.objects.filter(email=user.email).exists():
             return Response({'message': 'Admin sign in successful'}, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid admin credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+class CurrentUserView(APIView):
+    def get(self, request):
+        if request.user.is_authenticated:
+            # If the user is a customer, return full customer info
+            if Customer.objects.filter(email=request.user.email).exists():
+                customer = Customer.objects.get(email=request.user.email)
+                return Response(CustomerSerializer(customer).data)
+            # Otherwise, return basic user info
+            return Response(UserSerializer(request.user).data)
+        return Response({"email": None})
+
+class LogoutView(APIView):
+    def post(self, request):
+        logout(request)
+        return Response({"success": True})

@@ -6,17 +6,21 @@ from .models.product_models import Laptop, PC, TV, Phone, Video_Game, Console, A
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ('email', 'first_name', 'last_name')
 
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ('email', 'country', 'city', 'state', 'zip_code', 'street_address')
+        fields = (
+            'email', 'first_name', 'last_name', 'country', 'city', 'state', 'zip_code', 'street_address'
+        )
 
 class CreateCustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ('email', 'country', 'city', 'state', 'zip_code', 'street_address', 'password')
+        fields = (
+            'email', 'first_name', 'last_name', 'country', 'city', 'state', 'zip_code', 'street_address', 'password'
+        )
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

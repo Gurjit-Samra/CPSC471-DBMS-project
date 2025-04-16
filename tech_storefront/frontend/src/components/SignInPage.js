@@ -11,9 +11,25 @@ import {
 } from "@mui/material";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
 const SignInContainer = Stack;
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
 
 export default function SignInPage(props) {
   const [emailError, setEmailError] = useState(false);
@@ -21,6 +37,8 @@ export default function SignInPage(props) {
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [serverError, setServerError] = useState("");
+  const navigate = useNavigate();
+  const { user, setUser } = useAuth();
 
   const validateInputs = () => {
     let isValid = true;
@@ -59,11 +77,17 @@ export default function SignInPage(props) {
       password: form.password.value,
     };
 
+    const csrftoken = getCookie("csrftoken");
+
     try {
       const response = await fetch("/api/sign-in/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
         body: JSON.stringify(data),
+        credentials: "include",
       });
 
       const result = await response.json();
@@ -73,8 +97,13 @@ export default function SignInPage(props) {
         return;
       }
 
-      console.log("User signed in:", result);
-      // Optionally redirect or show success message
+      // Fetch the current user and update context
+      const userRes = await fetch("/api/current-user/", { credentials: "include" });
+      const userData = await userRes.json();
+      setUser(userData);
+
+      navigate("/products"); // redirect to products page
+
     } catch (error) {
       setServerError("Network error. Please try again.");
       console.error("Error submitting form:", error);
@@ -86,13 +115,16 @@ export default function SignInPage(props) {
       <CssBaseline />
       <Box
         sx={{
-          minHeight: "100vh",
-          width: "100vw",
-          background: "linear-gradient(120deg, #e3eafc 0%, #f5f7fa 100%)",
-          display: "flex",
-          flexDirection: "column",
-          position: "relative",
-        }}
+            minHeight: "100vh",
+            width: "100vw",
+            backgroundImage: 'url("/static/hero.jpg")',
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
+          }}
       >
         {/* Header */}
         <Box

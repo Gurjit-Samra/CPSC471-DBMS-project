@@ -311,8 +311,8 @@ export default function LandingPage() {
 
       {/* Admin Sign In Button */}
       <Fab
-        component={RouterLink}
-        to="/admin-sign-in"
+        component="a"
+        href="/admin/"
         color="secondary"
         size="small"
         sx={{

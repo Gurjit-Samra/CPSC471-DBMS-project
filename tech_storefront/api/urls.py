@@ -1,9 +1,12 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from .views import CustomerRegistrationView
 from .views import CustomerSignInView
 from .views import AdminSignInView
 from .views import CurrentUserView
 from .views import LogoutView
+from .views import AllProductsView
 
 urlpatterns = [
     path('home', CustomerRegistrationView.as_view()),
@@ -13,4 +16,6 @@ urlpatterns = [
     path('admin-sign-in/', AdminSignInView.as_view(), name='admin-sign-in'),
     path('current-user/', CurrentUserView.as_view(), name='current-user'),
     path('logout/', LogoutView.as_view(), name='logout'),
-]
+    path('products/', AllProductsView.as_view(), name='all-products'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

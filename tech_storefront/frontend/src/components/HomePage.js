@@ -19,7 +19,7 @@ export default class HomePage extends Component {
           <Route exact path="/" element={<LandingPage />} />
           <Route path="/customer-registration" element={<CustomerRegistrationPage />} />
           <Route path="/sign-in" element={<SignInPage />} />
-          <Route path="/admin-sign-in" element={<AdminSignInPage />} />
+          {/* <Route path="/admin-sign-in" element={<AdminSignInPage />} /> */}
           <Route path="/products" element={<ProductsPage />} />
         </Routes>    
       </Router>

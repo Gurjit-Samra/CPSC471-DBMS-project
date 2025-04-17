@@ -5,6 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.permissions import IsAuthenticated
+from .models.product_models import Laptop, PC, TV, Phone
+from .serializers import LaptopSerializer, PCSerializer, TVSerializer, PhoneSerializer
 
 # Create your views here.
 class CustomerRegistrationView(APIView):
@@ -51,3 +53,18 @@ class LogoutView(APIView):
     def post(self, request):
         logout(request)
         return Response({"success": True})
+
+class AllProductsView(APIView):
+    def get(self, request):
+        laptops = LaptopSerializer(Laptop.objects.all(), many=True).data
+        pcs = PCSerializer(PC.objects.all(), many=True).data
+        tvs = TVSerializer(TV.objects.all(), many=True).data
+        phones = PhoneSerializer(Phone.objects.all(), many=True).data
+        # Combine all products into one list
+        products = (
+            [{"type": "laptop", **item} for item in laptops] +
+            [{"type": "pc", **item} for item in pcs] +
+            [{"type": "tv", **item} for item in tvs] +
+            [{"type": "phone", **item} for item in phones]
+        )
+        return Response(products)

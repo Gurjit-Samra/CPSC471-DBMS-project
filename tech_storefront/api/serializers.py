@@ -38,21 +38,25 @@ class AdminSerializer(serializers.ModelSerializer):
 
 # Product serializers
 class LaptopSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(use_url=True)
     class Meta:
         model = Laptop
         fields = '__all__'
 
 class PCSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(use_url=True)
     class Meta:
         model = PC
         fields = '__all__'
 
 class TVSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(use_url=True)
     class Meta:
         model = TV
         fields = '__all__'
 
 class PhoneSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(use_url=True)
     class Meta:
         model = Phone
         fields = '__all__'

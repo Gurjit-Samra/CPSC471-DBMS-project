@@ -21,34 +21,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 
-// Dummy product data (replace with API fetch)
-const DUMMY_PRODUCTS = [
-  {
-    id: 1,
-    name: "Laptop Pro 15",
-    price: 1499.99,
-    description: "A powerful laptop for professionals.",
-    image: "/static/images/laptop/laptop1.png",
-  },
-  {
-    id: 2,
-    name: "Smartphone X",
-    price: 899.99,
-    description: "The latest smartphone with amazing features.",
-    image: "/static/phone.jpg",
-  },
-  {
-    id: 3,
-    name: "Ultra HD TV",
-    price: 1199.99,
-    description: "Crystal clear 4K Ultra HD television.",
-    image: "/static/tv.jpg",
-  },
-  // ...add more products as needed
-];
-
 export default function ProductsPage() {
-  
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -56,11 +29,20 @@ export default function ProductsPage() {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
 
-  // Simulate fetching products from API
+  // approximate height of your header box (adjust if needed)
+  const HEADER_HEIGHT = 62;
+
+  // fetch product data from backend
   useEffect(() => {
-    // TODO: Replace with actual API call
-    setProducts(DUMMY_PRODUCTS);
-    // Fetch current user info from backend
+    fetch("/api/products/", {
+      credentials: "include", // for session/csrf
+    })
+      .then((res) => res.json())
+      .then((data) => setProducts(data))
+      .catch((err) => {
+        console.error("Failed to fetch products:", err);
+        setProducts([]); // fallback
+      });
   }, []);
 
   const handleAddToCart = (product) => {
@@ -72,8 +54,8 @@ export default function ProductsPage() {
   };
 
   const handleCartClose = () => {
-  setCartOpen(false);
-};
+    setCartOpen(false);
+  };
 
   // Menu open/close handlers
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
@@ -113,19 +95,18 @@ export default function ProductsPage() {
 
   return (
     <Box
-    sx={{
-        minHeight: "100vh",
+      sx={{
+        height: "100vh", // fill viewport
         width: "100vw",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden", // hide overflow on outer container
         backgroundImage: 'url("/static/hero.jpg")',
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        display: "flex",
-        flexDirection: "column",
-        position: "relative",
       }}
     >
-      {/* Header with Cart and User */}
+      {/* fixed header */}
       <Box
         sx={{
             width: "auto",
@@ -266,7 +247,8 @@ export default function ProductsPage() {
                     }}
                   >
                     <Typography variant="body2">
-                      {user.street_address}, {user.city}, {user.state}, {user.country}
+                      {user.street_address}, {user.city}, {user.state},{" "}
+                      {user.country}
                     </Typography>
                   </MenuItem>
                   <Divider />
@@ -296,21 +278,45 @@ export default function ProductsPage() {
         </Box>
       </Box>
 
-      {/* Products Grid */}
-      <Box sx={{ maxWidth: 1400, mx: "auto", p: { xs: 2, md: 4 } }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 3, mt: 2 }}>
+      {/* scrollable products area */}
+      <Box
+        sx={{
+          flex: 1,
+          mt: `${HEADER_HEIGHT}px`, // push below the fixed header
+          overflowY: "auto", // enable vertical scrolling
+          width: "100%",
+          maxWidth: 1400,
+          mx: "auto",
+          p: { xs: 2, md: 4 },
+        }}
+      >
+        <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>
           Shop Products
         </Typography>
-        <Grid container spacing={4}>
+        <Grid
+          container
+          spacing={4}
+          alignItems="stretch" // stretch items to equal height
+        >
           {products.map((product) => (
-            <Grid item xs={12} sm={6} md={4} key={product.id}>
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+              key={product.id}
+              sx={{ display: "flex" }} // make each cell a flex container
+            >
               <Card
                 sx={{
-                  height: "100%",
                   display: "flex",
                   flexDirection: "column",
-                  borderRadius: "25px",
-                  boxShadow: "0 2px 12px rgba(60,72,88,0.07)",
+                  flex: 1, // fill the grid‐cell
+                  maxWidth: 345, // fixed card width
+                  borderRadius: 7,
+                  border: "1.5px solid #e0e0e0",
+                  boxShadow: 'none',
+
                 }}
               >
                 <CardMedia
@@ -318,33 +324,50 @@ export default function ProductsPage() {
                   height="180"
                   image={product.image}
                   alt={product.name}
-                  sx={{ objectFit: "contain", p: 2, background: "#f5f7fa" }}
+                  sx={{
+                    width: "100%",
+                    height: 180,
+                    objectFit: "contain", // fill and crop
+                    transition: "transform 0.3s cubic-bezier(.4,2,.6,1)", // smooth zoom
+                    "&:hover": {
+                      transform: "scale(1.05)", // zoom out slightly on hover
+                      zIndex: 1,
+                    },
+                    cursor: "pointer",
+                    background: "#ffffff",
+                    p: 0,
+                  }}
                 />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography
                     gutterBottom
                     variant="h6"
-                    component="div"
                     sx={{ fontWeight: 700 }}
                   >
                     {product.name}
                   </Typography>
+
                   <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ mb: 1 }}
+                    sx={{
+                      mb: 1,
+                      whiteSpace: "normal", // allow wrapping
+                      wordBreak: "break-word", // break long words
+                    }}
                   >
                     {product.description}
                   </Typography>
+
                   <Typography
                     variant="h6"
                     color="primary"
                     sx={{ fontWeight: 800 }}
                   >
-                    ${product.price.toFixed(2)}
+                    ${Number(product.price).toFixed(2)}
                   </Typography>
                 </CardContent>
-                <CardActions>
+                <CardActions sx={{ mt: "auto" }}>
                   <Button
                     fullWidth
                     variant="contained"
@@ -374,13 +397,9 @@ export default function ProductsPage() {
           ))}
         </Grid>
       </Box>
-      {/* Shopping Cart */}
-      <ShoppingCart
-        cart={cart}
-        open={cartOpen}
-        onClose={handleCartClose}
-        //onCheckout={handleCheckout}
-      />
+
+      {/* cart drawer/modal */}
+      <ShoppingCart cart={cart} open={cartOpen} onClose={handleCartClose} />
     </Box>
   );
 }

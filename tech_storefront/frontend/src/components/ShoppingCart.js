@@ -62,11 +62,11 @@ export default function ShoppingCart({ cart, open, onClose, onCheckout }) {
                 <ListItem key={index} sx={{ py: 1 }}>
                   <ListItemText
                     primary={product.name}
-                    secondary={`$${product.price.toFixed(2)}`}
+                    secondary={`$${Number(product.price).toFixed(2)}`}
                   />
                   <ListItemSecondaryAction>
                     <Typography variant="body2" color="text.secondary">
-                      ${product.price.toFixed(2)}
+                    ${Number(product.price).toFixed(2)}
                     </Typography>
                   </ListItemSecondaryAction>
                 </ListItem>
@@ -88,7 +88,7 @@ export default function ShoppingCart({ cart, open, onClose, onCheckout }) {
             sx={{ fontWeight: 700, display: "flex", justifyContent: "space-between" }}
           >
             <span>Total:</span>
-            <span>${totalPrice.toFixed(2)}</span>
+            <span>${Number(totalPrice).toFixed(2)}</span>
           </Typography>
           <Button
             fullWidth

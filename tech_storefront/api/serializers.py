@@ -39,24 +39,44 @@ class AdminSerializer(serializers.ModelSerializer):
 # Product serializers
 class LaptopSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
+    type = serializers.SerializerMethodField()
+
     class Meta:
         model = Laptop
         fields = '__all__'
 
+    def get_type(self, obj):
+        return "laptop"
+
 class PCSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
+    type = serializers.SerializerMethodField()
+
     class Meta:
         model = PC
         fields = '__all__'
 
+    def get_type(self, obj):
+        return "pc"
+
 class TVSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
+    type = serializers.SerializerMethodField()
+
     class Meta:
         model = TV
         fields = '__all__'
 
+    def get_type(self, obj):
+        return "tv"
+
 class PhoneSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
+    type = serializers.SerializerMethodField()
+
     class Meta:
         model = Phone
         fields = '__all__'
+
+    def get_type(self, obj):
+        return "phone"

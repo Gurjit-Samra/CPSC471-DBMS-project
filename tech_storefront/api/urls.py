@@ -7,6 +7,7 @@ from .views import AdminSignInView
 from .views import CurrentUserView
 from .views import LogoutView
 from .views import AllProductsView
+from .views import ProductDetailView
 
 urlpatterns = [
     path('home', CustomerRegistrationView.as_view()),
@@ -17,5 +18,6 @@ urlpatterns = [
     path('current-user/', CurrentUserView.as_view(), name='current-user'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('products/', AllProductsView.as_view(), name='all-products'),
+    path('products/<str:type>/<int:id>/', ProductDetailView.as_view(), name='product-detail'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

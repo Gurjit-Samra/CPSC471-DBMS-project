@@ -8,6 +8,13 @@ from rest_framework.permissions import IsAuthenticated
 from .models.product_models import Laptop, PC, TV, Phone
 from .serializers import LaptopSerializer, PCSerializer, TVSerializer, PhoneSerializer
 
+PRODUCT_MODEL_MAP = {
+    "laptop": (Laptop, LaptopSerializer),
+    "pc": (PC, PCSerializer),
+    "tv": (TV, TVSerializer),
+    "phone": (Phone, PhoneSerializer),
+}
+
 # Create your views here.
 class CustomerRegistrationView(APIView):
     def post(self, request):
@@ -68,3 +75,15 @@ class AllProductsView(APIView):
             [{"type": "phone", **item} for item in phones]
         )
         return Response(products)
+
+class ProductDetailView(APIView):
+    def get(self, request, type, id):
+        type = type.lower()
+        if type not in PRODUCT_MODEL_MAP:
+            return Response({"detail": "Invalid product type."}, status=status.HTTP_404_NOT_FOUND)
+        Model, Serializer = PRODUCT_MODEL_MAP[type]
+        try:
+            product = Model.objects.get(id=id)
+        except Model.DoesNotExist:
+            return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(Serializer(product).data)

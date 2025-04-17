@@ -6,6 +6,7 @@ import LandingPage from "./LandingPage";
 import ProductsPage from "./ProductsPage";
 import SignInPage from "./SignInPage"
 import CustomerRegistrationPage from "./CustomerRegistrationPage";
+import ProductDetailsPage from "./ProductDetailsPage";
 import AdminSignInPage from "./AdminSignInPage";
 
 export default function App() {
@@ -17,7 +18,7 @@ export default function App() {
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/customer-registration" element={<CustomerRegistrationPage />} />
-          <Route path="/admin-sign-in" element={<AdminSignInPage />} />
+          <Route path="/products/:type/:id" element={<ProductDetailsPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

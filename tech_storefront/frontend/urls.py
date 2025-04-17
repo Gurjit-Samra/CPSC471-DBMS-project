@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from .views import index
 
 urlpatterns = [
@@ -6,6 +6,7 @@ urlpatterns = [
     path('products/', index),
     path('customer-registration/', index),
     path('sign-in/', index),
-    path('admin-sign-in/', index)
+    path('admin-sign-in/', index),
+    re_path(r'^products/.+$', index),  # <-- Add this line
 ]
 

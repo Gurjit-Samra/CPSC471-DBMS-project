@@ -30,6 +30,17 @@ export default function ProductsPage() {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
 
+  const TYPE_DISPLAY_NAMES = {
+    laptop: "Laptops",
+    phone: "Phones",
+    tv: "TVs",
+    pc: "PCs",
+    video_game: "Video Games",
+    console: "Consoles",
+    accessory: "Accessories",
+    all: "All",
+  };
+
   // approximate height of your header box (adjust if needed)
   const HEADER_HEIGHT = 62;
 
@@ -320,16 +331,16 @@ export default function ProductsPage() {
                 variant={filter === cat ? "contained" : "outlined"}
                 onClick={() => setFilter(cat)}
                 sx={{
-                    fontWeight: 600,
-                    borderRadius: "999px",
+                  fontWeight: 600,
+                  borderRadius: "999px",
+                  boxShadow: "none",
+                  "&:hover": {
+                    backgroundColor: "1875D2",
                     boxShadow: "none",
-                    "&:hover": {
-                      backgroundColor: "1875D2",
-                      boxShadow: "none",
-                    },
-                  }}
+                  },
+                }}
               >
-                {cat}
+                {TYPE_DISPLAY_NAMES[cat] || cat}
               </Button>
             ))}
           </Stack>
@@ -346,7 +357,7 @@ export default function ProductsPage() {
                 xs={12}
                 sm={6}
                 md={4}
-                key={product.id}
+                key={`${product.type}${product.id}`} //  unique key
                 sx={{ display: "flex" }} // make each cell a flex container
               >
                 <Card
@@ -362,7 +373,7 @@ export default function ProductsPage() {
                 >
                   <Box
                     sx={{ cursor: "pointer" }}
-                    onClick={() => navigate(`/products/${product.id}`)}
+                    onClick={() => navigate(`/products/${product.type}/${product.id}`)}
                   >
                     <CardMedia
                       component="img"

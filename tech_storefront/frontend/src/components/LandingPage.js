@@ -72,21 +72,25 @@ export default function LandingPage() {
       {/* Header with Cart and User */}
       <Box
         sx={{
-          width: "auto",
-          background: "rgba(255,255,255,1)",
-          border: "1.5px solid #e0e0e0",
-          borderRadius: "12px",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          py: 3, // vertical padding inside the header
-          px: { xs: 2, md: 3 }, // horizontal padding inside the header
-          mt: 2, // margin-top for space from the top
-          mx: { xs: 1, md: 2 }, // margin left/right for space from the sides
-          maxWidth: "calc(100vw - 16px)", // prevent overflow on small screens
-          backdropFilter: "blur(6px)",
-          WebkitBackdropFilter: "blur(6px)",
-        }}
+            width: "auto",
+            background: "rgba(255,255,255,1)",
+            border: "1.5px solid #e0e0e0",
+            borderRadius: "10px 10px 30px 30px", 
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            py: 3,
+            px: { xs: 2, md: 3 },
+            mt: 2,
+            mx: { xs: 1, md: 2 },
+            maxWidth: "calc(100vw - 16px)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+            boxShadow: 6,
+            position: "sticky",
+            top: 0,
+            zIndex: 10,
+          }}
       >
         <Box
           sx={{

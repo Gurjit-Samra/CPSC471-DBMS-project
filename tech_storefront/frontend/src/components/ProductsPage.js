@@ -21,6 +21,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import Link from "@mui/material/Link"; // Add this import
 import { useAuth } from "./AuthContext";
+import TextField from "@mui/material/TextField";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -30,6 +31,7 @@ export default function ProductsPage() {
   const [filter, setFilter] = useState("All");
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
+  const [search, setSearch] = useState("");
 
   const TYPE_DISPLAY_NAMES = {
     laptop: "Laptops",
@@ -41,9 +43,6 @@ export default function ProductsPage() {
     accessory: "Accessories",
     all: "All",
   };
-
-  // approximate height of your header box (adjust if needed)
-  const HEADER_HEIGHT = 62;
 
   // fetch product data from backend
   useEffect(() => {
@@ -123,33 +122,36 @@ export default function ProductsPage() {
   return (
     <Box
       sx={{
-        height: "100vh", // fill viewport
+        height: "100vh",
         width: "100vw",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden", // hide overflow on outer container
         backgroundImage: 'url("/static/hero.jpg")',
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      {/* fixed header */}
+      {/* Header */}
       <Box
         sx={{
           width: "auto",
           background: "rgba(255,255,255,1)",
           border: "1.5px solid #e0e0e0",
-          borderRadius: "12px",
+          borderRadius: "10px 10px 30px 30px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          py: 3, // vertical padding inside the header
-          px: { xs: 2, md: 3 }, // horizontal padding inside the header
-          mt: 2, // margin-top for space from the top
-          mx: { xs: 1, md: 2 }, // margin left/right for space from the sides
-          maxWidth: "calc(100vw - 16px)", // prevent overflow on small screens
+          py: 3,
+          px: { xs: 2, md: 3 },
+          mt: 2,
+          mx: { xs: 1, md: 2 },
+          maxWidth: "calc(100vw - 16px)",
           backdropFilter: "blur(6px)",
           WebkitBackdropFilter: "blur(6px)",
+          boxShadow: 6,
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
         }}
       >
         <Box
@@ -309,17 +311,38 @@ export default function ProductsPage() {
       <Box
         sx={{
           flex: 1,
-          mt: `${HEADER_HEIGHT}px`,
           overflowY: "auto",
           display: "flex",
           justifyContent: "center",
-          alignItems: "flex-start", // keep grid at the top of the area
-          px: 0, // remove horizontal padding
+          alignItems: "flex-start",
+          px: 0,
           py: { xs: 2, md: 4 },
-          width: "100vw", // ensure full width for centering
+          width: "100vw",
         }}
       >
         <Box sx={{ width: "100%", maxWidth: 1200 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              mb: 3,
+            }}
+          >
+            <TextField
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search products..."
+              variant="outlined"
+              sx={{
+                width: 400,
+                background: "#fff",
+                borderRadius: "999px",
+                "& fieldset": { borderRadius: "999px" }, // round the outline
+              }}
+              size="medium"
+            />
+          </Box>
+
           <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>
             Shop Products
           </Typography>
@@ -374,7 +397,9 @@ export default function ProductsPage() {
                 >
                   <Box
                     sx={{ cursor: "pointer" }}
-                    onClick={() => navigate(`/products/${product.type}/${product.id}`)}
+                    onClick={() =>
+                      navigate(`/products/${product.type}/${product.id}`)
+                    }
                   >
                     <CardMedia
                       component="img"

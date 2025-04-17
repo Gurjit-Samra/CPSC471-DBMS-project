@@ -26,6 +26,7 @@ export default function ProductsPage() {
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [filter, setFilter] = useState("All");
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
 
@@ -93,6 +94,20 @@ export default function ProductsPage() {
     navigate("/"); // Redirect to landing page
   };
 
+  // Get unique categories from products
+  const categories = [
+    "All",
+    ...Array.from(
+      new Set(products.map((p) => p.category || p.type || "Other"))
+    ),
+  ];
+
+  // Filter products by category
+  const filteredProducts =
+    filter === "All"
+      ? products
+      : products.filter((p) => (p.category || p.type) === filter);
+
   return (
     <Box
       sx={{
@@ -109,21 +124,21 @@ export default function ProductsPage() {
       {/* fixed header */}
       <Box
         sx={{
-            width: "auto",
-            background: "rgba(255,255,255,1)",
-            border: "1.5px solid #e0e0e0",
-            borderRadius: "12px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            py: 3, // vertical padding inside the header
-            px: { xs: 2, md: 3 }, // horizontal padding inside the header
-            mt: 2, // margin-top for space from the top
-            mx: { xs: 1, md: 2 }, // margin left/right for space from the sides
-            maxWidth: "calc(100vw - 16px)", // prevent overflow on small screens
-            backdropFilter: "blur(6px)",
-            WebkitBackdropFilter: "blur(6px)",
-          }}
+          width: "auto",
+          background: "rgba(255,255,255,1)",
+          border: "1.5px solid #e0e0e0",
+          borderRadius: "12px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          py: 3, // vertical padding inside the header
+          px: { xs: 2, md: 3 }, // horizontal padding inside the header
+          mt: 2, // margin-top for space from the top
+          mx: { xs: 1, md: 2 }, // margin left/right for space from the sides
+          maxWidth: "calc(100vw - 16px)", // prevent overflow on small screens
+          backdropFilter: "blur(6px)",
+          WebkitBackdropFilter: "blur(6px)",
+        }}
       >
         <Box
           sx={{
@@ -282,120 +297,151 @@ export default function ProductsPage() {
       <Box
         sx={{
           flex: 1,
-          mt: `${HEADER_HEIGHT}px`, // push below the fixed header
-          overflowY: "auto", // enable vertical scrolling
-          width: "100%",
-          maxWidth: 1400,
-          mx: "auto",
-          p: { xs: 2, md: 4 },
+          mt: `${HEADER_HEIGHT}px`,
+          overflowY: "auto",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-start", // keep grid at the top of the area
+          px: 0, // remove horizontal padding
+          py: { xs: 2, md: 4 },
+          width: "100vw", // ensure full width for centering
         }}
       >
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>
-          Shop Products
-        </Typography>
-        <Grid
-          container
-          spacing={4}
-          alignItems="stretch" // stretch items to equal height
-        >
-          {products.map((product) => (
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              md={4}
-              key={product.id}
-              sx={{ display: "flex" }} // make each cell a flex container
-            >
-              <Card
+        <Box sx={{ width: "100%", maxWidth: 1200 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>
+            Shop Products
+          </Typography>
+
+          {/* Category Filter Buttons */}
+          <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+            {categories.map((cat) => (
+              <Button
+                key={cat}
+                variant={filter === cat ? "contained" : "outlined"}
+                onClick={() => setFilter(cat)}
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  flex: 1, // fill the grid‐cell
-                  maxWidth: 345, // fixed card width
-                  borderRadius: 7,
-                  border: "1.5px solid #e0e0e0",
-                  boxShadow: 'none',
-
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  height="180"
-                  image={product.image}
-                  alt={product.name}
-                  sx={{
-                    width: "100%",
-                    height: 180,
-                    objectFit: "contain", // fill and crop
-                    transition: "transform 0.3s cubic-bezier(.4,2,.6,1)", // smooth zoom
+                    fontWeight: 600,
+                    borderRadius: "999px",
+                    boxShadow: "none",
                     "&:hover": {
-                      transform: "scale(1.05)", // zoom out slightly on hover
-                      zIndex: 1,
-                    },
-                    cursor: "pointer",
-                    background: "#ffffff",
-                    p: 0,
-                  }}
-                />
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography
-                    gutterBottom
-                    variant="h6"
-                    sx={{ fontWeight: 700 }}
-                  >
-                    {product.name}
-                  </Typography>
-
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      mb: 1,
-                      whiteSpace: "normal", // allow wrapping
-                      wordBreak: "break-word", // break long words
-                    }}
-                  >
-                    {product.description}
-                  </Typography>
-
-                  <Typography
-                    variant="h6"
-                    color="primary"
-                    sx={{ fontWeight: 800 }}
-                  >
-                    ${Number(product.price).toFixed(2)}
-                  </Typography>
-                </CardContent>
-                <CardActions sx={{ mt: "auto" }}>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    sx={{
-                      fontWeight: 600,
-                      borderRadius: "999px",
+                      backgroundColor: "1875D2",
                       boxShadow: "none",
-                      "&:hover": {
-                        backgroundColor: "1875D2",
-                        boxShadow: "none",
-                      },
-                    }}
-                    onClick={() => {
-                      if (user) {
-                        handleAddToCart(product);
-                      } else {
-                        navigate("/sign-in");
-                      }
-                    }}
+                    },
+                  }}
+              >
+                {cat}
+              </Button>
+            ))}
+          </Stack>
+
+          <Grid
+            container
+            spacing={4}
+            alignItems="stretch"
+            sx={{ margin: 0, width: "100%" }}
+          >
+            {filteredProducts.map((product) => (
+              <Grid
+                item
+                xs={12}
+                sm={6}
+                md={4}
+                key={product.id}
+                sx={{ display: "flex" }} // make each cell a flex container
+              >
+                <Card
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    flex: 1, // fill the grid‐cell
+                    maxWidth: 345, // fixed card width
+                    borderRadius: 7,
+                    border: "1.5px solid #e0e0e0",
+                    boxShadow: "none",
+                  }}
+                >
+                  <Box
+                    sx={{ cursor: "pointer" }}
+                    onClick={() => navigate(`/products/${product.id}`)}
                   >
-                    Add to Cart
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                    <CardMedia
+                      component="img"
+                      height="180"
+                      image={product.image}
+                      alt={product.name}
+                      sx={{
+                        width: "100%",
+                        height: 180,
+                        objectFit: "contain", // fill and crop
+                        transition: "transform 0.3s cubic-bezier(.4,2,.6,1)", // smooth zoom
+                        "&:hover": {
+                          transform: "scale(1.05)", // zoom out slightly on hover
+                          zIndex: 1,
+                        },
+                        background: "#ffffff",
+                        p: 0,
+                      }}
+                    />
+                  </Box>
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography
+                      gutterBottom
+                      variant="h6"
+                      sx={{ fontWeight: 700 }}
+                    >
+                      {product.name}
+                    </Typography>
+
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        mb: 1,
+                        whiteSpace: "normal", // allow wrapping
+                        wordBreak: "break-word", // break long words
+                      }}
+                    >
+                      {product.description}
+                    </Typography>
+
+                    <Typography
+                      variant="h6"
+                      color="primary"
+                      sx={{ fontWeight: 800 }}
+                    >
+                      ${Number(product.price).toFixed(2)}
+                    </Typography>
+                  </CardContent>
+                  <CardActions sx={{ mt: "auto" }}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      sx={{
+                        fontWeight: 600,
+                        borderRadius: "999px",
+                        boxShadow: "none",
+                        "&:hover": {
+                          backgroundColor: "1875D2",
+                          boxShadow: "none",
+                        },
+                      }}
+                      onClick={() => {
+                        if (user) {
+                          handleAddToCart(product);
+                        } else {
+                          navigate("/sign-in");
+                        }
+                      }}
+                    >
+                      Add to Cart
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
       </Box>
 
       {/* cart drawer/modal */}

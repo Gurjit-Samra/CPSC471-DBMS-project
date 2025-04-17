@@ -3,7 +3,7 @@ import ProductsPage from "./ProductsPage";
 import CustomerRegistrationPage from "./CustomerRegistrationPage";
 import SignInPage from "./SignInPage";
 import LandingPage from "./LandingPage";
-import AdminSignInPage from "./AdminSignInPage";
+import ProductDetailsPage from "./ProductDetailsPage";
 
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
@@ -19,7 +19,7 @@ export default class HomePage extends Component {
           <Route exact path="/" element={<LandingPage />} />
           <Route path="/customer-registration" element={<CustomerRegistrationPage />} />
           <Route path="/sign-in" element={<SignInPage />} />
-          {/* <Route path="/admin-sign-in" element={<AdminSignInPage />} /> */}
+          {/* <Route path="/admin-sign-in" element={<ProductDetailsPage />} /> */}
           <Route path="/products" element={<ProductsPage />} />
         </Routes>    
       </Router>

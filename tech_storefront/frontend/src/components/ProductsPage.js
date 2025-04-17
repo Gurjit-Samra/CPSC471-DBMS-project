@@ -19,6 +19,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ShoppingCart from "./ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+import Link from "@mui/material/Link"; // Add this import
 import { useAuth } from "./AuthContext";
 
 export default function ProductsPage() {
@@ -395,13 +396,25 @@ export default function ProductsPage() {
                     />
                   </Box>
                   <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography
-                      gutterBottom
-                      variant="h6"
-                      sx={{ fontWeight: 700 }}
+                    <Link
+                      component={RouterLink}
+                      to={`/products/${product.type}/${product.id}`}
+                      underline="hover"
+                      sx={{
+                        fontWeight: 900,
+                        fontSize: "1.1rem",
+                        cursor: "pointer",
+                        color: "inherit",
+                        textDecoration: "none",
+                        "&:hover": {
+                          textDecoration: "underline",
+                        },
+                        mb: 1,
+                        display: "inline-block",
+                      }}
                     >
                       {product.name}
-                    </Typography>
+                    </Link>
 
                     <Typography
                       variant="body2"

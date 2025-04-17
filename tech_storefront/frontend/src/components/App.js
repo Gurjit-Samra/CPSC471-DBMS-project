@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./AuthContext";
 import LandingPage from "./LandingPage";
 import ProductsPage from "./ProductsPage";
-import SignInPage from "./SignInPage"
+import SignInPage from "./SignInPage";
 import CustomerRegistrationPage from "./CustomerRegistrationPage";
 import ProductDetailsPage from "./ProductDetailsPage";
 import AdminSignInPage from "./AdminSignInPage";
@@ -24,7 +24,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-
-const appDiv = document.getElementById("app");
-const root = createRoot(appDiv);
-root.render(<App />);

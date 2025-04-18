@@ -374,6 +374,11 @@ export default function ProductDetailsPage() {
                 </Typography>
 
                 {/* Additional attributes */}
+                {product.brand && (
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    Brand: {product.brand}
+                  </Typography>
+                )}
                 {product.screen_size && (
                   <Typography variant="body2" sx={{ mb: 1 }}>
                     Screen Size: {product.screen_size} inches

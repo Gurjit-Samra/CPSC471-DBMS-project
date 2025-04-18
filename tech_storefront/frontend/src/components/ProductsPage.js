@@ -22,6 +22,7 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import Link from "@mui/material/Link"; // Add this import
 import { useAuth } from "./AuthContext";
 import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -29,6 +30,7 @@ export default function ProductsPage() {
   const [cartOpen, setCartOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [filter, setFilter] = useState("All");
+  const [suggestions, setSuggestions] = useState([]);
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
   const [search, setSearch] = useState("");
@@ -46,8 +48,10 @@ export default function ProductsPage() {
 
   // fetch product data from backend
   useEffect(() => {
-    fetch("/api/products/", {
-      credentials: "include", // for session/csrf
+    const params = new URLSearchParams();
+    if (search) params.append("search", search);
+    fetch(`/api/products/?${params.toString()}`, {
+      credentials: "include",
     })
       .then((res) => res.json())
       .then((data) => setProducts(data))
@@ -55,7 +59,19 @@ export default function ProductsPage() {
         console.error("Failed to fetch products:", err);
         setProducts([]); // fallback
       });
-  }, []);
+  }, [search]);
+
+  // Searching from the backend
+  useEffect(() => {
+    if (!search) {
+      setSuggestions([]);
+      return;
+    }
+    fetch(`/api/products/suggestions/?q=${encodeURIComponent(search)}`)
+      .then((res) => res.json())
+      .then((data) => setSuggestions(data))
+      .catch(() => setSuggestions([]));
+  }, [search]);
 
   const handleAddToCart = (product) => {
     setCart((prev) => [...prev, product]);
@@ -328,18 +344,30 @@ export default function ProductsPage() {
               mb: 3,
             }}
           >
-            <TextField
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search products..."
-              variant="outlined"
-              sx={{
-                width: 400,
-                background: "#fff",
-                borderRadius: "999px",
-                "& fieldset": { borderRadius: "999px" }, // round the outline
+            <Autocomplete
+              freeSolo
+              options={suggestions}
+              inputValue={search}
+              onInputChange={(event, newInputValue) => setSearch(newInputValue)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder="Search products..."
+                  variant="outlined"
+                  sx={{
+                    width: 400,
+                    background: "#fff",
+                    borderRadius: "999px",
+                    "& fieldset": { borderRadius: "999px" },
+                  }}
+                  size="medium"
+                />
+              )}
+              slotProps={{
+                paper: {
+                  sx: { borderRadius: 5, boxShadow: 8 }
+                }
               }}
-              size="medium"
             />
           </Box>
 

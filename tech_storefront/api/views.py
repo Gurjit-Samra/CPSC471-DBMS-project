@@ -5,8 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.permissions import IsAuthenticated
-from .models.product_models import Laptop, PC, TV, Phone
-from .serializers import LaptopSerializer, PCSerializer, TVSerializer, PhoneSerializer
+from .models.product_models import Laptop, PC, TV, Phone, Console, Video_Game, Accessory
+from .serializers import LaptopSerializer, PCSerializer, TVSerializer, PhoneSerializer, ConsoleSerializer, AccessorySerializer, VideoGameSerializer
 from django.db.models import Q
 from rest_framework.decorators import api_view
 
@@ -15,6 +15,9 @@ PRODUCT_MODEL_MAP = {
     "pc": (PC, PCSerializer),
     "tv": (TV, TVSerializer),
     "phone": (Phone, PhoneSerializer),
+    "console": (Console, ConsoleSerializer),
+    "video_game": (Video_Game, VideoGameSerializer),
+    "accessory": (Accessory, AccessorySerializer)
 }
 
 # Create your views here.
@@ -70,12 +73,18 @@ class AllProductsView(APIView):
         pcs = PC.objects.all()
         tvs = TV.objects.all()
         phones = Phone.objects.all()
+        consoles = Console.objects.all()
+        video_games = Video_Game.objects.all()
+        accessories = Accessory.objects.all()
 
         type_keywords = {
             "laptop": laptops,
             "pc": pcs,
             "tv": tvs,
             "phone": phones,
+            "console": consoles,
+            "video_game": video_games,
+            "accessory": accessories
         }
 
         # Split search into words and check for type keyword
@@ -101,15 +110,24 @@ class AllProductsView(APIView):
             pcs = pcs.none()
             tvs = tvs.none()
             phones = phones.none()
+            video_games = video_games.none()
+            consoles = consoles.none()
+            accessories = accessories.none()
 
-            if matched_type == "laptop":
+            if matched_type in ("laptop", "laptops"):
                 laptops = Laptop.objects.filter(query)
-            elif matched_type == "pc":
+            elif matched_type in ("pc", "pcs"):
                 pcs = PC.objects.filter(query)
-            elif matched_type == "tv":
+            elif matched_type in ("tv", "tvs"):
                 tvs = TV.objects.filter(query)
-            elif matched_type == "phone":
+            elif matched_type in ("phone", "phones"):
                 phones = Phone.objects.filter(query)
+            elif matched_type in ("console", "consoles"):
+                consoles = Console.objects.filter(query)
+            elif matched_type in ("video game", "video games", "game", "games"):
+                video_games = Video_Game.objects.filter(query)
+            elif matched_type in ("accessory", "accessories"):
+                accessories = Accessory.objects.filter(query)
         elif search:
             laptop_query = (
                 Q(name__icontains=search) |
@@ -131,22 +149,47 @@ class AllProductsView(APIView):
                 Q(description__icontains=search) |
                 Q(brand__icontains=search)
             )
+            console_query = (
+                Q(name__icontains=search) |
+                Q(description__icontains=search) |
+                Q(brand__icontains=search)
+            )
+            accessory_query = (
+                Q(name__icontains=search) |
+                Q(description__icontains=search) |
+                Q(brand__icontains=search)
+            )
+            video_game_query = (
+                Q(name__icontains=search) |
+                Q(description__icontains=search) |
+                Q(brand__icontains=search) |
+                Q(genre__icontains=search)
+            )
 
             laptops = laptops.filter(laptop_query)
             pcs = pcs.filter(pc_query)
             tvs = tvs.filter(tv_query)
             phones = phones.filter(phone_query)
+            consoles = Console.objects.filter(console_query)
+            video_games = Video_Game.objects.filter(video_game_query)
+            accessories = Accessory.objects.filter(accessory_query)
 
         laptops = LaptopSerializer(laptops, many=True).data
         pcs = PCSerializer(pcs, many=True).data
         tvs = TVSerializer(tvs, many=True).data
         phones = PhoneSerializer(phones, many=True).data
+        consoles = ConsoleSerializer(consoles, many=True).data
+        video_games = VideoGameSerializer(video_games, many=True).data
+        accessories = AccessorySerializer(accessories, many=True).data
 
         products = (
             [{"type": "laptop", **item} for item in laptops] +
             [{"type": "pc", **item} for item in pcs] +
             [{"type": "tv", **item} for item in tvs] +
-            [{"type": "phone", **item} for item in phones]
+            [{"type": "phone", **item} for item in phones] +
+            [{"type": "console", **item} for item in consoles] +
+            [{"type": "video_game", **item} for item in video_games] +
+            [{"type": "accessory", **item} for item in accessories]
         )
         return Response(products)
 
@@ -172,11 +215,17 @@ def product_suggestions(request):
         suggestions.update(PC.objects.filter(name__icontains=q).values_list('name', flat=True)[:5])
         suggestions.update(TV.objects.filter(name__icontains=q).values_list('name', flat=True)[:5])
         suggestions.update(Phone.objects.filter(name__icontains=q).values_list('name', flat=True)[:5])
+        suggestions.update(Console.objects.filter(name__icontains=q).values_list('name', flat=True)[:5])
+        suggestions.update(Video_Game.objects.filter(name__icontains=q).values_list('name', flat=True)[:5])
+        suggestions.update(Accessory.objects.filter(name__icontains=q).values_list('name', flat=True)[:5])
 
         suggestions.update(Laptop.objects.filter(brand__icontains=q).values_list('brand', flat=True)[:5])
         suggestions.update(PC.objects.filter(brand__icontains=q).values_list('brand', flat=True)[:5])
         suggestions.update(TV.objects.filter(brand__icontains=q).values_list('brand', flat=True)[:5])
         suggestions.update(Phone.objects.filter(brand__icontains=q).values_list('brand', flat=True)[:5])
+        suggestions.update(Console.objects.filter(brand__icontains=q).values_list('brand', flat=True)[:5])
+        suggestions.update(Video_Game.objects.filter(brand__icontains=q).values_list('brand', flat=True)[:5])
+        suggestions.update(Accessory.objects.filter(brand__icontains=q).values_list('brand', flat=True)[:5])
 
     # Remove empty strings and return as a list
     return Response([s for s in suggestions if s])

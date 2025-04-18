@@ -42,6 +42,7 @@ class Phone(Product):
     screen_size = models.PositiveIntegerField(help_text="Size in inches")
     resolution = models.CharField(max_length=10)
 
+# Abstract video game product
 class Video_Game_Product(Product):
     class Meta:
         abstract = True

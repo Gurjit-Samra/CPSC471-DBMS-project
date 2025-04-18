@@ -336,7 +336,14 @@ export default function ProductsPage() {
           width: "100vw",
         }}
       >
-        <Box sx={{ width: "100%", maxWidth: 1200 }}>
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: 1200,
+            px: { xs: 2, sm: 3, md: 4 },
+            boxSizing: "border-box",
+          }}
+        >
           <Box
             sx={{
               display: "flex",

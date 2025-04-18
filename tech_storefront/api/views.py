@@ -168,12 +168,11 @@ def product_suggestions(request):
     suggestions = set()
 
     if q:
-        # You can add more models or fields as needed
         suggestions.update(Laptop.objects.filter(name__icontains=q).values_list('name', flat=True)[:5])
         suggestions.update(PC.objects.filter(name__icontains=q).values_list('name', flat=True)[:5])
         suggestions.update(TV.objects.filter(name__icontains=q).values_list('name', flat=True)[:5])
         suggestions.update(Phone.objects.filter(name__icontains=q).values_list('name', flat=True)[:5])
-        # Optionally add brand suggestions:
+
         suggestions.update(Laptop.objects.filter(brand__icontains=q).values_list('brand', flat=True)[:5])
         suggestions.update(PC.objects.filter(brand__icontains=q).values_list('brand', flat=True)[:5])
         suggestions.update(TV.objects.filter(brand__icontains=q).values_list('brand', flat=True)[:5])

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models.user_models import Admin, Customer
-from .models.product_models import Laptop, PC, TV, Phone, Console, Video_Game, Accessory
+from .models.product_models import Laptop, PC, TV, Phone, Accessory, Console, Video_Game
 
 @admin.register(Admin)
 class AdminUserAdmin(admin.ModelAdmin):

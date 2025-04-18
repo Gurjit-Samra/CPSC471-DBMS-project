@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models.user_models import User, Customer, Admin
-from .models.product_models import Laptop, PC, TV, Phone, Video_Game, Console, Accessory
+from .models.product_models import Laptop, PC, TV, Phone, Accessory
 
 # User serializers
 class UserSerializer(serializers.ModelSerializer):
@@ -38,7 +38,7 @@ class AdminSerializer(serializers.ModelSerializer):
 
 # Product serializers
 class LaptopSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(use_url=True)
+    image = serializers.ImageField(use_url=True)    
     type = serializers.SerializerMethodField()
 
     class Meta:
@@ -80,3 +80,14 @@ class PhoneSerializer(serializers.ModelSerializer):
 
     def get_type(self, obj):
         return "phone"
+
+# class VideoGameSerializer(serializers.ModelSerializer):
+#     image = serializers.ImageField(use_url=True)
+#     type = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = Video_Game
+#         fields = '__all__'
+
+#     def get_type(self, obj):
+#         return "video_game"

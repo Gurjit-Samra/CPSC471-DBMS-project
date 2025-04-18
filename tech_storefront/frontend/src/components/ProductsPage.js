@@ -481,8 +481,13 @@ export default function ProductsPage() {
                       color="text.secondary"
                       sx={{
                         mb: 1,
-                        whiteSpace: "normal", // allow wrapping
-                        wordBreak: "break-word", // break long words
+                        whiteSpace: "normal",
+                        wordBreak: "break-word",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
                       }}
                     >
                       {product.description}

@@ -107,17 +107,13 @@ export default function ProductDetailsPage() {
     navigate("/"); // Redirect to landing page
   };
 
-  // approximate height of your header box (adjust if needed)
-  const HEADER_HEIGHT = 62;
-
   return (
     <Box
-      sx={{
+    sx={{
         height: "100vh",
         width: "100vw",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden",
         backgroundImage: 'url("/static/hero.jpg")',
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -301,7 +297,6 @@ export default function ProductDetailsPage() {
       <Box
         sx={{
           flex: 1,
-          mt: `${HEADER_HEIGHT}px`,
           overflowY: "auto",
           display: "flex",
           justifyContent: "center",
@@ -366,9 +361,17 @@ export default function ProductDetailsPage() {
                 >
                   ${Number(product.price).toFixed(2)}
                 </Typography>
-                <Typography variant="body1" sx={{ mb: 2 }}>
-                  {product.description}
-                </Typography>
+                {product.description && (
+                  <Box component="ul" sx={{ pl: 3, mb: 2 }}>
+                    {product.description.split('\n').map((line, idx) =>
+                      line.trim() && (
+                        <li key={idx}>
+                          <Typography variant="body1">{line}</Typography>
+                        </li>
+                      )
+                    )}
+                  </Box>
+                )}
                 <Typography variant="body2" sx={{ mb: 2, color: "#607d8b" }}>
                   Category: {TYPE_DISPLAY_NAMES[product.type] || product.type}
                 </Typography>

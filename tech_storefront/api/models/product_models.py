@@ -56,4 +56,4 @@ class Console(Video_Game_Product):
 
 class Video_Game(Video_Game_Product):
     age_rating = models.CharField(max_length=10)
-    genre = models.CharField(max_length=10)
+    genre = models.CharField(max_length=25)

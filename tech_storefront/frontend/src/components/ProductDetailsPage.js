@@ -109,7 +109,7 @@ export default function ProductDetailsPage() {
 
   return (
     <Box
-    sx={{
+      sx={{
         height: "100vh",
         width: "100vw",
         display: "flex",
@@ -122,175 +122,156 @@ export default function ProductDetailsPage() {
       {/* Header */}
       <Box
         sx={{
-            width: "auto",
-            background: "rgba(255,255,255,1)",
-            border: "1.5px solid #e0e0e0",
-            borderRadius: "10px 10px 30px 30px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            py: 3,
-            px: { xs: 2, md: 3 },
-            mt: 2,
-            mx: { xs: 1, md: 2 },
-            maxWidth: "calc(100vw - 16px)",
-            backdropFilter: "blur(6px)",
-            WebkitBackdropFilter: "blur(6px)",
-            boxShadow: 6,
-            position: "sticky",
-            top: 0,
-            zIndex: 10,
-          }}
-      >
-        <Box
-          sx={{
             width: "100%",
-            maxWidth: 1400,
+            background: "rgba(255,255,255,0.95)",
+            borderBottom: "1.5px solid #e0e0e0",
+            borderRadius: "0px 0px 15px 15px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            px: { xs: 2, md: 8 },
+            px: { xs: 2, md: 4 },
+            py: 1,
+            minHeight: 56,
+          }}
+      >
+        <RouterLink
+          to="/"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            textDecoration: "none",
           }}
         >
-          <RouterLink
-            to="/"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              textDecoration: "none",
+          <Box
+            component="img"
+            src="/static/favicon2.ico"
+            alt="FGG Tech"
+            sx={{
+              width: 36,
+              height: 36,
+              mr: 2,
             }}
+          />
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 800, letterSpacing: 0, color: "black" }}
           >
-            <Box
-              component="img"
-              src="/static/favicon2.ico"
-              alt="FGG Tech"
-              sx={{
-                width: 50,
-                height: 50,
-                mr: 3,
-              }}
-            />
-            <Typography
-              variant="h4"
-              sx={{ fontWeight: 800, letterSpacing: 0, color: "black" }}
-            >
-              FGG Tech
-            </Typography>
-          </RouterLink>
-          <Stack direction="row" spacing={2} alignItems="center">
-            {!user && (
-              <>
-                <Button
-                  component={RouterLink}
-                  to="/sign-in"
-                  variant="outlined"
-                  color="primary"
-                  sx={{
-                    fontWeight: 600,
-                    borderRadius: "999px",
+            FGG Tech
+          </Typography>
+        </RouterLink>
+        <Stack direction="row" spacing={2} alignItems="center">
+          {!user && (
+            <>
+              <Button
+                component={RouterLink}
+                to="/sign-in"
+                variant="outlined"
+                color="primary"
+                sx={{
+                  fontWeight: 600,
+                  borderRadius: "999px",
+                  boxShadow: "none",
+                  "&:hover": {
+                    backgroundColor: "1875D2",
                     boxShadow: "none",
-                    "&:hover": {
-                      backgroundColor: "1875D2",
-                      boxShadow: "none",
-                    },
+                  },
+                }}
+              >
+                Sign In
+              </Button>
+              <Button
+                component={RouterLink}
+                to="/customer-registration"
+                variant="contained"
+                color="primary"
+                sx={{
+                  fontWeight: 600,
+                  borderRadius: "999px",
+                  boxShadow: "none",
+                  "&:hover": {
+                    backgroundColor: "1875D2",
+                    boxShadow: "none",
+                  },
+                }}
+              >
+                Create Account
+              </Button>
+            </>
+          )}
+          {user && (
+            <>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <IconButton onClick={handleMenuOpen}>
+                  <AccountCircleIcon color="primary" fontSize="large" />
+                </IconButton>
+                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                  {user.email}
+                </Typography>
+              </Stack>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                PaperProps={{
+                  sx: {
+                    borderRadius: 3,
+                    boxShadow: "0 4px 24px rgba(60,72,88,0.15)",
+                    minWidth: 220,
+                    p: 1,
+                  },
+                }}
+              >
+                <MenuItem
+                  sx={{
+                    borderRadius: 3,
+                    pointerEvents: "none",
+                    backgroundColor: "transparent !important",
+                    px: 2,
+                    py: 1,
                   }}
                 >
-                  Sign In
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to="/customer-registration"
-                  variant="contained"
-                  color="primary"
+                  <Typography variant="subtitle2">{user.email}</Typography>
+                </MenuItem>
+                <Divider />
+                <MenuItem
                   sx={{
-                    fontWeight: 600,
-                    borderRadius: "999px",
-                    boxShadow: "none",
-                    "&:hover": {
-                      backgroundColor: "1875D2",
-                      boxShadow: "none",
-                    },
+                    borderRadius: 3,
+                    pointerEvents: "none",
+                    backgroundColor: "transparent !important",
+                    px: 2,
+                    py: 1,
                   }}
                 >
-                  Create Account
-                </Button>
-              </>
-            )}
-            {user && (
-              <>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <IconButton onClick={handleMenuOpen}>
-                    <AccountCircleIcon color="primary" fontSize="large" />
-                  </IconButton>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {user.email}
+                  <Typography variant="body2">
+                    {user.street_address}, {user.city}, {user.state},{" "}
+                    {user.country}
                   </Typography>
-                </Stack>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleMenuClose}
-                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                  transformOrigin={{ vertical: "top", horizontal: "right" }}
-                  PaperProps={{
-                    sx: {
-                      borderRadius: 3,
-                      boxShadow: "0 4px 24px rgba(60,72,88,0.15)",
-                      minWidth: 220,
-                      p: 1,
-                    },
+                </MenuItem>
+                <Divider />
+                <MenuItem
+                  onClick={handleSignOut}
+                  sx={{
+                    borderRadius: 3,
+                    px: 2,
+                    py: 1,
+                    "&:hover": { backgroundColor: "#f0f4fa" },
+                    borderBottomLeftRadius: 12,
+                    borderBottomRightRadius: 12,
                   }}
                 >
-                  <MenuItem
-                    sx={{
-                      borderRadius: 3,
-                      pointerEvents: "none",
-                      backgroundColor: "transparent !important",
-                      px: 2,
-                      py: 1,
-                    }}
-                  >
-                    <Typography variant="subtitle2">{user.email}</Typography>
-                  </MenuItem>
-                  <Divider />
-                  <MenuItem
-                    sx={{
-                      borderRadius: 3,
-                      pointerEvents: "none",
-                      backgroundColor: "transparent !important",
-                      px: 2,
-                      py: 1,
-                    }}
-                  >
-                    <Typography variant="body2">
-                      {user.street_address}, {user.city}, {user.state},{" "}
-                      {user.country}
-                    </Typography>
-                  </MenuItem>
-                  <Divider />
-                  <MenuItem
-                    onClick={handleSignOut}
-                    sx={{
-                      borderRadius: 3,
-                      px: 2,
-                      py: 1,
-                      "&:hover": { backgroundColor: "#f0f4fa" },
-                      borderBottomLeftRadius: 12,
-                      borderBottomRightRadius: 12,
-                    }}
-                  >
-                    <Typography color="error">Sign Out</Typography>
-                  </MenuItem>
-                </Menu>
-              </>
-            )}
-            <IconButton color="primary" sx={{ ml: 2 }} onClick={handleCartOpen}>
-              <Badge badgeContent={cart.length} color="secondary">
-                <ShoppingCartIcon />
-              </Badge>
-            </IconButton>
-          </Stack>
-        </Box>
+                  <Typography color="error">Sign Out</Typography>
+                </MenuItem>
+              </Menu>
+            </>
+          )}
+          <IconButton color="primary" sx={{ ml: 2 }} onClick={handleCartOpen}>
+            <Badge badgeContent={cart.length} color="secondary">
+              <ShoppingCartIcon />
+            </Badge>
+          </IconButton>
+        </Stack>
       </Box>
 
       {/* Product Details Section */}
@@ -363,12 +344,13 @@ export default function ProductDetailsPage() {
                 </Typography>
                 {product.description && (
                   <Box component="ul" sx={{ pl: 3, mb: 2 }}>
-                    {product.description.split('\n').map((line, idx) =>
-                      line.trim() && (
-                        <li key={idx}>
-                          <Typography variant="body1">{line}</Typography>
-                        </li>
-                      )
+                    {product.description.split("\n").map(
+                      (line, idx) =>
+                        line.trim() && (
+                          <li key={idx}>
+                            <Typography variant="body1">{line}</Typography>
+                          </li>
+                        )
                     )}
                   </Box>
                 )}

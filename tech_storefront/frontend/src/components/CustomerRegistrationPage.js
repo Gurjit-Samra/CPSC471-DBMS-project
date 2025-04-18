@@ -224,24 +224,16 @@ export default function SignUp(props) {
         {/* Header */}
         <Box
           sx={{
-            width: "auto",
-            background: "rgba(255,255,255,1)",
-            border: "1.5px solid #e0e0e0",
-            borderRadius: "10px 10px 30px 30px",
+            width: "100%",
+            background: "rgba(255,255,255,0.95)",
+            borderBottom: "1.5px solid #e0e0e0",
+            borderRadius: "0px 0px 15px 15px",
             display: "flex",
-            justifyContent: "center",
             alignItems: "center",
-            py: 3,
-            px: { xs: 2, md: 3 },
-            mt: 2,
-            mx: { xs: 1, md: 2 },
-            maxWidth: "calc(100vw - 16px)",
-            backdropFilter: "blur(6px)",
-            WebkitBackdropFilter: "blur(6px)",
-            boxShadow: 6,
-            position: "sticky",
-            top: 0,
-            zIndex: 10,
+            justifyContent: "space-between",
+            px: { xs: 2, md: 4 },
+            py: 1,
+            minHeight: 56,
           }}
         >
           <Box
@@ -260,12 +252,12 @@ export default function SignUp(props) {
                 src="/static/favicon2.ico"
                 alt="FGG Tech"
                 sx={{
-                  width: 50,
-                  height: 50,
+                  width: 36,
+                  height: 36,
                   mr: 3,
                 }}
               />
-              <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: 0, color: "black" }}>
+              <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 0, color: "black" }}>
                 FGG Tech
               </Typography>
             </RouterLink>
@@ -322,6 +314,7 @@ export default function SignUp(props) {
               overflowY: "auto",
               display: "flex",
               flexDirection: "column",
+              borderRadius: 8,
             }}
           >
             <Typography
@@ -349,6 +342,11 @@ export default function SignUp(props) {
                     error={nameError}
                     helperText={nameErrorMessage}
                     color={nameError ? 'error' : 'primary'}
+                    sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "12px",
+                        },
+                      }}
                   />
                 </FormControl>
                 <FormControl fullWidth>
@@ -362,6 +360,11 @@ export default function SignUp(props) {
                     error={nameError}
                     helperText={nameErrorMessage}
                     color={nameError ? 'error' : 'primary'}
+                    sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "12px",
+                        },
+                      }}
                   />
                 </FormControl>
               </Box>
@@ -380,6 +383,11 @@ export default function SignUp(props) {
                   error={emailError}
                   helperText={emailErrorMessage}
                   color={emailError ? 'error' : 'primary'}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "12px",
+                    },
+                  }}
                 />
               </FormControl>
 
@@ -398,6 +406,11 @@ export default function SignUp(props) {
                   error={passwordError}
                   helperText={passwordErrorMessage}
                   color={passwordError ? 'error' : 'primary'}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "12px",
+                    },
+                  }}
                 />
               </FormControl>
 
@@ -410,6 +423,11 @@ export default function SignUp(props) {
                     id="country"
                     name="country"
                     placeholder="Canada"
+                    sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "12px",
+                        },
+                      }}
                   />
                 </FormControl>
                 <FormControl fullWidth>
@@ -419,6 +437,11 @@ export default function SignUp(props) {
                     id="city"
                     name="city"
                     placeholder="Calgary"
+                    sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "12px",
+                        },
+                      }}
                   />
                 </FormControl>
               </Box>
@@ -431,6 +454,11 @@ export default function SignUp(props) {
                     id="state"
                     name="state"
                     placeholder="Alberta"
+                    sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "12px",
+                        },
+                      }}
                   />
                 </FormControl>
                 <FormControl fullWidth>
@@ -440,6 +468,11 @@ export default function SignUp(props) {
                     id="zip_code"
                     name="zip_code"
                     placeholder="T2N 1N4"
+                    sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "12px",
+                        },
+                      }}
                   />
                 </FormControl>
               </Box>
@@ -453,6 +486,11 @@ export default function SignUp(props) {
                   id="street_address"
                   name="street_address"
                   placeholder="123 Main St"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "12px",
+                    },
+                  }}
                 />
               </FormControl>
 

@@ -94,6 +94,8 @@ export default function WriteReviewPage() {
           display: "flex",
           flexDirection: "column",
           position: "relative",
+          height: "100vh",
+          overflowY: "auto",
         }}
       >
         {/* Header */}

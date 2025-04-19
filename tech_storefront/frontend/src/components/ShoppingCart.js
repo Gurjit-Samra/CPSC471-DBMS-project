@@ -2,13 +2,11 @@ import React from "react";
 import {
   Box,
   Typography,
-  Divider,
   IconButton,
   Button,
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
   Slide,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -64,11 +62,9 @@ export default function ShoppingCart({ cart, open, onClose, onCheckout }) {
                     primary={product.name}
                     secondary={`$${Number(product.price).toFixed(2)}`}
                   />
-                  <ListItemSecondaryAction>
-                    <Typography variant="body2" color="text.secondary">
-                    ${Number(product.price).toFixed(2)}
-                    </Typography>
-                  </ListItemSecondaryAction>
+                  <Typography variant="body2" color="text.secondary">
+                  ${Number(product.price).toFixed(2)}
+                  </Typography>
                 </ListItem>
               ))}
             </List>

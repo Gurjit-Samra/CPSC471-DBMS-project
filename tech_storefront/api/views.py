@@ -1,10 +1,10 @@
 from rest_framework import status
 from .models.user_models import Customer, Admin
-from .serializers import CreateCustomerSerializer, CustomerSerializer, UserSerializer
+from .models.cart_models import Cart_Includes
+from .serializers import CreateCustomerSerializer, CustomerSerializer, UserSerializer, CartItemSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
-from rest_framework.permissions import IsAuthenticated
 from .models.product_models import Laptop, PC, TV, Phone, Console, Video_Game, Accessory
 from .serializers import LaptopSerializer, PCSerializer, TVSerializer, PhoneSerializer, ConsoleSerializer, AccessorySerializer, VideoGameSerializer
 from django.db.models import Q
@@ -229,3 +229,32 @@ def product_suggestions(request):
 
     # Remove empty strings and return as a list
     return Response([s for s in suggestions if s])
+
+class CartView(APIView):
+
+    def get(self, request):
+        customer_email = request.user_email
+        cart_items = Cart_Includes.objects.filter(customer_email=customer_email)
+        serializer = CartItemSerializer(cart_items, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        data = request.data
+        cart_item, created = Cart_Includes.objects.get_or_create(
+            customer_email=data["user_email"],
+            product_id=data["product_id"],
+            defaults={
+                "quantity": data["quantity"],
+            },
+        )
+        if not created:
+            cart_item.quantity += data["quantity"]
+            cart_item.save()
+        serializer = CartItemSerializer(cart_item)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request):
+        customer_email = request.user_email
+        product_id = request.product_id
+        Cart_Includes.objects.filter(customer_email=customer_email, product_id=product_id).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

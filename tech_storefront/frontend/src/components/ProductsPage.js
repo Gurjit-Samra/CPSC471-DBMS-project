@@ -73,22 +73,6 @@ export default function ProductsPage() {
       .catch(() => setSuggestions([]));
   }, [search]);
 
-  const handleAddToCart = (product) => {
-    setCart((prev) => [...prev, product]);
-  };
-
-  const handleCartOpen = () => {
-    setCartOpen(true);
-  };
-
-  const handleCartClose = () => {
-    setCartOpen(false);
-  };
-
-  // Menu open/close handlers
-  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
-
   // Helper function to get CSRF token
   const getCookie = (name) => {
     let cookieValue = null;
@@ -104,6 +88,82 @@ export default function ProductsPage() {
     }
     return cookieValue;
   };
+
+  const handleAddToCart = async (product) => {
+    const csrftoken = getCookie("csrftoken");
+    try {
+      const response = await fetch("/api/cart/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken, // Include CSRF token
+        },
+        credentials: "include", // Include cookies for authentication
+        body: JSON.stringify({
+          user_email: user.email,
+          product_id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: 1, // Default quantity is 1
+        }),
+      });
+  
+      if (response.ok) {
+        const updatedCartItem = await response.json();
+        setCart((prev) => {
+          const existingItem = prev.find((item) => item.product_id === updatedCartItem.product_id);
+          if (existingItem) {
+            return prev.map((item) =>
+              item.product_id === updatedCartItem.product_id ? updatedCartItem : item
+            );
+          } else {
+            return [...prev, updatedCartItem];
+          }
+        });
+      }
+      handleCartOpen();
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
+  };
+
+
+  const handleRemoveFromCart = async (productId) => {
+    const csrftoken = getCookie("csrftoken");
+    try {
+      const response = await fetch("/api/cart/", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken, // Include CSRF token
+        },
+        credentials: "include", // Include cookies for authentication
+        body: JSON.stringify({ 
+          user_email: user.email,
+          product_id: productId 
+        }),
+      });
+  
+      if (response.ok) {
+        setCart((prev) => prev.filter((item) => item.product_id !== productId));
+      }
+    } catch (error) {
+      console.error("Error removing from cart:", error);
+    }
+  };
+
+
+  const handleCartOpen = () => {
+    setCartOpen(true);
+  };
+
+  const handleCartClose = () => {
+    setCartOpen(false);
+  };
+
+  // Menu open/close handlers
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
 
   // Sign out handler
   const handleSignOut = async () => {

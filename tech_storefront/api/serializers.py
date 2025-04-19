@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models.user_models import User, Customer, Admin
 from .models.product_models import Laptop, PC, TV, Phone, Accessory, Video_Game, Console
+from .models.cart_models import Cart_Includes
 
 # User serializers
 class UserSerializer(serializers.ModelSerializer):
@@ -77,7 +78,7 @@ class PhoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Phone
         fields = '__all__'
-
+    
     def get_type(self, obj):
         return "phone"
 
@@ -113,3 +114,9 @@ class AccessorySerializer(serializers.ModelSerializer):
 
     def get_type(self, obj):
         return "accessory"
+    
+# Cart serializers
+class CartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart_Includes
+        fields = ('customer_email', 'product_id', 'quantity')

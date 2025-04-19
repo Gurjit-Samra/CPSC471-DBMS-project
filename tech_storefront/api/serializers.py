@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models.user_models import User, Customer, Admin
 from .models.product_models import Laptop, PC, TV, Phone, Accessory, Video_Game, Console
 from .models.cart_models import Cart_Includes
+from .models.review_models import Review
 
 # User serializers
 class UserSerializer(serializers.ModelSerializer):
@@ -120,3 +121,20 @@ class CartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart_Includes
         fields = ('customer_email', 'product_id', 'quantity')
+
+# Review serializer
+class ReviewSerializer(serializers.ModelSerializer):
+    customer_first_name = serializers.CharField(source="customer.first_name", read_only=True)
+    customer_last_name = serializers.CharField(source="customer.last_name", read_only=True)
+
+    class Meta:
+        model = Review
+        fields = [
+            "id",
+            "review_text",
+            "rating",
+            "customer_first_name",
+            "customer_last_name",
+            "product_type",
+            "product_id",
+        ]

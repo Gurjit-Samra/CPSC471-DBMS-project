@@ -72,22 +72,22 @@ export default function LandingPage() {
       {/* Header with Cart and User */}
       <Box
         sx={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            background: "rgba(255,255,255,0.5)",
-            borderBottom: "1.5px solid rgb(237, 237, 237, 0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            px: { xs: 2, md: 4 },
-            py: 1,
-            minHeight: 56,
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            zIndex: 10,
-          }}
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          background: "rgba(255,255,255,0.5)",
+          borderBottom: "1.5px solid rgb(237, 237, 237, 0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          px: { xs: 2, md: 4 },
+          py: 1,
+          minHeight: 56,
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          zIndex: 10,
+        }}
       >
         <RouterLink
           to="/"
@@ -161,7 +161,7 @@ export default function LandingPage() {
                   <AccountCircleIcon color="primary" fontSize="large" />
                 </IconButton>
                 <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                  {user.email}
+                  {user.first_name} {user.last_name}
                 </Typography>
               </Stack>
               <Menu

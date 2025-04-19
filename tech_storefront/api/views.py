@@ -1,4 +1,4 @@
-from rest_framework import status
+from rest_framework import status, generics, permissions
 from .models.user_models import Customer, Admin
 from .models.cart_models import Cart_Includes
 from .serializers import CreateCustomerSerializer, CustomerSerializer, UserSerializer, CartItemSerializer
@@ -9,6 +9,8 @@ from .models.product_models import Laptop, PC, TV, Phone, Console, Video_Game, A
 from .serializers import LaptopSerializer, PCSerializer, TVSerializer, PhoneSerializer, ConsoleSerializer, AccessorySerializer, VideoGameSerializer
 from django.db.models import Q
 from rest_framework.decorators import api_view
+from .models.review_models import Review
+from .serializers import ReviewSerializer
 
 PRODUCT_MODEL_MAP = {
     "laptop": (Laptop, LaptopSerializer),
@@ -203,7 +205,10 @@ class ProductDetailView(APIView):
             product = Model.objects.get(id=id)
         except Model.DoesNotExist:
             return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
-        return Response(Serializer(product).data)
+        product_data = Serializer(product).data
+        reviews = Review.objects.filter(product_type=type, product_id=id)
+        product_data["reviews"] = ReviewSerializer(reviews, many=True).data
+        return Response(product_data)
 
 @api_view(['GET'])
 def product_suggestions(request):
@@ -258,3 +263,11 @@ class CartView(APIView):
         product_id = request.product_id
         Cart_Includes.objects.filter(customer_email=customer_email, product_id=product_id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class ReviewCreateView(generics.CreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(customer=self.request.user.customer)

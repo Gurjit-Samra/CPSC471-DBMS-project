@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models.user_models import Admin, Customer
 from .models.product_models import Laptop, PC, TV, Phone, Accessory, Console, Video_Game
+from .models.review_models import Review
 
 @admin.register(Admin)
 class AdminUserAdmin(admin.ModelAdmin):
@@ -17,6 +18,10 @@ class CustomerAdmin(admin.ModelAdmin):
 @admin.register(Laptop)
 class LaptopAdmin(admin.ModelAdmin):
     list_display = ("name", "price", "screen_size", "resolution")
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ("review_text", "rating", "customer", "product_type", "product_id")
 
 @admin.register(PC)
 class PCAdmin(admin.ModelAdmin):

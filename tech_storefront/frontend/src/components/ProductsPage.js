@@ -107,14 +107,18 @@ export default function ProductsPage() {
           quantity: 1, // Default quantity is 1
         }),
       });
-  
+
       if (response.ok) {
         const updatedCartItem = await response.json();
         setCart((prev) => {
-          const existingItem = prev.find((item) => item.product_id === updatedCartItem.product_id);
+          const existingItem = prev.find(
+            (item) => item.product_id === updatedCartItem.product_id
+          );
           if (existingItem) {
             return prev.map((item) =>
-              item.product_id === updatedCartItem.product_id ? updatedCartItem : item
+              item.product_id === updatedCartItem.product_id
+                ? updatedCartItem
+                : item
             );
           } else {
             return [...prev, updatedCartItem];
@@ -127,7 +131,6 @@ export default function ProductsPage() {
     }
   };
 
-
   const handleRemoveFromCart = async (productId) => {
     const csrftoken = getCookie("csrftoken");
     try {
@@ -138,12 +141,12 @@ export default function ProductsPage() {
           "X-CSRFToken": csrftoken, // Include CSRF token
         },
         credentials: "include", // Include cookies for authentication
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           user_email: user.email,
-          product_id: productId 
+          product_id: productId,
         }),
       });
-  
+
       if (response.ok) {
         setCart((prev) => prev.filter((item) => item.product_id !== productId));
       }
@@ -151,7 +154,6 @@ export default function ProductsPage() {
       console.error("Error removing from cart:", error);
     }
   };
-
 
   const handleCartOpen = () => {
     setCartOpen(true);
@@ -295,7 +297,7 @@ export default function ProductsPage() {
                   <AccountCircleIcon color="primary" fontSize="large" />
                 </IconButton>
                 <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                  {user.email}
+                  {user.first_name} {user.last_name}
                 </Typography>
               </Stack>
               <Menu

@@ -107,6 +107,14 @@ export default function ProductDetailsPage() {
     navigate("/"); // Redirect to landing page
   };
 
+  const handleWriteReview = () => {
+    if (!user) {
+      navigate("/sign-in");
+    } else {
+      navigate(`/products/${type}/${id}/write-review`);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -210,7 +218,7 @@ export default function ProductDetailsPage() {
                   <AccountCircleIcon color="primary" fontSize="large" />
                 </IconButton>
                 <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                  {user.email}
+                  {user.first_name} {user.last_name}
                 </Typography>
               </Stack>
               <Menu
@@ -290,6 +298,7 @@ export default function ProductDetailsPage() {
           px: 0,
           py: { xs: 2, md: 4 },
           width: "100vw",
+          pt: { xs: "64px", md: "93px" },
         }}
       >
         <Box sx={{ width: "100%", maxWidth: 900 }}>
@@ -307,129 +316,173 @@ export default function ProductDetailsPage() {
               <CircularProgress />
             </Box>
           ) : product ? (
-            <Card
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                borderRadius: 7,
-                border: "1.5px solid #e0e0e0",
-                boxShadow: "none",
-                p: 3,
-                alignItems: "center",
-                background: "#fff",
-              }}
-            >
-              <CardMedia
-                component="img"
-                image={product.image}
-                alt={product.name}
+            <>
+              <Card
                 sx={{
-                  width: { xs: "100%", md: 340 },
-                  height: 280,
-                  objectFit: "contain", // fill and crop
-                  transition: "transform 0.3s cubic-bezier(.4,2,.6,1)", // smooth zoom
-                  "&:hover": {
-                    transform: "scale(1.05)", // zoom out slightly on hover
-                    zIndex: 1,
-                  },
-                  background: "#ffffff",
-                  p: 0,
+                  display: "flex",
+                  flexDirection: { xs: "column", md: "row" },
+                  borderRadius: 7,
+                  border: "1.5px solid #e0e0e0",
+                  boxShadow: "none",
+                  p: 3,
+                  alignItems: "center",
+                  background: "#fff",
                 }}
-              />
-              <CardContent sx={{ flex: 1 }}>
-                <Typography variant="h4" sx={{ fontWeight: 800, mb: 2 }}>
-                  {product.name}
-                </Typography>
-                <Typography
-                  variant="h6"
-                  color="primary"
-                  sx={{ fontWeight: 700, mb: 2 }}
-                >
-                  ${Number(product.price).toFixed(2)}
-                </Typography>
-                {product.description && (
-                  <Box component="ul" sx={{ pl: 3, mb: 2 }}>
-                    {product.description.split("\n").map(
-                      (line, idx) =>
-                        line.trim() && (
-                          <li key={idx}>
-                            <Typography variant="body1">{line}</Typography>
-                          </li>
-                        )
-                    )}
-                  </Box>
-                )}
-                <Typography variant="body2" sx={{ mb: 2, color: "#607d8b" }}>
-                  Category: {TYPE_DISPLAY_NAMES[product.type] || product.type}
-                </Typography>
-
-                {/* Additional attributes */}
-                {product.brand && (
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    Brand: {product.brand}
-                  </Typography>
-                )}
-                {product.screen_size && (
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    Screen Size: {product.screen_size} inches
-                  </Typography>
-                )}
-                {product.resolution && (
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    Resolution: {product.resolution}
-                  </Typography>
-                )}
-                {product.ram && (
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    RAM: {product.ram} GB
-                  </Typography>
-                )}
-                {product.graphics_card && (
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    Graphics Card: {product.graphics_card}
-                  </Typography>
-                )}
-                {product.proccessor && (
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    Processor: {product.proccessor}
-                  </Typography>
-                )}
-                {product.age_rating && (
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    Age Rating: {product.age_rating}
-                  </Typography>
-                )}
-                {product.genre && (
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    Genre: {product.genre}
-                  </Typography>
-                )}
-
-                <Button
-                  variant="contained"
-                  color="primary"
+              >
+                <CardMedia
+                  component="img"
+                  image={product.image}
+                  alt={product.name}
                   sx={{
-                    fontWeight: 600,
-                    borderRadius: "999px",
-                    boxShadow: "none",
+                    width: { xs: "100%", md: 340 },
+                    height: 280,
+                    objectFit: "contain", // fill and crop
+                    transition: "transform 0.3s cubic-bezier(.4,2,.6,1)", // smooth zoom
                     "&:hover": {
-                      backgroundColor: "1875D2",
-                      boxShadow: "none",
+                      transform: "scale(1.05)", // zoom out slightly on hover
+                      zIndex: 1,
                     },
-                    mt: 2,
+                    background: "#ffffff",
+                    p: 0,
                   }}
-                  onClick={() => {
-                    if (user) {
-                      handleAddToCart(product);
-                    } else {
-                      navigate("/sign-in");
-                    }
-                  }}
-                >
-                  Add to Cart
-                </Button>
-              </CardContent>
-            </Card>
+                />
+                <CardContent sx={{ flex: 1 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 800, mb: 2 }}>
+                    {product.name}
+                  </Typography>
+                  <Typography
+                    variant="h6"
+                    color="primary"
+                    sx={{ fontWeight: 700, mb: 2 }}
+                  >
+                    ${Number(product.price).toFixed(2)}
+                  </Typography>
+                  {product.description && (
+                    <Box component="ul" sx={{ pl: 3, mb: 2 }}>
+                      {product.description.split("\n").map(
+                        (line, idx) =>
+                          line.trim() && (
+                            <li key={idx}>
+                              <Typography variant="body1">{line}</Typography>
+                            </li>
+                          )
+                      )}
+                    </Box>
+                  )}
+                  <Typography variant="body2" sx={{ mb: 2, color: "#607d8b" }}>
+                    Category: {TYPE_DISPLAY_NAMES[product.type] || product.type}
+                  </Typography>
+
+                  {/* Additional attributes */}
+                  {product.brand && (
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      Brand: {product.brand}
+                    </Typography>
+                  )}
+                  {product.screen_size && (
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      Screen Size: {product.screen_size} inches
+                    </Typography>
+                  )}
+                  {product.resolution && (
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      Resolution: {product.resolution}
+                    </Typography>
+                  )}
+                  {product.ram && (
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      RAM: {product.ram} GB
+                    </Typography>
+                  )}
+                  {product.graphics_card && (
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      Graphics Card: {product.graphics_card}
+                    </Typography>
+                  )}
+                  {product.proccessor && (
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      Processor: {product.proccessor}
+                    </Typography>
+                  )}
+                  {product.age_rating && (
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      Age Rating: {product.age_rating}
+                    </Typography>
+                  )}
+                  {product.genre && (
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      Genre: {product.genre}
+                    </Typography>
+                  )}
+
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{
+                      fontWeight: 600,
+                      borderRadius: "999px",
+                      boxShadow: "none",
+                      "&:hover": {
+                        backgroundColor: "1875D2",
+                        boxShadow: "none",
+                      },
+                      mt: 2,
+                    }}
+                    onClick={() => {
+                      if (user) {
+                        handleAddToCart(product);
+                      } else {
+                        navigate("/sign-in");
+                      }
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
+                </CardContent>
+              </Card>
+              {product.reviews && product.reviews.length > 0 && (
+                <Box sx={{ mt: 4 }}>
+                  <Typography variant="h5" sx={{ mb: 2 }}>
+                    Reviews
+                  </Typography>
+                  {product.reviews.map((review) => (
+                    <Box
+                      key={review.id}
+                      sx={{
+                        mb: 2,
+                        p: 2,
+                        borderRadius: 2,
+                        background: "rgba(255,255,255,0.5)",
+                        backdropFilter: "blur(6px)",
+                      }}
+                    >
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                        {review.customer_first_name} {review.customer_last_name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {"★".repeat(review.rating) +
+                          "☆".repeat(5 - review.rating)}
+                      </Typography>
+                      <Typography variant="body1">
+                        {review.review_text}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleWriteReview}
+                sx={{
+                  mt: 3,
+                  borderRadius: "999px",
+                  fontWeight: 600,
+                }}
+              >
+                Write a Review
+              </Button>
+            </>
           ) : (
             <Typography color="error" sx={{ mt: 8 }}>
               Product not found.

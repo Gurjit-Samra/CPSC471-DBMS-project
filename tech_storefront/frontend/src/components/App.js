@@ -7,7 +7,7 @@ import ProductsPage from "./ProductsPage";
 import SignInPage from "./SignInPage";
 import CustomerRegistrationPage from "./CustomerRegistrationPage";
 import ProductDetailsPage from "./ProductDetailsPage";
-import AdminSignInPage from "./AdminSignInPage";
+import WriteReviewPage from "./WriteReviewPage"
 
 export default function App() {
   return (
@@ -19,6 +19,7 @@ export default function App() {
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/customer-registration" element={<CustomerRegistrationPage />} />
           <Route path="/products/:type/:id" element={<ProductDetailsPage />} />
+          <Route path="/products/:type/:id/write-review" element={<WriteReviewPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

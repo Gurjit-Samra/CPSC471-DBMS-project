@@ -150,16 +150,21 @@ export default function ProductsPage() {
       {/* Header */}
       <Box
         sx={{
-          width: "100%",
-          background: "rgba(255,255,255,0.95)",
-          borderBottom: "1.5px solid #e0e0e0",
-          borderRadius: "0px 0px 15px 15px",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          background: "rgba(255,255,255,0.5)",
+          borderBottom: "1.5px solid rgb(237, 237, 237, 0.5)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           px: { xs: 2, md: 4 },
           py: 1,
           minHeight: 56,
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          zIndex: 10,
         }}
       >
         <RouterLink
@@ -311,6 +316,7 @@ export default function ProductsPage() {
           px: 0,
           py: { xs: 2, md: 4 },
           width: "100vw",
+          pt: { xs: "64px", md: "93px" },
         }}
       >
         <Box
@@ -400,11 +406,14 @@ export default function ProductsPage() {
                   sx={{
                     display: "flex",
                     flexDirection: "column",
-                    flex: 1, // fill the grid‐cell
-                    maxWidth: 345, // fixed card width
+                    flex: 1,
+                    maxWidth: 345,
                     borderRadius: 7,
                     border: "1.5px solid #e0e0e0",
                     boxShadow: "none",
+                    background: "rgba(255,255,255,0.5)",
+                    backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
                   }}
                 >
                   <Box

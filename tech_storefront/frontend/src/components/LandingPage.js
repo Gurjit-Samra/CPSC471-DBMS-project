@@ -72,17 +72,22 @@ export default function LandingPage() {
       {/* Header with Cart and User */}
       <Box
         sx={{
-          width: "100%",
-          background: "rgba(255,255,255,0.95)",
-          borderBottom: "1.5px solid #e0e0e0",
-          borderRadius: "0px 0px 15px 15px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          px: { xs: 2, md: 4 },
-          py: 1,
-          minHeight: 56,
-        }}
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            background: "rgba(255,255,255,0.5)",
+            borderBottom: "1.5px solid rgb(237, 237, 237, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            px: { xs: 2, md: 4 },
+            py: 1,
+            minHeight: 56,
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            zIndex: 10,
+          }}
       >
         <RouterLink
           to="/"

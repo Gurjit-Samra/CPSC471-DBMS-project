@@ -279,16 +279,39 @@ class CartView(APIView):
         )
 
         if not created:
-            cart_item.quantity = quantity
-            cart_item.save()
+            if quantity == 0:
+                cart_item.delete()
+                return Response({"removed": True})
+            else:
+                cart_item.quantity = quantity
+                cart_item.save()
+        elif quantity == 0:
+            cart_item.delete()
+            return Response({"removed": True})
         
         serializer = CartItemSerializer(cart_item)
         return Response(serializer.data)
 
     def delete(self, request):
-        customer_email = request.user_email
-        product_id = request.product_id
-        Cart_Includes.objects.filter(customer_email=customer_email, product_id=product_id).delete()
+        customer_email = request.user.email
+        product_id = request.data.get("product_id")
+        product_type = request.data.get("product_type")
+        model_map = {
+            "laptop": Laptop,
+            "phone": Phone,
+            "tv": TV,
+            "pc": PC,
+            "video_game": Video_Game,
+            "accessory": Accessory,
+            "console": Console
+        }
+        product_model = model_map[product_type]
+        content_type = ContentType.objects.get_for_model(product_model)
+        Cart_Includes.objects.filter(
+            customer_email=customer_email,
+            content_type=content_type,
+            object_id=product_id
+        ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class ReviewCreateView(generics.CreateAPIView):

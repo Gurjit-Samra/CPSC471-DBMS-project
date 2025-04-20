@@ -144,24 +144,23 @@ export default function ProductsPage() {
     }
   };
 
-  const handleRemoveFromCart = async (productId) => {
+  const handleRemoveFromCart = async (object_id, product_type) => {
     const csrftoken = getCookie("csrftoken");
     try {
       const response = await fetch("/api/cart/", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken, // Include CSRF token
+          "X-CSRFToken": csrftoken,
         },
-        credentials: "include", // Include cookies for authentication
+        credentials: "include",
         body: JSON.stringify({
-          user_email: user.email,
-          product_id: productId,
+          product_id: object_id,
+          product_type: product_type,
         }),
       });
-
       if (response.ok) {
-        setCart((prev) => prev.filter((item) => item.product_id !== productId));
+        fetchCart(); // Refresh cart after deletion
       }
     } catch (error) {
       console.error("Error removing from cart:", error);
@@ -625,6 +624,7 @@ export default function ProductsPage() {
         open={cartOpen}
         onClose={handleCartClose}
         onUpdateQuantity={updateCartQuantity}
+        onRemoveFromCart={handleRemoveFromCart}
       />
     </Box>
   );

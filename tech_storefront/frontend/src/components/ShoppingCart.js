@@ -12,8 +12,9 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import DeleteIcon from "@mui/icons-material/Delete";
 
-export default function ShoppingCart({ cart, open, onClose, onCheckout, onUpdateQuantity }) {
+export default function ShoppingCart({ cart, open, onClose, onCheckout, onUpdateQuantity, onRemoveFromCart }) {
   const totalPrice = cart.reduce(
     (total, item) => total + Number(item.price) * item.quantity,
     0
@@ -88,6 +89,15 @@ export default function ShoppingCart({ cart, open, onClose, onCheckout, onUpdate
                       }
                     >
                       <AddIcon />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() =>
+                        onRemoveFromCart(item.object_id, item.product_type)
+                      }
+                    >
+                      <DeleteIcon />
                     </IconButton>
                   </Box>
                   <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>

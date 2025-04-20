@@ -23,6 +23,7 @@ import Link from "@mui/material/Link"; // Add this import
 import { useAuth } from "./AuthContext";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -218,6 +219,12 @@ export default function ProductsPage() {
     setUser(null);
     handleMenuClose();
     navigate("/"); // Redirect to landing page
+  };
+
+  // Placeholder handler for wishlist
+  const handleAddToWishlist = (product) => {
+    // TODO: Implement wishlist logic
+    console.log("Add to wishlist:", product);
   };
 
   // Get unique categories from products
@@ -516,7 +523,7 @@ export default function ProductsPage() {
                   }}
                 >
                   <Box
-                    sx={{ cursor: "pointer" }}
+                    sx={{ cursor: "pointer", position: "relative" }}
                     onClick={() =>
                       navigate(`/products/${product.type}/${product.id}`)
                     }
@@ -539,6 +546,23 @@ export default function ProductsPage() {
                         p: 0,
                       }}
                     />
+                    {/* Heart Button - absolute position top right */}
+                    <IconButton
+                      aria-label="add to wishlist"
+                      sx={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        background: "rgba(255,255,255,0.8)",
+                        "&:hover": { background: "#ffeaea" },
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent card click
+                        handleAddToWishlist(product);
+                      }}
+                    >
+                      <FavoriteBorderIcon color="error" />
+                    </IconButton>
                   </Box>
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Link

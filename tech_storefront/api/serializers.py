@@ -118,9 +118,23 @@ class AccessorySerializer(serializers.ModelSerializer):
     
 # Cart serializers
 class CartItemSerializer(serializers.ModelSerializer):
+
+    name = serializers.CharField(source='product.name', read_only=True)
+    price = serializers.DecimalField(source='product.price', read_only=True, max_digits=10, decimal_places=2)
+    product_type = serializers.SerializerMethodField()
+
     class Meta:
         model = Cart_Includes
-        fields = ('customer_email', 'product_id', 'quantity')
+        fields = ['object_id', 'quantity', 'name', 'price', 'product_type']
+    
+    def get_product_name(self, obj):
+        return obj.product.name if obj.product else ""
+
+    def get_product_price(self, obj):
+        return obj.product.price if obj.product else 0
+    
+    def get_product_type(self, obj):
+        return obj.content_type.model
 
 # Review serializer
 class ReviewSerializer(serializers.ModelSerializer):

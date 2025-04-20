@@ -11,6 +11,8 @@ from django.db.models import Q
 from rest_framework.decorators import api_view
 from .models.review_models import Review
 from .serializers import ReviewSerializer
+from django.contrib.contenttypes.models import ContentType
+
 
 PRODUCT_MODEL_MAP = {
     "laptop": (Laptop, LaptopSerializer),
@@ -238,25 +240,50 @@ def product_suggestions(request):
 class CartView(APIView):
 
     def get(self, request):
-        customer_email = request.user_email
+        print("User:", request.user)
+        print("Is Authenticated:", request.user.is_authenticated)
+        customer_email = request.user.email
+
         cart_items = Cart_Includes.objects.filter(customer_email=customer_email)
         serializer = CartItemSerializer(cart_items, many=True)
         return Response(serializer.data)
 
     def post(self, request):
         data = request.data
+
+        product_type = data["product_type"]  # e.g., "laptop"
+        product_id = data["product_id"]
+        quantity = data["quantity"]
+
+        from api.models.product_models import Laptop, Phone, TV, PC, Video_Game, Accessory, Console
+
+        model_map = {
+        "laptop": Laptop,
+        "phone": Phone,
+        "tv": TV,
+        "pc": PC,
+        "video_game": Video_Game,
+        "accessory": Accessory,
+        "console": Console
+        }
+
+        product_model = model_map[product_type]
+        content_type = ContentType.objects.get_for_model(product_model)
+
+
         cart_item, created = Cart_Includes.objects.get_or_create(
-            customer_email=data["user_email"],
-            product_id=data["product_id"],
-            defaults={
-                "quantity": data["quantity"],
-            },
+            customer_email=request.user.email,
+            content_type=content_type,
+            object_id=product_id,
+            defaults={"quantity": quantity}
         )
+
         if not created:
-            cart_item.quantity += data["quantity"]
+            cart_item.quantity = quantity
             cart_item.save()
+        
         serializer = CartItemSerializer(cart_item)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data)
 
     def delete(self, request):
         customer_email = request.user_email

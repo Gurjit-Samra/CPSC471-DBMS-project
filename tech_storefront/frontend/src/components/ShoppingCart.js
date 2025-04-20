@@ -10,9 +10,14 @@ import {
   Slide,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 
-export default function ShoppingCart({ cart, open, onClose, onCheckout }) {
-  const totalPrice = cart.reduce((total, product) => total + product.price, 0);
+export default function ShoppingCart({ cart, open, onClose, onCheckout, onUpdateQuantity }) {
+  const totalPrice = cart.reduce(
+    (total, item) => total + Number(item.price) * item.quantity,
+    0
+  );
 
   return (
     <Slide direction="left" in={open} mountOnEnter unmountOnExit>
@@ -56,14 +61,37 @@ export default function ShoppingCart({ cart, open, onClose, onCheckout }) {
             </Typography>
           ) : (
             <List>
-              {cart.map((product, index) => (
+              {cart.map((item, index) => (
                 <ListItem key={index} sx={{ py: 1 }}>
                   <ListItemText
-                    primary={product.name}
-                    secondary={`$${Number(product.price).toFixed(2)}`}
+                    primary={item.name}
+                    secondary={`$${Number(item.price).toFixed(2)}`}
                   />
-                  <Typography variant="body2" color="text.secondary">
-                  ${Number(product.price).toFixed(2)}
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        item.quantity > 1 &&
+                        onUpdateQuantity(item.object_id, item.product_type, item.quantity - 1)
+                      }
+                      disabled={item.quantity <= 1}
+                    >
+                      <RemoveIcon />
+                    </IconButton>
+                    <Typography variant="body2" sx={{ mx: 1 }}>
+                      {item.quantity}
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        onUpdateQuantity(item.object_id, item.product_type, item.quantity + 1)
+                      }
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </Box>
+                  <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+                    ${(Number(item.price) * item.quantity).toFixed(2)}
                   </Typography>
                 </ListItem>
               ))}
@@ -84,7 +112,7 @@ export default function ShoppingCart({ cart, open, onClose, onCheckout }) {
             sx={{ fontWeight: 700, display: "flex", justifyContent: "space-between" }}
           >
             <span>Total:</span>
-            <span>${Number(totalPrice).toFixed(2)}</span>
+            <span>${totalPrice.toFixed(2)}</span>
           </Typography>
           <Button
             fullWidth

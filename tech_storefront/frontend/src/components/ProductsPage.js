@@ -100,10 +100,8 @@ export default function ProductsPage() {
         },
         credentials: "include", // Include cookies for authentication
         body: JSON.stringify({
-          user_email: user.email,
           product_id: product.id,
-          name: product.name,
-          price: product.price,
+          product_type: product.type,
           quantity: 1, // Default quantity is 1
         }),
       });
@@ -131,6 +129,21 @@ export default function ProductsPage() {
     }
   };
 
+  // Fetch cart items when the user is logged in
+  const fetchCart = async () => {
+    try {
+      const response = await fetch("/api/cart/", {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCart(data);
+      }
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+    }
+  };
+
   const handleRemoveFromCart = async (productId) => {
     const csrftoken = getCookie("csrftoken");
     try {
@@ -155,8 +168,33 @@ export default function ProductsPage() {
     }
   };
 
+  const updateCartQuantity = async (product_id, product_type, newQuantity) => {
+    const csrftoken = getCookie("csrftoken");
+    try {
+      const response = await fetch("/api/cart/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          product_id,
+          product_type,
+          quantity: newQuantity,
+        }),
+      });
+      if (response.ok) {
+        fetchCart(); // Refresh cart after update
+      }
+    } catch (error) {
+      console.error("Error updating cart quantity:", error);
+    }
+  };
+
   const handleCartOpen = () => {
     setCartOpen(true);
+    fetchCart(); // Fetch cart items when opening the cart
   };
 
   const handleCartClose = () => {
@@ -582,7 +620,12 @@ export default function ProductsPage() {
       </Box>
 
       {/* cart drawer/modal */}
-      <ShoppingCart cart={cart} open={cartOpen} onClose={handleCartClose} />
+      <ShoppingCart
+        cart={cart}
+        open={cartOpen}
+        onClose={handleCartClose}
+        onUpdateQuantity={updateCartQuantity}
+      />
     </Box>
   );
 }

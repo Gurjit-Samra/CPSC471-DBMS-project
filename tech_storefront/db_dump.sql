@@ -44,34 +44,6 @@ INSERT INTO `api_accessory` VALUES (1,'SteelSeries Arctis Nova Pro Wireless','Du
 UNLOCK TABLES;
 
 --
--- Table structure for table `api_cart_includes`
---
-
-DROP TABLE IF EXISTS `api_cart_includes`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `api_cart_includes` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `customer_email` varchar(254) NOT NULL,
-  `product_id` int NOT NULL,
-  `quantity` int unsigned NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `api_cart_includes_customer_email_product_id_f9e3a74b_uniq` (`customer_email`,`product_id`),
-  CONSTRAINT `api_cart_includes_chk_1` CHECK ((`quantity` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `api_cart_includes`
---
-
-LOCK TABLES `api_cart_includes` WRITE;
-/*!40000 ALTER TABLE `api_cart_includes` DISABLE KEYS */;
-INSERT INTO `api_cart_includes` VALUES (1,'john.pork@gmail.com',2,8);
-/*!40000 ALTER TABLE `api_cart_includes` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `api_console`
 --
 

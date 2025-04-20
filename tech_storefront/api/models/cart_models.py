@@ -1,14 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 class Cart_Includes(models.Model):
-    customer_email = models.EmailField()  # Email of the customer
-    product_id = models.IntegerField()  # ID of the product
-    quantity = models.PositiveIntegerField(default=1)  # Quantity of the product
+    customer_email = models.EmailField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)  # the product model (Laptop, Phone, etc.)
+    object_id = models.PositiveIntegerField()  # the product’s ID
+    product = GenericForeignKey("content_type", "object_id")  # links to actual product instance
+    quantity = models.PositiveIntegerField(default=1)
 
     class Meta:
-        unique_together = ("customer_email", "product_id")  # Ensure unique combination
-
-    def __str__(self):
-        return f"Customer: {self.customer_email}, Product ID: {self.product_id}, Quantity: {self.quantity}"
+        unique_together = ("customer_email", "content_type", "object_id")

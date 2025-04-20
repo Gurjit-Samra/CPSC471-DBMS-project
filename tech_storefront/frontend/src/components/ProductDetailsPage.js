@@ -460,7 +460,29 @@ export default function ProductDetailsPage() {
                     color="primary"
                     sx={{ fontWeight: 700, mb: 2 }}
                   >
-                    ${Number(product.price).toFixed(2)}
+                    {/* Check if there's a discount */}
+                    {product.percent_discount ? (
+                      <>
+                        <span
+                          style={{
+                            textDecoration: "line-through",
+                            color: "#888",
+                            marginRight: 8,
+                          }}
+                        >
+                          ${Number(product.price).toFixed(2)}
+                        </span>
+                        <span>
+                          $
+                          {(
+                            Number(product.price) *
+                            (1 - product.percent_discount / 100)
+                          ).toFixed(2)}
+                        </span>
+                      </>
+                    ) : (
+                      `$${Number(product.price).toFixed(2)}`
+                    )}
                   </Typography>
                   {product.description && (
                     <Box component="ul" sx={{ pl: 3, mb: 2 }}>

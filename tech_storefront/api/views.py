@@ -5,7 +5,7 @@ from .serializers import CreateCustomerSerializer, CustomerSerializer, UserSeria
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
-from .models.product_models import Laptop, PC, TV, Phone, Console, Video_Game, Accessory
+from .models.product_models import Laptop, PC, TV, Phone, Console, Video_Game, Accessory, DiscountedProduct
 from .serializers import LaptopSerializer, PCSerializer, TVSerializer, PhoneSerializer, ConsoleSerializer, AccessorySerializer, VideoGameSerializer
 from django.db.models import Q
 from rest_framework.decorators import api_view
@@ -185,6 +185,26 @@ class AllProductsView(APIView):
         video_games = VideoGameSerializer(video_games, many=True).data
         accessories = AccessorySerializer(accessories, many=True).data
 
+        # Helper to add percent_discount
+        def add_discount(product_list, type_name):
+            for product in product_list:
+                discount = DiscountedProduct.objects.filter(
+                    product_type=type_name, product_id=product["id"]
+                ).order_by('-percent_discount').first()
+                if discount:
+                    product["percent_discount"] = float(discount.percent_discount)
+                else:
+                    product["percent_discount"] = None
+            return product_list
+
+        laptops = add_discount(laptops, "laptop")
+        pcs = add_discount(pcs, "pc")
+        tvs = add_discount(tvs, "tv")
+        phones = add_discount(phones, "phone")
+        consoles = add_discount(consoles, "console")
+        video_games = add_discount(video_games, "video_game")
+        accessories = add_discount(accessories, "accessory")
+
         products = (
             [{"type": "laptop", **item} for item in laptops] +
             [{"type": "pc", **item} for item in pcs] +
@@ -209,6 +229,18 @@ class ProductDetailView(APIView):
         product_data = Serializer(product).data
         reviews = Review.objects.filter(product_type=type, product_id=id)
         product_data["reviews"] = ReviewSerializer(reviews, many=True).data
+        try:
+            print("Looking for discount:", type, id)
+            discounts = DiscountedProduct.objects.filter(product_type=type, product_id=id)
+            print("Discounts found:", discounts)
+            discount = discounts.order_by('-percent_discount').first()
+            if discount:
+                product_data["percent_discount"] = float(discount.percent_discount)
+            else:
+                product_data["percent_discount"] = None
+        except Exception as e:
+            print("Discount lookup error:", e)
+            product_data["percent_discount"] = None
         return Response(product_data)
 
 @api_view(['GET'])

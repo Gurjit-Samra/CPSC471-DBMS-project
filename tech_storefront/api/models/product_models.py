@@ -1,4 +1,5 @@
 from django.db import models
+from .user_models import Admin
 
 # Abstract Product
 class Product(models.Model):
@@ -58,3 +59,20 @@ class Video_Game(Video_Game_Product):
     age_rating = models.CharField(max_length=10)
     genre = models.CharField(max_length=25)
 
+class DiscountedProduct(models.Model):
+    PRODUCT_TYPE_CHOICES = [
+        ('laptop', 'Laptop'),
+        ('pc', 'PC'),
+        ('tv', 'TV'),
+        ('phone', 'Phone'),
+        ('console', 'Console'),
+        ('video_game', 'Video Game'),
+        ('accessory', 'Accessory'),
+    ]
+    product_type = models.CharField(max_length=20, choices=PRODUCT_TYPE_CHOICES)
+    product_id = models.PositiveIntegerField()
+    admin = models.ForeignKey(Admin, on_delete=models.CASCADE)
+    percent_discount = models.DecimalField(max_digits=5, decimal_places=2)
+
+    class Meta:
+        unique_together = (('product_type', 'product_id', 'admin'),)

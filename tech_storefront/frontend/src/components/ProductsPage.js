@@ -145,6 +145,13 @@ export default function ProductsPage() {
     }
   };
 
+  // Get the cart when the user signs in
+  useEffect(() => {
+    if (user) {
+      fetchCart();
+    }
+  }, [user]);
+
   const handleRemoveFromCart = async (object_id, product_type) => {
     const csrftoken = getCookie("csrftoken");
     try {

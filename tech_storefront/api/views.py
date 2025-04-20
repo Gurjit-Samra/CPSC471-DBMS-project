@@ -1,7 +1,7 @@
 from rest_framework import status, generics, permissions
 from .models.user_models import Customer, Admin
 from .models.cart_models import Cart_Includes
-from .serializers import CreateCustomerSerializer, CustomerSerializer, UserSerializer, CartItemSerializer
+from .serializers import CreateCustomerSerializer, CustomerSerializer, UserSerializer, ReviewSerializer, CartItemSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
@@ -10,7 +10,6 @@ from .serializers import LaptopSerializer, PCSerializer, TVSerializer, PhoneSeri
 from django.db.models import Q
 from rest_framework.decorators import api_view
 from .models.review_models import Review
-from .serializers import ReviewSerializer
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -237,14 +236,10 @@ def product_suggestions(request):
     # Remove empty strings and return as a list
     return Response([s for s in suggestions if s])
 
+
 class CartView(APIView):
-
     def get(self, request):
-        print("User:", request.user)
-        print("Is Authenticated:", request.user.is_authenticated)
-        customer_email = request.user.email
-
-        cart_items = Cart_Includes.objects.filter(customer_email=customer_email)
+        cart_items = Cart_Includes.objects.filter(customer_email=request.user.email)
         serializer = CartItemSerializer(cart_items, many=True)
         return Response(serializer.data)
 

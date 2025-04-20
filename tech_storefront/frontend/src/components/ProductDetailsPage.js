@@ -59,8 +59,113 @@ export default function ProductDetailsPage() {
       .catch(() => setLoading(false));
   }, [type, id]);
 
-  const handleAddToCart = (product) => {
-    setCart((prev) => [...prev, product]);
+  // Fetch cart items when the user is logged in
+  const fetchCart = async () => {
+    try {
+      const response = await fetch("/api/cart/", {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCart(data);
+      }
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+    }
+  };
+
+  // Get the cart when the user signs in
+  useEffect(() => {
+    if (user) {
+      fetchCart();
+    }
+  }, [user]);
+
+  const handleAddToCart = async (product) => {
+    const csrftoken = getCookie("csrftoken");
+    try {
+      const response = await fetch("/api/cart/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken, // Include CSRF token
+        },
+        credentials: "include", // Include cookies for authentication
+        body: JSON.stringify({
+          product_id: product.id,
+          product_type: product.type,
+          quantity: 1, // Default quantity is 1
+        }),
+      });
+
+      if (response.ok) {
+        const updatedCartItem = await response.json();
+        setCart((prev) => {
+          const existingItem = prev.find(
+            (item) => item.product_id === updatedCartItem.product_id
+          );
+          if (existingItem) {
+            return prev.map((item) =>
+              item.product_id === updatedCartItem.product_id
+                ? updatedCartItem
+                : item
+            );
+          } else {
+            return [...prev, updatedCartItem];
+          }
+        });
+      }
+      handleCartOpen();
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
+  };
+
+  const handleRemoveFromCart = async (object_id, product_type) => {
+    const csrftoken = getCookie("csrftoken");
+    try {
+      const response = await fetch("/api/cart/", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          product_id: object_id,
+          product_type: product_type,
+        }),
+      });
+      if (response.ok) {
+        fetchCart(); // Refresh cart after deletion
+      }
+    } catch (error) {
+      console.error("Error removing from cart:", error);
+    }
+  };
+
+  const updateCartQuantity = async (product_id, product_type, newQuantity) => {
+    const csrftoken = getCookie("csrftoken");
+    try {
+      const response = await fetch("/api/cart/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          product_id,
+          product_type,
+          quantity: newQuantity,
+        }),
+      });
+      if (response.ok) {
+        fetchCart(); // Refresh cart after update
+      }
+    } catch (error) {
+      console.error("Error updating cart quantity:", error);
+    }
   };
 
   const handleCartOpen = () => {
@@ -130,22 +235,22 @@ export default function ProductDetailsPage() {
       {/* Header */}
       <Box
         sx={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            background: "rgba(255,255,255,0.5)",
-            borderBottom: "1.5px solid rgb(237, 237, 237, 0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            px: { xs: 2, md: 4 },
-            py: 1,
-            minHeight: 56,
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            zIndex: 10,
-          }}
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          background: "rgba(255,255,255,0.5)",
+          borderBottom: "1.5px solid rgb(237, 237, 237, 0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          px: { xs: 2, md: 4 },
+          py: 1,
+          minHeight: 56,
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          zIndex: 10,
+        }}
       >
         <RouterLink
           to="/"
@@ -490,7 +595,14 @@ export default function ProductDetailsPage() {
           )}
         </Box>
       </Box>
-      <ShoppingCart cart={cart} open={cartOpen} onClose={handleCartClose} />
+      {/* cart drawer/modal */}
+      <ShoppingCart
+        cart={cart}
+        open={cartOpen}
+        onClose={handleCartClose}
+        onUpdateQuantity={updateCartQuantity}
+        onRemoveFromCart={handleRemoveFromCart}
+      />
     </Box>
   );
 }

@@ -115,7 +115,7 @@ class AccessorySerializer(serializers.ModelSerializer):
 
     def get_type(self, obj):
         return "accessory"
-    
+
 # Cart serializers
 class CartItemSerializer(serializers.ModelSerializer):
 

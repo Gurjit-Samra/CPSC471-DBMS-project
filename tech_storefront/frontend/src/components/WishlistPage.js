@@ -17,6 +17,7 @@ import {
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import ShoppingCart from "./ShoppingCart";
@@ -110,6 +111,14 @@ export default function WishlistPage() {
     handleMenuClose();
     navigate("/");
   };
+
+  const handleCheckout = () => {
+    if (user) {
+      navigate("/checkout");
+    } else {
+      navigate("/sign-in");
+    }
+  }
 
   return (
     <Box
@@ -255,6 +264,23 @@ export default function WishlistPage() {
         </Stack>
       </Box>
 
+      {/* Simple ArrowBack Icon under header */}
+      <IconButton
+        sx={{
+          position: "absolute",
+          top: 72,
+          left: 16,
+          zIndex: 11,
+          background: "rgba(255,255,255,0.8)",
+          "&:hover": { background: "rgba(230,230,230,1)" },
+        }}
+        component={RouterLink}
+        to="/products"
+        aria-label="Back to Products"
+      >
+        <ArrowBackIosNewIcon />
+      </IconButton>
+
       {/* Wishlist Content */}
       <Box
         sx={{
@@ -394,6 +420,7 @@ export default function WishlistPage() {
         onClose={handleCartClose}
         onUpdateQuantity={() => {}}
         onRemoveFromCart={() => {}}
+        onCheckout={handleCheckout}
       />
     </Box>
   );

@@ -20,6 +20,7 @@ import ShoppingCart from "./ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useAuth } from "./AuthContext";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ProductsPage from "./ProductsPage";
 
 const TYPE_DISPLAY_NAMES = {
   L: "Laptop",
@@ -211,6 +212,14 @@ export default function ProductDetailsPage() {
     handleMenuClose();
     navigate("/"); // Redirect to landing page
   };
+
+  const handleCheckout = () => {
+    if (user) {
+      navigate("/checkout");
+    } else {
+      navigate("/sign-in");
+    }
+  }
 
   const handleWriteReview = () => {
     if (!user) {
@@ -636,6 +645,7 @@ export default function ProductDetailsPage() {
         onClose={handleCartClose}
         onUpdateQuantity={updateCartQuantity}
         onRemoveFromCart={handleRemoveFromCart}
+        onCheckout={handleCheckout}
       />
     </Box>
   );

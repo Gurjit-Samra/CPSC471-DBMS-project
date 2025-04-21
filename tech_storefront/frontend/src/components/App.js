@@ -9,6 +9,7 @@ import CustomerRegistrationPage from "./CustomerRegistrationPage";
 import ProductDetailsPage from "./ProductDetailsPage";
 import WriteReviewPage from "./WriteReviewPage"
 import WishlistPage from "./WishlistPage";
+import CheckoutPage from "./CheckoutPage";
 
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/products/:type/:id" element={<ProductDetailsPage />} />
           <Route path="/products/:type/:id/write-review" element={<WriteReviewPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

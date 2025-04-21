@@ -232,6 +232,14 @@ export default function ProductsPage() {
     setCartOpen(false);
   };
 
+  const handleCheckout = () => {
+    if (user) {
+      navigate("/checkout");
+    } else {
+      navigate("/sign-in");
+    }
+  }
+
   // Menu open/close handlers
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
@@ -765,6 +773,7 @@ export default function ProductsPage() {
         onClose={handleCartClose}
         onUpdateQuantity={updateCartQuantity}
         onRemoveFromCart={handleRemoveFromCart}
+        onCheckout={handleCheckout}
       />
     </Box>
   );

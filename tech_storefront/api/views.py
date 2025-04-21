@@ -1,6 +1,6 @@
 from rest_framework import status, generics, permissions
 from .models.user_models import Customer, Admin
-from .models.cart_models import Cart_Includes
+from .models.cart_models import Cart_Includes, WishlistItem
 from .serializers import CreateCustomerSerializer, CustomerSerializer, UserSerializer, ReviewSerializer, CartItemSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,6 +11,7 @@ from django.db.models import Q
 from rest_framework.decorators import api_view
 from .models.review_models import Review
 from django.contrib.contenttypes.models import ContentType
+from .serializers import WishlistItemSerializer
 
 
 PRODUCT_MODEL_MAP = {
@@ -348,3 +349,37 @@ class ReviewCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(customer=self.request.user.customer)
+
+class WishlistView(APIView):
+    def get(self, request):
+        customer_email = request.user.email
+        items = WishlistItem.objects.filter(customer_email=customer_email)
+        serializer = WishlistItemSerializer(items, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        customer_email = request.user.email
+        product_id = request.data.get("product_id")
+        product_type = request.data.get("product_type")
+        content_type = ContentType.objects.get(model=product_type)
+
+        item, created = WishlistItem.objects.get_or_create(
+            customer_email=customer_email,
+            content_type=content_type,
+            object_id=product_id,
+        )
+        serializer = WishlistItemSerializer(item)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request):
+        customer_email = request.user.email
+        product_id = request.data.get("product_id")
+        product_type = request.data.get("product_type")
+        content_type = ContentType.objects.get(model=product_type)
+
+        WishlistItem.objects.filter(
+            customer_email=customer_email,
+            content_type=content_type,
+            object_id=product_id,
+        ).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

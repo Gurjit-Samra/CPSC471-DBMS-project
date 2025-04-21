@@ -369,6 +369,18 @@ export default function ProductDetailsPage() {
                 </MenuItem>
                 <Divider />
                 <MenuItem
+                  component={RouterLink}
+                  to="/wishlist"
+                  sx={{
+                    borderRadius: 3,
+                    px: 2,
+                    py: 1,
+                    "&:hover": { backgroundColor: "#f0f4fa" },
+                  }}
+                >
+                  <Typography color="primary">My Wishlist</Typography>
+                </MenuItem>
+                <MenuItem
                   onClick={handleSignOut}
                   sx={{
                     borderRadius: 3,

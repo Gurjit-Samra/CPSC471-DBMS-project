@@ -12,3 +12,15 @@ class Cart_Includes(models.Model):
 
     class Meta:
         unique_together = ("customer_email", "content_type", "object_id")
+
+class WishlistItem(models.Model):
+    customer_email = models.EmailField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    product = GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        unique_together = ('customer_email', 'content_type', 'object_id')
+
+    def __str__(self):
+        return f"{self.customer_email} → {self.product}"

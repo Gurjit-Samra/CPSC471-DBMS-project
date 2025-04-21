@@ -23,9 +23,11 @@ import Link from "@mui/material/Link"; // Add this import
 import { useAuth } from "./AuthContext";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
 export default function ProductsPage() {
+  const [wishlist, setWishlist] = useState([]);
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -130,6 +132,21 @@ export default function ProductsPage() {
     }
   };
 
+  // Fetch wishlist when the user is logged in
+  const fetchWishlist = async () => {
+    try {
+      const response = await fetch("/api/wishlist/", {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setWishlist(data);
+      }
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+    }
+  };
+
   // Fetch cart items when the user is logged in
   const fetchCart = async () => {
     try {
@@ -149,6 +166,13 @@ export default function ProductsPage() {
   useEffect(() => {
     if (user) {
       fetchCart();
+    }
+  }, [user]);
+
+  // get the wishlist when the user signs in
+  useEffect(() => {
+    if (user) {
+      fetchWishlist();
     }
   }, [user]);
 
@@ -229,9 +253,53 @@ export default function ProductsPage() {
   };
 
   // Placeholder handler for wishlist
-  const handleAddToWishlist = (product) => {
-    // TODO: Implement wishlist logic
-    console.log("Add to wishlist:", product);
+  const handleAddToWishlist = async (product) => {
+    // Get CSRF token
+    const csrftoken = getCookie("csrftoken");
+    const isWishlisted = wishlist.some(
+      (item) =>
+        item.object_id === product.id && item.product_type === product.type
+    );
+    const url = "/api/wishlist/";
+    const payload = {
+      product_id: product.id,
+      product_type: product.type,
+    };
+
+    if (isWishlisted) {
+      await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+      setWishlist((prev) =>
+        prev.filter(
+          (item) =>
+            !(
+              item.object_id === product.id &&
+              item.product_type === product.type
+            )
+        )
+      );
+    } else {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const newItem = await res.json();
+        setWishlist((prev) => [...prev, newItem]);
+      }
+    }
   };
 
   // Get unique categories from products
@@ -394,6 +462,18 @@ export default function ProductsPage() {
                 </MenuItem>
                 <Divider />
                 <MenuItem
+                  component={RouterLink}
+                  to="/wishlist"
+                  sx={{
+                    borderRadius: 3,
+                    px: 2,
+                    py: 1,
+                    "&:hover": { backgroundColor: "#f0f4fa" },
+                  }}
+                >
+                  <Typography color="primary">My Wishlist</Typography>
+                </MenuItem>
+                <MenuItem
                   onClick={handleSignOut}
                   sx={{
                     borderRadius: 3,
@@ -555,7 +635,7 @@ export default function ProductsPage() {
                     />
                     {/* Heart Button - absolute position top right */}
                     <IconButton
-                      aria-label="add to wishlist"
+                      aria-label="toggle wishlist"
                       sx={{
                         position: "absolute",
                         top: 8,
@@ -564,11 +644,18 @@ export default function ProductsPage() {
                         "&:hover": { background: "#ffeaea" },
                       }}
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent card click
+                        e.stopPropagation();
                         handleAddToWishlist(product);
                       }}
                     >
-                      <FavoriteBorderIcon color="error" />
+                      {wishlist.some(
+                        (item) =>
+                          item.object_id === product.id && item.product_type === product.type
+                      ) ? (
+                        <FavoriteIcon color="error" />
+                      ) : (
+                        <FavoriteBorderIcon color="error" />
+                      )}
                     </IconButton>
                   </Box>
                   <CardContent sx={{ flexGrow: 1 }}>

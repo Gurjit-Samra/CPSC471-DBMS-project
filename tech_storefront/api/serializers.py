@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models.user_models import User, Customer, Admin
 from .models.product_models import Laptop, PC, TV, Phone, Accessory, Video_Game, Console
-from .models.cart_models import Cart_Includes
+from .models.cart_models import Cart_Includes, WishlistItem
 from .models.review_models import Review
 
 # User serializers
@@ -152,3 +152,34 @@ class ReviewSerializer(serializers.ModelSerializer):
             "product_type",
             "product_id",
         ]
+
+class WishlistItemSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+    product_type = serializers.SerializerMethodField()
+
+    class Meta:
+        model = WishlistItem
+        fields = ['object_id', 'product_type', 'name', 'description', 'price', 'image']
+
+    def get_product(self, obj):
+        model = obj.content_type.model_class()
+        return model.objects.get(id=obj.object_id)
+
+    def get_name(self, obj):
+        return self.get_product(obj).name
+
+    def get_description(self, obj):
+        return self.get_product(obj).description
+
+    def get_price(self, obj):
+        return self.get_product(obj).price
+
+    def get_image(self, obj):
+        product = self.get_product(obj)
+        return product.image.url if product.image else None
+
+    def get_product_type(self, obj):
+        return obj.content_type.model

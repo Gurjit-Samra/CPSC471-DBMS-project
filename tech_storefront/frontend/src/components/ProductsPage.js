@@ -495,6 +495,22 @@ export default function ProductsPage() {
                   <Typography color="primary">My Orders</Typography>
                 </MenuItem>
 
+                {/* Admin Dashboard Button */}
+                {(user.is_staff || user.is_superuser) && (
+                  <MenuItem
+                    component={RouterLink}
+                    to="/admin-dashboard"
+                    sx={{
+                      borderRadius: 3,
+                      px: 2,
+                      py: 1,
+                      "&:hover": { backgroundColor: "#f0f4fa" },
+                    }}
+                  >
+                    <Typography color="primary">Admin Dashboard</Typography>
+                  </MenuItem>
+                )}
+
                 <MenuItem
                   onClick={handleSignOut}
                   sx={{
@@ -511,6 +527,23 @@ export default function ProductsPage() {
               </Menu>
             </>
           )}
+
+          {/* Admin Dashboard Button */}
+          {(user.is_staff || user.is_superuser) && (
+            <MenuItem
+              component={RouterLink}
+              to="/admin-dashboard"
+              sx={{
+                borderRadius: 3,
+                px: 2,
+                py: 1,
+                "&:hover": { backgroundColor: "#f0f4fa" },
+              }}
+            >
+              <Typography color="primary">Admin Dashboard</Typography>
+            </MenuItem>
+          )}
+
           {/* Cart Icon */}
           <IconButton color="primary" sx={{ ml: 2 }} onClick={handleCartOpen}>
             <Badge badgeContent={cart.length} color="secondary">

@@ -1,59 +1,97 @@
-// tech_storefront/frontend/src/components/AdminDashboardPage.js
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useAuth } from "./AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import {
-    Box,
-    Grid,
-    Card,
-    CardMedia,
-    CardContent,
-    Typography,
-    IconButton,
-    Stack,
-    Menu,
-    MenuItem,
-    Divider,
-    Badge,
-    Button,
+  Box,
+  Paper,
+  Typography,
+  Button,
+  Stack,
+  Fade,
 } from "@mui/material";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import LaunchIcon from "@mui/icons-material/Launch";
 
-    export default function AdminDashboardPage() {
-    const { user } = useAuth();
+export default function AdminDashboardPage() {
+    const { user, isLoading } = useAuth();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        // If user is not superuser/staff, bounce them out:
-        if (!user || (!user.is_superuser && !user.is_staff)) {
-        navigate("/"); // or /sign-in, /products, etc.
-        }
-    }, [user, navigate]);
+    const isAdmin = useMemo(() =>
+        Boolean(user && (user.is_superuser || user.is_staff)), [user]);
 
-    if (!user) {
-        return <Typography>Loading...</Typography>;
+    useEffect(() => {
+        if (!isLoading && !isAdmin) {
+        navigate("/");
+        }
+    }, [isLoading, isAdmin, navigate]);
+
+    if (isLoading || !user) {
+        return (
+        <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center" }}>
+            <Typography variant="h6">Loading dashboard…</Typography>
+        </Box>
+        );
     }
 
     return (
+        <Fade in>
         <Box
-        sx={{
+            sx={{
             minHeight: "100vh",
-            width: "100vw",
-            background: "#f5f5f5",
-            p: 4,
-        }}
+            width: "100%",
+            bgcolor: "background.default",
+            py: 6,
+            px: 2,
+            }}
         >
-        <Typography variant="h3" sx={{ mb: 2, fontWeight: 800 }}>
-            Admin Dashboard
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 3 }}>
-            Welcome, {user.first_name}!
-        </Typography>
-        {/* 
-            Admin features here
-        */}
-        <Button variant="contained" onClick={() => navigate("/products")}>
-            Return to Site
-        </Button>
+            <Paper
+            elevation={4}
+            sx={{
+                maxWidth: 960,
+                mx: "auto",
+                p: { xs: 4, md: 6 },
+                borderRadius: 4,
+            }}
+            >
+            <Stack spacing={3}>
+                <Box display="flex" alignItems="center" gap={1}>
+                <DashboardIcon fontSize="large" />
+                <Typography variant="h4" fontWeight={700}>
+                    Admin Dashboard
+                </Typography>
+                </Box>
+
+                <Typography variant="body1">
+                Welcome back, <strong>{user.first_name || user.username}</strong>!
+                </Typography>
+
+                {/* Hook up real widgets / stats here */}
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                <Button
+                    component={RouterLink}
+                    to="/products"
+                    variant="contained"
+                    size="large"
+                    sx={{ borderRadius: 8 }}
+                >
+                    Return to Store
+                </Button>
+
+                <Button
+                    variant="outlined"
+                    size="large"
+                    endIcon={<LaunchIcon />}
+                    sx={{ borderRadius: 8 }}
+                    onClick={() =>
+                    (window.location.href = `${window.location.origin}/admin/`)
+                    }
+                >
+                    Django Admin
+                </Button>
+                </Stack>
+            </Stack>
+            </Paper>
         </Box>
+        </Fade>
     );
-    }
+}

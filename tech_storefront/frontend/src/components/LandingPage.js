@@ -248,6 +248,23 @@ export default function LandingPage() {
               </Menu>
             </>
           )}
+
+          {/* Admin Dashboard Button */}
+          {(user.is_staff || user.is_superuser) && (
+            <MenuItem
+              component={RouterLink}
+              to="/admin-dashboard"
+              sx={{
+                borderRadius: 3,
+                px: 2,
+                py: 1,
+                "&:hover": { backgroundColor: "#f0f4fa" },
+              }}
+            >
+              <Typography color="primary">Admin Dashboard</Typography>
+            </MenuItem>
+          )}
+
         </Stack>
       </Box>
 
@@ -325,22 +342,6 @@ export default function LandingPage() {
         </Box>
       </Box>
 
-      {/* Admin Sign In Button */}
-      <Fab
-        component="a"
-        href="/admin/"
-        color="secondary"
-        size="small"
-        sx={{
-          position: "fixed",
-          bottom: 24,
-          right: 24,
-          zIndex: 1300,
-        }}
-        aria-label="Admin Sign In"
-      >
-        <AdminPanelSettingsIcon />
-      </Fab>
     </Box>
   );
 }

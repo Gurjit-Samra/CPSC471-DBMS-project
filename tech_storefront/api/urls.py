@@ -16,6 +16,8 @@ from .views import OrderView
 from .views import OrderDetailView
 from .views import SignInView
 from .views import AdminAnalyticsView
+from .views import ChatBotView
+from .views import SiteSettingsView
 
 urlpatterns = [
     path('home', CustomerRegistrationView.as_view()),
@@ -35,4 +37,8 @@ urlpatterns = [
     path('order/<int:order_id>/', OrderDetailView.as_view(), name='order-detail'),
     path('sign-in/', SignInView.as_view(), name='sign-in'),
     path('admin-analytics/', AdminAnalyticsView.as_view(), name='admin-analytics'),
+    path('chatbot/', ChatBotView.as_view(), name='chatbot'),
+    path("site-settings/", SiteSettingsView.as_view(), name="site-settings"),
+
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

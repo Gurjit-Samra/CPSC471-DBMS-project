@@ -1,3 +1,5 @@
+// tech_storefront/frontend/src/components/AdminDashboardPage.js
+
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
@@ -16,10 +18,10 @@ import {
     List,
     ListItem,
     ListItemText,
+    TextField,
     } from "@mui/material";
     import DashboardIcon from "@mui/icons-material/Dashboard";
     import LaunchIcon from "@mui/icons-material/Launch";
-
     import {
     ResponsiveContainer,
     LineChart,
@@ -33,6 +35,22 @@ import {
     Bar,
     } from "recharts";
 
+    // 1) Helper function to get CSRF token from cookies
+    function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+        }
+        }
+    }
+    return cookieValue;
+    }
+
     export default function AdminDashboardPage() {
     const { user, isLoading } = useAuth();
     const navigate = useNavigate();
@@ -43,12 +61,22 @@ import {
         [user]
     );
 
+    // 2) For site settings
+    const [openAIApiKey, setOpenAIApiKey] = useState("");
+    const [supportEmail, setSupportEmail] = useState("");
+
+    // We’ll store success or error feedback here
+    const [savingSettings, setSavingSettings] = useState(false);
+    const [settingsError, setSettingsError] = useState("");
+    const [settingsSuccess, setSettingsSuccess] = useState("");
+
     useEffect(() => {
         if (!isLoading && !isAdmin) {
         navigate("/");
         }
     }, [isLoading, isAdmin, navigate]);
 
+    // 3) Fetch analytics
     useEffect(() => {
         if (isAdmin) {
         fetch("/api/admin-analytics/", {
@@ -70,6 +98,68 @@ import {
             });
         }
     }, [isAdmin]);
+
+    // 4) Fetch site settings
+    useEffect(() => {
+        if (isAdmin) {
+        fetch("/api/site-settings/", {
+            credentials: "include",
+        })
+            .then((res) => {
+            if (!res.ok) {
+                throw new Error("Forbidden or error fetching site settings");
+            }
+            return res.json();
+            })
+            .then((data) => {
+            setOpenAIApiKey(data.openai_api_key);
+            setSupportEmail(data.support_email);
+            })
+            .catch((err) => {
+            console.error(err);
+            setSettingsError("Error loading site settings");
+            });
+        }
+    }, [isAdmin]);
+
+    // 5) Save settings (PUT) with CSRF token
+    const handleSaveSettings = () => {
+        setSavingSettings(true);
+        // Clear any old messages
+        setSettingsError("");
+        setSettingsSuccess("");
+
+        fetch("/api/site-settings/", {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            // Include CSRF token from cookies
+            "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify({
+            openai_api_key: openAIApiKey,
+            support_email: supportEmail,
+        }),
+        })
+        .then((res) => {
+            setSavingSettings(false);
+            if (!res.ok) {
+            throw new Error("Failed to save settings");
+            }
+            return res.json();
+        })
+        .then((data) => {
+            console.log("Settings saved:", data);
+            // Show a success message
+            setSettingsSuccess("Settings saved successfully!");
+        })
+        .catch((err) => {
+            console.error(err);
+            setSettingsError("Error saving site settings");
+            setSettingsSuccess(""); // Clear success if error
+        });
+    };
 
     if (isLoading || !user) {
         return (
@@ -164,7 +254,9 @@ import {
                     size="large"
                     endIcon={<LaunchIcon />}
                     sx={{ borderRadius: 8 }}
-                    onClick={() => (window.location.href = `${window.location.origin}/admin/`)}
+                    onClick={() =>
+                    (window.location.href = `${window.location.origin}/admin/`)
+                    }
                 >
                     Django Admin
                 </Button>
@@ -207,7 +299,9 @@ import {
                     <CardContent>
                         <Typography variant="overline">Avg. Order Value</Typography>
                         <Typography variant="h5" fontWeight={700}>
-                        {total_orders > 0 ? `$${(total_sales / total_orders).toFixed(2)}` : "$0.00"}
+                        {total_orders > 0
+                            ? `$${(total_sales / total_orders).toFixed(2)}`
+                            : "$0.00"}
                         </Typography>
                     </CardContent>
                     </Card>
@@ -229,7 +323,11 @@ import {
                     {/* Orders (right Y-axis) */}
                     <YAxis yAxisId="right" orientation="right" />
 
-                    <Tooltip formatter={(v, n) => (n === "Revenue" ? `$${v.toFixed(2)}` : v)} />
+                    <Tooltip
+                        formatter={(v, n) =>
+                        n === "Revenue" ? `$${v.toFixed(2)}` : v
+                        }
+                    />
                     <Legend />
 
                     <Line
@@ -291,11 +389,21 @@ import {
                     <YAxis yAxisId="left" tickFormatter={(v) => `$${v}`} />
                     <YAxis yAxisId="right" orientation="right" />
 
-                    <Tooltip formatter={(v, n) => (n === "Revenue" ? `$${v.toFixed(2)}` : v)} />
+                    <Tooltip
+                        formatter={(v, n) =>
+                        n === "Revenue" ? `$${v.toFixed(2)}` : v
+                        }
+                    />
                     <Legend />
 
                     {/* Bars for revenue */}
-                    <Bar yAxisId="left" dataKey="revenue" name="Revenue" fill="#8884d8" barSize={40} />
+                    <Bar
+                        yAxisId="left"
+                        dataKey="revenue"
+                        name="Revenue"
+                        fill="#8884d8"
+                        barSize={40}
+                    />
 
                     {/* Line for units sold */}
                     <Line
@@ -324,8 +432,14 @@ import {
                         {recent_orders.map((order) => (
                         <ListItem key={order.id}>
                             <ListItemText
-                            primary={`Order #${order.id} - $${order.total.toFixed(2)} - ${order.status}`}
-                            secondary={`Customer: ${order.customer_email} | Placed: ${new Date(order.created_at).toLocaleString()}`}
+                            primary={`Order #${order.id} - $${order.total.toFixed(
+                                2
+                            )} - ${order.status}`}
+                            secondary={`Customer: ${
+                                order.customer_email
+                            } | Placed: ${new Date(
+                                order.created_at
+                            ).toLocaleString()}`}
                             />
                         </ListItem>
                         ))}
@@ -342,7 +456,6 @@ import {
                     Top 5 Best-Selling Products (By Category)
                 </Typography>
 
-                {/* We can do 2 columns, each cell is a category */}
                 <Grid container spacing={2}>
                     {Object.entries(top_sellers).map(([cat, products]) => (
                     <Grid item xs={12} sm={6} md={4} key={cat}>
@@ -360,7 +473,9 @@ import {
                                 <ListItem key={p.id} sx={{ py: 0.5 }}>
                                 <ListItemText
                                     primary={`${p.name}`}
-                                    secondary={`Qty Sold: ${p.total_qty} | Revenue: $${p.total_revenue.toFixed(2)}`}
+                                    secondary={`Qty Sold: ${p.total_qty} | Revenue: $${p.total_revenue.toFixed(
+                                    2
+                                    )}`}
                                 />
                                 </ListItem>
                             ))}
@@ -370,6 +485,46 @@ import {
                     </Grid>
                     ))}
                 </Grid>
+                </Box>
+
+                {/* --- SITE SETTINGS FORM --- */}
+                <Divider sx={{ my: 4 }} />
+                <Box>
+                <Typography variant="h5" mb={2} fontWeight={700}>
+                    Site Settings
+                </Typography>
+                <Stack spacing={2} sx={{ maxWidth: 500 }}>
+                    <TextField
+                    label="OpenAI API Key"
+                    value={openAIApiKey}
+                    onChange={(e) => setOpenAIApiKey(e.target.value)}
+                    fullWidth
+                    size="small"
+                    />
+                    <TextField
+                    label="Support Email"
+                    value={supportEmail}
+                    onChange={(e) => setSupportEmail(e.target.value)}
+                    fullWidth
+                    size="small"
+                    />
+
+                    {/* Show success or error messages */}
+                    {settingsSuccess && (
+                    <Typography color="primary">{settingsSuccess}</Typography>
+                    )}
+                    {settingsError && (
+                    <Typography color="error">{settingsError}</Typography>
+                    )}
+
+                    <Button
+                    variant="contained"
+                    onClick={handleSaveSettings}
+                    disabled={savingSettings}
+                    >
+                    {savingSettings ? "Saving..." : "Save Settings"}
+                    </Button>
+                </Stack>
                 </Box>
             </Stack>
             </Paper>

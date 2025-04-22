@@ -1,3 +1,7 @@
+import os
+import json
+import requests
+
 from datetime import timedelta
 from decimal import Decimal
 
@@ -27,6 +31,7 @@ from .models.product_models import (
 )
 from .models.review_models import Review
 from .models.user_models import Admin, Customer
+from .models.site_settings import SiteSettings
 
 from .serializers import (
     AccessorySerializer,
@@ -694,3 +699,172 @@ class AdminAnalyticsView(APIView):
             "top_sellers": top_sellers,
         }
         return Response(data, status=status.HTTP_200_OK)
+
+class ChatBotView(APIView):
+
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        user_message = request.data.get("userMessage", "")
+        current_page = request.data.get("currentPage", "unknown")
+        
+        laptops = Laptop.objects.all()
+        pcs = PC.objects.all()
+        tvs = TV.objects.all()
+        phones = Phone.objects.all()
+        consoles = Console.objects.all()
+        video_games = Video_Game.objects.all()
+        accessories = Accessory.objects.all()
+
+        laptops_data = LaptopSerializer(laptops, many=True).data
+        pcs_data = PCSerializer(pcs, many=True).data
+        tvs_data = TVSerializer(tvs, many=True).data
+        phones_data = PhoneSerializer(phones, many=True).data
+        consoles_data = ConsoleSerializer(consoles, many=True).data
+        video_games_data = VideoGameSerializer(video_games, many=True).data
+        accessories_data = AccessorySerializer(accessories, many=True).data
+
+        db_data = {
+            "laptops": laptops_data,
+            "pcs": pcs_data,
+            "tvs": tvs_data,
+            "phones": phones_data,
+            "consoles": consoles_data,
+            "video_games": video_games_data,
+            "accessories": accessories_data,
+        }
+        db_string = json.dumps(db_data)
+
+        site_structure = {
+            "pages": [
+                "/",
+                "/sign-in",
+                "/customer-registration",
+                "/products",
+                "/products/<type>/<id>",
+                "/checkout",
+                "/wishlist",
+                "/my-orders",
+                "/admin-dashboard"
+            ],
+            "description": "This site sells electronics: laptops, phones, TVs, consoles, etc."
+        }
+        website_string = json.dumps(site_structure)
+
+        
+        site_settings, _ = SiteSettings.objects.get_or_create(id=1)
+        OPENAI_API_KEY = site_settings.openai_api_key or "EMPTY_KEY"
+        support_email_address = site_settings.support_email or "support@example.com"
+
+
+        first_name = getattr(request.user, "first_name", None) or None
+        last_name = getattr(request.user, "last_name", None) or None
+        email = getattr(request.user, "email", None) or None
+
+        openai_request_body = {
+            "model": "o4-mini",
+            "input": [
+                {
+                    "role": "system",
+                    "content": [
+                        {
+                        "type": "input_text",
+                        "text": f"You are a ChatBot for an eCommerce website called FGG Tech who is capable of answering customer queries. You will be provided with the database and website structure as a string.\n\n# Instructions\n\n- Understand and interpret the provided database and website structure.\n- Develop logical responses to customer inquiries related to product searches and other common customer service topics.\n- Reference the database structure for information retrieval and ensure responses are accurate and aligned with the given data source.\n- You will also be given the current website page the customer inquired from, as well as basic customer information.\n- The database data can be found below under the heading DATABASE_DATA.\n- The website data can be found below under the heading WEBSITE_DATA.\n- The customer inquiry/message will have a heading called CUSTOMER_INQUIRY.\n- The customer\'s current website page will have a heading called CUSTOMER_INQUIRY_FROM_URL.\n- The customer\'s basic information (name and email) will have a heading called CUSTOMER_INFO\n  \n# Output Format\n\n- Responses should be clear, concise, and assist the customer effectively. The responses should also be personalized for the customer\n  \n# Example Queries\n\n1. **Customer Query:** \"Can you tell me the price of [Product Name]?\"\n   - **Response:** \"The price of [Product Name] is [Product Price].\"\n\n2. **Customer Query:** \"What is the status of my order [Order Number]?\"\n   - **Response:** \"Your order [Order Number] is currently [Order Status].\"\n\n# Notes\n\n- Ensure the ChatBot can handle various customer service queries using the information from the provided database and website structure.\n- Incorporate error handling for situations where the information requested isn\'t available in the database, if information is missing, say so, and suggest to email {support_email_address}.\n\n# DATABASE_DATA\n{db_string}\n\n# WEBSITE_DATA\n{website_string}"
+                        }
+                    ]
+                },
+
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": f"# CUSTOMER_INQUIRY\n {user_message}\n\n"
+                                    f"# CUSTOMER_INQUIRY_FROM_URL\n {current_page}\n\n"
+                                    f"# CUSTOMER_INFO\n Name: {first_name} {last_name}, Email: {email}"
+                        }
+                    ]
+                }
+            ],
+            "text": {
+                "format": {
+                    "type": "text"
+                }
+            },
+            "reasoning": {
+                "effort": "medium"
+            },
+            "tools": [],
+            "store": True
+        }
+
+        try:
+            response = requests.post(
+                "https://api.openai.com/v1/responses",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {OPENAI_API_KEY}"
+                },
+                json=openai_request_body,
+                timeout=40
+            )
+            if response.status_code == 200:
+                api_json = response.json()
+                
+                def extract_assistant_text(json_data):
+                    for item in json_data.get("output", []):
+                        if item.get("type") == "message":
+                            for block in item.get("content", []):
+                                if block.get("type") == "output_text":
+                                    return block.get("text", "")
+                    return "No reply text found."
+
+                assistant_text = extract_assistant_text(api_json)
+
+                return Response({"assistantReply": assistant_text}, status=status.HTTP_200_OK)
+
+            else:
+                return Response({
+                    "error": "OpenAI request failed",
+                    "status_code": response.status_code,
+                    "details": response.text
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except requests.exceptions.RequestException as e:
+            return Response({
+                "error": "Exception calling OpenAI",
+                "details": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class SiteSettingsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        # Ensure only staff or superuser can see it
+        if not request.user.is_staff and not request.user.is_superuser:
+            return Response({"detail": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+
+        # We only expect one row
+        obj, created = SiteSettings.objects.get_or_create(id=1)
+        data = {
+            "openai_api_key": obj.openai_api_key or "",
+            "support_email": obj.support_email or "",
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        # Ensure only staff or superuser can update
+        if not request.user.is_staff and not request.user.is_superuser:
+            return Response({"detail": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+
+        obj, created = SiteSettings.objects.get_or_create(id=1)
+        openai_api_key = request.data.get("openai_api_key", "").strip()
+        support_email = request.data.get("support_email", "").strip()
+
+        obj.openai_api_key = openai_api_key
+        obj.support_email = support_email
+        obj.save()
+
+        return Response({
+            "openai_api_key": obj.openai_api_key,
+            "support_email": obj.support_email
+        }, status=status.HTTP_200_OK)

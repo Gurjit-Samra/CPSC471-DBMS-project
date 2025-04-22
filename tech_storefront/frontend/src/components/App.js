@@ -15,6 +15,7 @@ import CartPage from "./CartPage";
 import MyOrdersPage from "./MyOrdersPage";
 import MyOrderDetailPage from "./MyOrderDetailPage";
 import AdminDashboardPage from "./AdminDashboardPage";
+import ChatbotBubble from "./ChatbotBubble";
 
 export default function App() {
   return (
@@ -36,6 +37,8 @@ export default function App() {
           <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
 
         </Routes>
+
+        <ChatbotBubble currentPage="/some-page" />
       </BrowserRouter>
     </AuthProvider>
   );

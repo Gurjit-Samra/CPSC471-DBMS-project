@@ -12,6 +12,7 @@ from .views import product_suggestions
 from .views import CartView
 from .views import ReviewCreateView
 from .views import WishlistView
+from .views import OrderView
 
 urlpatterns = [
     path('home', CustomerRegistrationView.as_view()),
@@ -27,4 +28,5 @@ urlpatterns = [
     path('cart/', CartView.as_view(), name='cart'),
     path('reviews/', ReviewCreateView.as_view(), name='review-create'),
     path('wishlist/', WishlistView.as_view(), name='wishlist'),
+    path('order/', OrderView.as_view(), name='order'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

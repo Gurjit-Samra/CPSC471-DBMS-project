@@ -3,6 +3,7 @@ from .models.user_models import User, Customer, Admin
 from .models.product_models import Laptop, PC, TV, Phone, Accessory, Video_Game, Console
 from .models.cart_models import Cart_Includes, WishlistItem
 from .models.review_models import Review
+from .models.order_models import Order, OrderItem
 
 # User serializers
 class UserSerializer(serializers.ModelSerializer):
@@ -183,3 +184,29 @@ class WishlistItemSerializer(serializers.ModelSerializer):
 
     def get_product_type(self, obj):
         return obj.content_type.model
+    
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = [
+            'id',
+            'content_type',
+            'object_id',
+            'name',
+            'price',
+            'quantity',
+        ]
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = '__all__'
+        read_only_fields = [
+            'customer',
+            'status',
+            'created_at',
+            'items',
+            'total'
+        ]

@@ -39,19 +39,36 @@ const steps = [
   "Review and Place Order",
 ];
 
+// Quick validations
 function isValidPostalCode(code) {
   // Canadian postal code regex (simple)
   return /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(code.trim());
 }
-
 function isValidPhone(phone) {
-  // Simple North American phone validation
+  // Simple NA phone validation
   return /^\d{10}$/.test(phone.replace(/\D/g, ""));
+}
+
+// CSRF
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
 }
 
 export default function CheckoutPage() {
   const [activeStep, setActiveStep] = useState(0);
-  const [form, setForm] = useState({
+  // Shipping
+  const [shipping, setShipping] = useState({
     firstName: "",
     lastName: "",
     address: "",
@@ -60,8 +77,23 @@ export default function CheckoutPage() {
     city: "",
     province: "",
     phone: "",
-    useAsBilling: true,
   });
+  // Billing
+  const [billing, setBilling] = useState({
+    firstName: "",
+    lastName: "",
+    address: "",
+    address2: "",
+    postalCode: "",
+    city: "",
+    province: "",
+    phone: "",
+  });
+  const [useAsBilling, setUseAsBilling] = useState(true);
+
+  // Payment placeholder
+  const [paymentMethod] = useState("credit"); // or "paypal" etc
+
   const [cart, setCart] = useState([]);
   const navigate = useNavigate();
 
@@ -77,37 +109,126 @@ export default function CheckoutPage() {
     (sum, item) => sum + Number(item.price) * item.quantity,
     0
   );
-  const shipping = 19.95; // Example static shipping
-
-  // Get selected province's tax rate, default to 0.13 (Ontario) if not selected
+  const shippingCost = 19.95; // Example static shipping
+  // Get selected province's tax rate, default to Ontario (0.13) if not found
   const selectedProvince =
-    provinces.find((prov) => prov.name === form.province) || provinces[6];
+    provinces.find((prov) => prov.name === shipping.province) || provinces[6];
   const taxRate = selectedProvince.tax;
   const tax = Math.round(merchandise * taxRate * 100) / 100;
-  const total = merchandise + shipping + tax;
+  const total = merchandise + shippingCost + tax;
 
-  // Validation for enabling Next button
-  const isFormValid =
-    form.firstName.trim() &&
-    form.lastName.trim() &&
-    form.address.trim() &&
-    form.postalCode.trim() &&
-    isValidPostalCode(form.postalCode) &&
-    form.city.trim() &&
-    form.province &&
-    form.phone.trim() &&
-    isValidPhone(form.phone);
+  // Validation check for Step 1
+  const isShippingValid =
+    shipping.firstName.trim() &&
+    shipping.lastName.trim() &&
+    shipping.address.trim() &&
+    shipping.postalCode.trim() &&
+    isValidPostalCode(shipping.postalCode) &&
+    shipping.city.trim() &&
+    shipping.province &&
+    shipping.phone.trim() &&
+    isValidPhone(shipping.phone);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+  // Validation check for Step 2
+  // For payment and billing, if we are copying shipping → billing, we skip these checks:
+  const isBillingValid = useAsBilling
+    ? true
+    : // If not using shipping data, require user fill out billing
+      billing.firstName.trim() &&
+      billing.lastName.trim() &&
+      billing.address.trim() &&
+      billing.postalCode.trim() &&
+      isValidPostalCode(billing.postalCode) &&
+      billing.city.trim() &&
+      billing.province &&
+      billing.phone.trim() &&
+      isValidPhone(billing.phone);
+
+  // Handler for shipping changes
+  const handleShippingChange = (e) => {
+    const { name, value } = e.target;
+    setShipping((prev) => ({ ...prev, [name]: value }));
   };
+  // Handler for billing changes
+  const handleBillingChange = (e) => {
+    const { name, value } = e.target;
+    setBilling((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // If user toggles "Use as billing", copy shipping → billing
+  const handleUseAsBilling = (e) => {
+    const checked = e.target.checked;
+    setUseAsBilling(checked);
+    if (checked) {
+      // Copy shipping to billing
+      setBilling({ ...shipping });
+    }
+  };
+
+  // Whenever shipping changes *and* useAsBilling is true, recopy
+  useEffect(() => {
+    if (useAsBilling) {
+      setBilling({ ...shipping });
+    }
+  }, [shipping, useAsBilling]);
 
   const handleNext = () => setActiveStep((prev) => prev + 1);
   const handleBack = () => setActiveStep((prev) => prev - 1);
+
+  const handlePlaceOrder = async () => {
+    // Actually POST to /api/order/ with shipping/billing info
+    try {
+      const csrftoken = getCookie("csrftoken");
+      // Build data for request
+      const data = {
+        shipping_first_name: shipping.firstName,
+        shipping_last_name: shipping.lastName,
+        shipping_address: shipping.address,
+        shipping_address2: shipping.address2,
+        shipping_city: shipping.city,
+        shipping_state: "", // if you keep state separate from province
+        shipping_province: shipping.province,
+        shipping_postal_code: shipping.postalCode,
+        shipping_phone: shipping.phone,
+
+        billing_first_name: billing.firstName,
+        billing_last_name: billing.lastName,
+        billing_address: billing.address,
+        billing_address2: billing.address2,
+        billing_city: billing.city,
+        billing_state: "",
+        billing_province: billing.province,
+        billing_postal_code: billing.postalCode,
+        billing_phone: billing.phone,
+
+        // payment placeholders if needed
+        // card_number: ...
+      };
+
+      const resp = await fetch("/api/order/", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        body: JSON.stringify(data),
+      });
+      if (!resp.ok) {
+        const errData = await resp.json();
+        alert("Error placing order: " + (errData.error || "Unknown error"));
+        return;
+      }
+      // If successful, we can navigate to a success page or show a message
+      const orderData = await resp.json();
+      // For now just alert or redirect
+      alert(`Order #${orderData.id} placed successfully!`);
+      navigate("/products");
+    } catch (error) {
+      console.error(error);
+      alert("Network error placing order.");
+    }
+  };
 
   return (
     <Box
@@ -179,16 +300,16 @@ export default function CheckoutPage() {
                     <TextField
                       label="First Name"
                       name="firstName"
-                      value={form.firstName}
-                      onChange={handleChange}
+                      value={shipping.firstName}
+                      onChange={handleShippingChange}
                       required
                       fullWidth
                     />
                     <TextField
                       label="Last Name"
                       name="lastName"
-                      value={form.lastName}
-                      onChange={handleChange}
+                      value={shipping.lastName}
+                      onChange={handleShippingChange}
                       required
                       fullWidth
                     />
@@ -197,16 +318,16 @@ export default function CheckoutPage() {
                     <TextField
                       label="Street Address"
                       name="address"
-                      value={form.address}
-                      onChange={handleChange}
+                      value={shipping.address}
+                      onChange={handleShippingChange}
                       required
                       fullWidth
                     />
                     <TextField
                       label="Apt, suite, etc."
                       name="address2"
-                      value={form.address2}
-                      onChange={handleChange}
+                      value={shipping.address2}
+                      onChange={handleShippingChange}
                       fullWidth
                     />
                   </Stack>
@@ -214,13 +335,13 @@ export default function CheckoutPage() {
                     <TextField
                       label="Postal Code"
                       name="postalCode"
-                      value={form.postalCode}
-                      onChange={handleChange}
+                      value={shipping.postalCode}
+                      onChange={handleShippingChange}
                       required
                       fullWidth
-                      error={!!form.postalCode && !isValidPostalCode(form.postalCode)}
+                      error={!!shipping.postalCode && !isValidPostalCode(shipping.postalCode)}
                       helperText={
-                        !!form.postalCode && !isValidPostalCode(form.postalCode)
+                        !!shipping.postalCode && !isValidPostalCode(shipping.postalCode)
                           ? "Invalid postal code"
                           : ""
                       }
@@ -228,8 +349,8 @@ export default function CheckoutPage() {
                     <TextField
                       label="Town/City"
                       name="city"
-                      value={form.city}
-                      onChange={handleChange}
+                      value={shipping.city}
+                      onChange={handleShippingChange}
                       required
                       fullWidth
                     />
@@ -237,8 +358,8 @@ export default function CheckoutPage() {
                       select
                       label="Province"
                       name="province"
-                      value={form.province}
-                      onChange={handleChange}
+                      value={shipping.province}
+                      onChange={handleShippingChange}
                       required
                       fullWidth
                     >
@@ -254,13 +375,13 @@ export default function CheckoutPage() {
                     <TextField
                       label="Phone Number"
                       name="phone"
-                      value={form.phone}
-                      onChange={handleChange}
+                      value={shipping.phone}
+                      onChange={handleShippingChange}
                       required
                       fullWidth
-                      error={!!form.phone && !isValidPhone(form.phone)}
+                      error={!!shipping.phone && !isValidPhone(shipping.phone)}
                       helperText={
-                        !!form.phone && !isValidPhone(form.phone)
+                        !!shipping.phone && !isValidPhone(shipping.phone)
                           ? "Enter 10 digit phone number"
                           : ""
                       }
@@ -268,8 +389,8 @@ export default function CheckoutPage() {
                     <FormControlLabel
                       control={
                         <Checkbox
-                          checked={form.useAsBilling}
-                          onChange={handleChange}
+                          checked={useAsBilling}
+                          onChange={handleUseAsBilling}
                           name="useAsBilling"
                         />
                       }
@@ -290,7 +411,7 @@ export default function CheckoutPage() {
                     display: "block",
                   }}
                   onClick={handleNext}
-                  disabled={!isFormValid}
+                  disabled={!isShippingValid}
                 >
                   Next
                 </Button>
@@ -300,9 +421,109 @@ export default function CheckoutPage() {
             {activeStep === 1 && (
               <>
                 <Typography variant="h6" sx={{ mb: 2 }}>
-                  Payment and Billing (Placeholder)
+                  Payment and Billing
                 </Typography>
-                {/* ...Payment form fields here... */}
+                {/* Payment is a placeholder. But let's show billing if useAsBilling is false */}
+                {!useAsBilling && (
+                  <>
+                    <Typography variant="h6" sx={{ mt: 2, mb: 2 }}>
+                      Billing Address
+                    </Typography>
+                    <Stack spacing={2}>
+                      <Stack direction="row" spacing={2}>
+                        <TextField
+                          label="First Name"
+                          name="firstName"
+                          value={billing.firstName}
+                          onChange={handleBillingChange}
+                          required
+                          fullWidth
+                        />
+                        <TextField
+                          label="Last Name"
+                          name="lastName"
+                          value={billing.lastName}
+                          onChange={handleBillingChange}
+                          required
+                          fullWidth
+                        />
+                      </Stack>
+                      <Stack direction="row" spacing={2}>
+                        <TextField
+                          label="Street Address"
+                          name="address"
+                          value={billing.address}
+                          onChange={handleBillingChange}
+                          required
+                          fullWidth
+                        />
+                        <TextField
+                          label="Apt, suite, etc."
+                          name="address2"
+                          value={billing.address2}
+                          onChange={handleBillingChange}
+                          fullWidth
+                        />
+                      </Stack>
+                      <Stack direction="row" spacing={2}>
+                        <TextField
+                          label="Postal Code"
+                          name="postalCode"
+                          value={billing.postalCode}
+                          onChange={handleBillingChange}
+                          required
+                          fullWidth
+                          error={!!billing.postalCode && !isValidPostalCode(billing.postalCode)}
+                          helperText={
+                            !!billing.postalCode && !isValidPostalCode(billing.postalCode)
+                              ? "Invalid postal code"
+                              : ""
+                          }
+                        />
+                        <TextField
+                          label="Town/City"
+                          name="city"
+                          value={billing.city}
+                          onChange={handleBillingChange}
+                          required
+                          fullWidth
+                        />
+                        <TextField
+                          select
+                          label="Province"
+                          name="province"
+                          value={billing.province}
+                          onChange={handleBillingChange}
+                          required
+                          fullWidth
+                        >
+                          <MenuItem value="">Please Select</MenuItem>
+                          {provinces.map((prov) => (
+                            <MenuItem key={prov.name} value={prov.name}>
+                              {prov.name}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      </Stack>
+                      <Stack direction="row" spacing={2}>
+                        <TextField
+                          label="Phone Number"
+                          name="phone"
+                          value={billing.phone}
+                          onChange={handleBillingChange}
+                          required
+                          fullWidth
+                          error={!!billing.phone && !isValidPhone(billing.phone)}
+                          helperText={
+                            !!billing.phone && !isValidPhone(billing.phone)
+                              ? "Enter 10 digit phone number"
+                              : ""
+                          }
+                        />
+                      </Stack>
+                    </Stack>
+                  </>
+                )}
                 <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
                   <Button
                     variant="outlined"
@@ -325,6 +546,7 @@ export default function CheckoutPage() {
                       width: 120,
                     }}
                     onClick={handleNext}
+                    disabled={!isBillingValid}
                   >
                     Next
                   </Button>
@@ -335,9 +557,18 @@ export default function CheckoutPage() {
             {activeStep === 2 && (
               <>
                 <Typography variant="h6" sx={{ mb: 2 }}>
-                  Review and Place Order (Placeholder)
+                  Review and Place Order
                 </Typography>
-                {/* ...Review order details here... */}
+                <Typography variant="body1">
+                  Shipping to: {shipping.firstName} {shipping.lastName}, {shipping.address},{" "}
+                  {shipping.address2 && shipping.address2 + ", "} {shipping.city},{" "}
+                  {shipping.province}, {shipping.postalCode}, {shipping.phone}
+                </Typography>
+                <Typography variant="body1" sx={{ mt: 1 }}>
+                  Billing to: {billing.firstName} {billing.lastName}, {billing.address},{" "}
+                  {billing.address2 && billing.address2 + ", "} {billing.city},{" "}
+                  {billing.province}, {billing.postalCode}, {billing.phone}
+                </Typography>
                 <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
                   <Button
                     variant="outlined"
@@ -359,6 +590,7 @@ export default function CheckoutPage() {
                       borderRadius: "999px",
                       width: 120,
                     }}
+                    onClick={handlePlaceOrder}
                   >
                     Place Order
                   </Button>
@@ -422,10 +654,6 @@ export default function CheckoutPage() {
                   <Typography sx={{ fontSize: 14, mb: 0.5 }}>
                     {item.name}
                   </Typography>
-                  <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                    {item.brand ? item.brand : ""}{" "}
-                    {item.size ? `No Size` : ""}
-                  </Typography>
                   <Typography sx={{ fontSize: 13 }}>
                     Qty: {item.quantity}
                   </Typography>
@@ -454,7 +682,7 @@ export default function CheckoutPage() {
             >
               <Typography>Shipping &amp; Handling</Typography>
               <Typography sx={{ fontWeight: 600 }}>
-                C${shipping.toFixed(2)}
+                C${shippingCost.toFixed(2)}
               </Typography>
             </Box>
             <Box

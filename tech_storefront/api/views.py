@@ -12,6 +12,9 @@ from rest_framework.decorators import api_view
 from .models.review_models import Review
 from django.contrib.contenttypes.models import ContentType
 from .serializers import WishlistItemSerializer
+from .models.order_models import Order, OrderItem
+from .serializers import OrderSerializer
+from decimal import Decimal
 
 
 PRODUCT_MODEL_MAP = {
@@ -383,3 +386,106 @@ class WishlistView(APIView):
             object_id=product_id,
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class OrderView(APIView):
+    """
+    POST /api/order/ to place a new order
+    GET /api/order/ to list or retrieve orders (if you like)
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        # Expect data for shipping/billing. Example fields:
+        shipping_first_name = request.data.get('shipping_first_name')
+        shipping_last_name = request.data.get('shipping_last_name')
+        shipping_address = request.data.get('shipping_address')
+        shipping_address2 = request.data.get('shipping_address2', '')
+        shipping_city = request.data.get('shipping_city')
+        shipping_state = request.data.get('shipping_state', '')
+        shipping_province = request.data.get('shipping_province', '')
+        shipping_postal_code = request.data.get('shipping_postal_code')
+        shipping_phone = request.data.get('shipping_phone')
+
+        billing_first_name = request.data.get('billing_first_name')
+        billing_last_name = request.data.get('billing_last_name')
+        billing_address = request.data.get('billing_address')
+        billing_address2 = request.data.get('billing_address2', '')
+        billing_city = request.data.get('billing_city')
+        billing_state = request.data.get('billing_state', '')
+        billing_province = request.data.get('billing_province', '')
+        billing_postal_code = request.data.get('billing_postal_code')
+        billing_phone = request.data.get('billing_phone')
+
+        # (Optional) payment info if you collect it
+        # e.g. card_number = request.data.get('card_number')
+
+        if not all([shipping_first_name, shipping_last_name, shipping_address, shipping_city,
+                    shipping_postal_code, shipping_phone,
+                    billing_first_name, billing_last_name, billing_address, billing_city,
+                    billing_postal_code, billing_phone]):
+            return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Cart items for the current user
+        cart_items = Cart_Includes.objects.filter(customer_email=request.user.email)
+
+        if not cart_items.exists():
+            return Response({"error": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create the Order
+        order = Order.objects.create(
+            customer=request.user,
+            shipping_first_name=shipping_first_name,
+            shipping_last_name=shipping_last_name,
+            shipping_address=shipping_address,
+            shipping_address2=shipping_address2,
+            shipping_city=shipping_city,
+            shipping_state=shipping_state,
+            shipping_province=shipping_province,
+            shipping_postal_code=shipping_postal_code,
+            shipping_phone=shipping_phone,
+            billing_first_name=billing_first_name,
+            billing_last_name=billing_last_name,
+            billing_address=billing_address,
+            billing_address2=billing_address2,
+            billing_city=billing_city,
+            billing_state=billing_state,
+            billing_province=billing_province,
+            billing_postal_code=billing_postal_code,
+            billing_phone=billing_phone,
+            total=Decimal("0.00"),  # will update after creating items
+        )
+
+        total = Decimal("0.00")
+
+        # Create OrderItem for each cart item
+        for cart_item in cart_items:
+            product = cart_item.product
+            price = Decimal(str(product.price))  # make sure we have a Decimal
+            quantity = cart_item.quantity
+
+            OrderItem.objects.create(
+                order=order,
+                content_type=cart_item.content_type,
+                object_id=cart_item.object_id,
+                name=product.name,
+                price=price,
+                quantity=quantity
+            )
+
+            total += (price * quantity)
+
+        # Optional: add shipping or taxes if needed
+        # shipping_cost = Decimal("19.95")
+        # total += shipping_cost
+
+        # Save final total
+        order.total = total
+        order.save()
+
+        # Clear user’s cart
+        cart_items.delete()
+
+        # Return the created order
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

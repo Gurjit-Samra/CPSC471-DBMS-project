@@ -62,7 +62,7 @@ CREATE TABLE `api_cart_includes` (
   CONSTRAINT `api_cart_includes_content_type_id_4abd4a17_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
   CONSTRAINT `api_cart_includes_chk_1` CHECK ((`object_id` >= 0)),
   CONSTRAINT `api_cart_includes_chk_2` CHECK ((`quantity` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,7 +71,7 @@ CREATE TABLE `api_cart_includes` (
 
 LOCK TABLES `api_cart_includes` WRITE;
 /*!40000 ALTER TABLE `api_cart_includes` DISABLE KEYS */;
-INSERT INTO `api_cart_includes` VALUES (9,'jstatham@toughmail.uk',2,1,7);
+INSERT INTO `api_cart_includes` VALUES (9,'jstatham@toughmail.uk',2,1,7),(11,'faris1.salhi@gmail.com',1,1,7),(18,'john.pork@gmail.com',1,1,9);
 /*!40000 ALTER TABLE `api_cart_includes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -199,6 +199,88 @@ INSERT INTO `api_laptop` VALUES (1,'MacBook Pro 16-inch (M3 Max)','SUPERCHARGED 
 UNLOCK TABLES;
 
 --
+-- Table structure for table `api_order`
+--
+
+DROP TABLE IF EXISTS `api_order`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `api_order` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `shipping_first_name` varchar(150) NOT NULL,
+  `shipping_last_name` varchar(150) NOT NULL,
+  `shipping_address` varchar(255) NOT NULL,
+  `shipping_address2` varchar(255) NOT NULL,
+  `shipping_city` varchar(100) NOT NULL,
+  `shipping_state` varchar(100) NOT NULL,
+  `shipping_province` varchar(100) NOT NULL,
+  `shipping_postal_code` varchar(20) NOT NULL,
+  `shipping_phone` varchar(20) NOT NULL,
+  `billing_first_name` varchar(150) NOT NULL,
+  `billing_last_name` varchar(150) NOT NULL,
+  `billing_address` varchar(255) NOT NULL,
+  `billing_address2` varchar(255) NOT NULL,
+  `billing_city` varchar(100) NOT NULL,
+  `billing_state` varchar(100) NOT NULL,
+  `billing_province` varchar(100) NOT NULL,
+  `billing_postal_code` varchar(20) NOT NULL,
+  `billing_phone` varchar(20) NOT NULL,
+  `total` decimal(10,2) NOT NULL,
+  `customer_id` varchar(254) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `api_order_customer_id_8cb4e7b7_fk_api_user_email` (`customer_id`),
+  CONSTRAINT `api_order_customer_id_8cb4e7b7_fk_api_user_email` FOREIGN KEY (`customer_id`) REFERENCES `api_user` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `api_order`
+--
+
+LOCK TABLES `api_order` WRITE;
+/*!40000 ALTER TABLE `api_order` DISABLE KEYS */;
+INSERT INTO `api_order` VALUES (1,'2025-04-22 14:26:55.487256','pending','Paul','Atreides','101 Sietch Tabr Way','','Arrakeen','','Manitoba','T3G4S2','1234567890','Paul','Atreides','101 Sietch Tabr Way','','Arrakeen','','Manitoba','T3G4S2','1234567890',5597.97,'muadib@arrakis.com'),(2,'2025-04-22 16:43:51.840234','pending','John','Pork','69 Porkchop Avenue Hill EW','','Calgary','','Quebec','T3G4S2','1234567890','John','Pork','69 Porkchop Avenue Hill EW','','Calgary','','Quebec','T3G4S2','1234567890',3749.98,'john.pork@gmail.com');
+/*!40000 ALTER TABLE `api_order` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `api_orderitem`
+--
+
+DROP TABLE IF EXISTS `api_orderitem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `api_orderitem` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `object_id` int unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `quantity` int unsigned NOT NULL,
+  `content_type_id` int NOT NULL,
+  `order_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `api_orderitem_content_type_id_b89ac15a_fk_django_content_type_id` (`content_type_id`),
+  KEY `api_orderitem_order_id_f9c0afc0_fk_api_order_id` (`order_id`),
+  CONSTRAINT `api_orderitem_content_type_id_b89ac15a_fk_django_content_type_id` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
+  CONSTRAINT `api_orderitem_order_id_f9c0afc0_fk_api_order_id` FOREIGN KEY (`order_id`) REFERENCES `api_order` (`id`),
+  CONSTRAINT `api_orderitem_chk_1` CHECK ((`object_id` >= 0)),
+  CONSTRAINT `api_orderitem_chk_2` CHECK ((`quantity` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `api_orderitem`
+--
+
+LOCK TABLES `api_orderitem` WRITE;
+/*!40000 ALTER TABLE `api_orderitem` DISABLE KEYS */;
+INSERT INTO `api_orderitem` VALUES (1,3,'Razer Blade 16 (2024)',3199.00,1,7,1),(2,1,'iPhone 15 Pro Max',1199.00,1,9,1),(3,1,'SteelSeries Arctis Nova Pro Wireless',349.99,2,16,1),(4,4,'Razer Iskur Gaming Chair',499.99,1,16,1),(5,2,'Samsung S95C OLED 65-Inch (2023)',3299.99,1,10,2),(6,2,'PlayStation 5 Digital Edition',449.99,1,14,2);
+/*!40000 ALTER TABLE `api_orderitem` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `api_pc`
 --
 
@@ -262,6 +344,36 @@ INSERT INTO `api_phone` VALUES (1,'iPhone 15 Pro Max','Apple’s flagship with t
 UNLOCK TABLES;
 
 --
+-- Table structure for table `api_productviewhistory`
+--
+
+DROP TABLE IF EXISTS `api_productviewhistory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `api_productviewhistory` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_email` varchar(254) NOT NULL,
+  `object_id` int unsigned NOT NULL,
+  `viewed_at` datetime(6) NOT NULL,
+  `content_type_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `api_productviewhisto_content_type_id_4b8e05af_fk_django_co` (`content_type_id`),
+  CONSTRAINT `api_productviewhisto_content_type_id_4b8e05af_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
+  CONSTRAINT `api_productviewhistory_chk_1` CHECK ((`object_id` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `api_productviewhistory`
+--
+
+LOCK TABLES `api_productviewhistory` WRITE;
+/*!40000 ALTER TABLE `api_productviewhistory` DISABLE KEYS */;
+INSERT INTO `api_productviewhistory` VALUES (1,'john.pork@gmail.com',5,'2025-04-22 18:22:06.444299',9),(2,'john.pork@gmail.com',3,'2025-04-22 18:22:11.266304',7),(3,'john.pork@gmail.com',2,'2025-04-22 18:22:15.112853',7),(4,'john.pork@gmail.com',4,'2025-04-22 18:22:17.023745',7),(5,'john.pork@gmail.com',1,'2025-04-22 18:22:18.363608',7),(6,'john.pork@gmail.com',1,'2025-04-22 18:22:27.006698',9),(7,'john.pork@gmail.com',2,'2025-04-22 18:22:31.290845',10),(8,'john.pork@gmail.com',2,'2025-04-22 18:22:36.520917',9),(9,'john.pork@gmail.com',3,'2025-04-22 18:22:53.785478',7),(10,'john.pork@gmail.com',4,'2025-04-22 20:41:32.505027',7),(11,'john.pork@gmail.com',2,'2025-04-22 20:41:35.337216',7),(12,'john.pork@gmail.com',1,'2025-04-22 20:41:37.854056',7),(13,'john.pork@gmail.com',3,'2025-04-22 23:06:23.157128',7);
+/*!40000 ALTER TABLE `api_productviewhistory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `api_review`
 --
 
@@ -290,6 +402,31 @@ LOCK TABLES `api_review` WRITE;
 /*!40000 ALTER TABLE `api_review` DISABLE KEYS */;
 INSERT INTO `api_review` VALUES (2,'Looks sleek, runs fast — just like me when someone FaceTimes. But bro, the fan kicked in like it was trying to take off. Not cool. Literally.',3,'laptop',2,'john.pork@gmail.com'),(4,'Elegant, precise, and powerful — a machine worthy of a mentat. Its silence is a virtue, its display a window to unseen futures. But beware: it grows hot, like the dunes at noon.',4,'laptop',2,'muadib@arrakis.com'),(5,'It moves with the stillness of a Fremen blade — silent, exact, unwavering. The M3 Max is not a chip; it is prescience in silicon. This is no machine. It is a tool of prophecy.',5,'laptop',1,'muadib@arrakis.com'),(6,'A lonely journey through desolation and silence… yet somehow, I felt understood. The burden of connection, the weight of destiny — it is not a game. It is a vision. I saw sand, but I felt rain.',5,'video_game',1,'muadib@arrakis.com'),(7,'Pretty good but the fingerprint sensor isn\'t ultrasonic',4,'phone',3,'john.pork@gmail.com'),(8,'Impressive. Most impressive. The camera quality rivals even Imperial surveillance. But it lacks a dark mode… truly dark.',4,'phone',1,'vader@empire.gov'),(9,'The power is insignificant compared to the flagship. The UI is cluttered, the ads are... disturbing. I find your lack of polish disappointing.',2,'phone',5,'vader@empire.gov'),(10,'A marvel fit for a sovereign. Swift as a charger at Agincourt, and twice as sharp. I FaceTime my nobles with nary a hitch.',5,'phone',1,'kinghenryv@houseoflancaster.uk'),(11,'Excellent entertainment for weary knights. The controller, however, is too small for hands that once gripped a sword.',4,'console',1,'kinghenryv@houseoflancaster.uk'),(12,'This machine is mighty. Were it present at Harfleur, the walls would have crumbled at its rendering speed alone.',5,'laptop',1,'kinghenryv@houseoflancaster.uk'),(13,'Valiant attempt, yet lacks refinement. A noble squire, not yet a knight.',3,'phone',5,'kinghenryv@houseoflancaster.uk'),(14,'A curious device! Portable and potent — ideal for campaign travels. Still, the fan doth make quite the noise.',4,'console',6,'kinghenryv@houseoflancaster.uk'),(15,'Bro. I charged it for hours — HOURS — and it still died on me mid–Mario Kart. The Joy-Cons drift like they’re trying to run away from responsibility. This ain’t portable gaming, it’s portable pain. Fix it, Nintendo.',1,'console',5,'john.pork@gmail.com'),(16,'A masterstroke of engineering — swift, elegant, and ruthlessly efficient. Much like my campaign across Europe, it conquers all with ease. I dictate my legacy from this device.',5,'phone',1,'emperor@elba.fr'),(17,'Powerful, yes. Refined, no. Like many generals I\'ve outwitted, it boasts strength but lacks charisma. Still, it earns my respect — barely.',4,'laptop',2,'emperor@elba.fr'),(18,'A child\'s toy masquerading as innovation. The display is vivid, yet the controls feel like they were designed for peasants. I did not cross the Alps for this.',2,'console',5,'emperor@elba.fr'),(19,'Mon Dieu. I find myself in rare agreement with a pig in a hoodie. John Pork, your fury is justified, though your language lacks tact. The Switch is unfit for campaign or leisure. I suggest we storm Kyoto together.',1,'console',5,'emperor@elba.fr'),(20,'It’s... exquisite. The titanium frame is cold, immaculate. 200 megapixels — absurd, yet necessary. I used it to take a photo of my business card. Crisp. Perfection.',5,'phone',2,'pbusiness@pierceandpierce.nyc'),(21,'It tries too hard. 4K on a phone? That’s like wearing a Valentino suit to the gym. Respectable on paper, but in practice? Unbalanced. There’s no identity.',3,'phone',6,'pbusiness@pierceandpierce.nyc'),(22,'It’s a black monolith. Sleek. Minimal. Powerful. I appreciate that. The performance is excellent — almost clinical. Still, I prefer physical media. It has… texture.',4,'console',3,'pbusiness@pierceandpierce.nyc'),(23,'Raw, brutal, and surprisingly emotional. Kratos reminds me of someone. The violence is poetic — deliberate. Controlled. Like a perfect morning routine… or a sharpened axe.',5,'video_game',2,'pbusiness@pierceandpierce.nyc'),(24,'Ohhhhhhhhhh the DIGITAL edition. No disc. No plastic. Just pure, unfiltered code. Ones and zeroes, dancing around in their cold, lifeless ballet while I sit here — controller in hand — pretending this isn’t all just some beautiful, high-resolution illusion.\n\nYou know what I miss, Sony? I miss the click. The snap. The theatrical little drama of inserting a disc — of physically committing to madness. But no, not here. The Digital Edition is clean. Sterile. Sanitized. It’s like Arkham’s therapy sessions: all smooth walls and no sharp corners. Nothing to hold onto. Nothing to bite.\n\nThey say it’s the same as the standard PS5, just without the disc. HAHAHA! Sure, and I’m just a \"funny man with makeup.\" No — it’s more than that. It’s philosophy. It’s trusting a corporation to cradle your fragile little childhood in their cloud. It’s giving up control and calling it progress. You don’t own your games anymore, darling — you’re just renting smiles from the void.\n\nAnd don’t get me started on storage. 667 GB usable space? What am I supposed to do, install one game and just stare at the menu screen laughing for 30 hours? Wait… actually… I did do that. But that’s beside the point!\n\nThe console is quiet, yes. Fast? Sure. It’s a marvel. But it’s also a mirror — and when I look into it, I don’t see me. I see you. The consumer. Numb. Clicking. Subscribing. Forever downloading happiness like it’s just another patch update.\n\nSo yes, dear Sony, thank you for your gleaming white coffin of convenience. I laugh not because it’s funny… but because it’s all so very digital.\n\nHAHAHAHAHAHAHAHAHAHA—',2,'console',2,'why_so_serious@chaosmail.com'),(25,'he Razer Blade 16 is no mere machine. It is a weapon, forged not in fire but in precision — sleek, sharp, and unrelentingly powerful. From the moment I laid my eyes upon its obsidian shell, I knew this was a device worthy of a queen.\n\nIts display is breathtaking. The dual-mode Mini-LED screen sings with color — vibrant as the banners of the Great Houses, shifting seamlessly between creative clarity and gaming ferocity. One moment I am overseeing the rise of my empire in 4K, the next I am razing cities in 240Hz — and not once does the screen falter. It does not kneel.\n\nAnd the internals — dracarys. The Intel i9 and RTX 4090 tear through my commands like Drogon through a fleet of slavers. There is no lag, no hesitation, no mercy. Everything yields. The fans roar beneath the metal, not unlike my dragons once did, but never in rebellion — only in loyalty, only in service.\n\nI have seen many machines built for conquest, but few that walk such a line between elegance and devastation. The Razer Blade is not adorned in gaudy excess; its beauty lies in restraint — in knowing its own strength and choosing when to wield it.\n\nYet, no crown is without weight. The heat, like the fire of my children, must be respected. The cost is high — as all thrones are. And the battery, while respectable, is not eternal. Even queens must return to their charger.\n\nStill, I would ride into battle with this device. I would trust it to carry the weight of my vision — to build, to destroy, to rule. It does not whisper. It does not break. It endures. And in this ever-changing digital realm, that is a rare and precious thing.\n\nI do not buy machines. I liberate them. And this one? This one was born to conquer.',5,'laptop',3,'queen@dragonstone.essos'),(26,'Feels like home. Tight mechanics, proper punch to the guns. The campaign’s got grit — not just running and gunning, but actual tactics. Reminds me of a Tuesday. Multiplayer’s a war zone, but that’s where the fun is. One gripe: too many kids screaming in my ear. Otherwise? Lock, load, and keep your back to the wall.',4,'video_game',6,'jstatham@toughmail.uk'),(27,'Nice',5,'tv',1,'muadib@arrakis.com');
 /*!40000 ALTER TABLE `api_review` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `api_sitesettings`
+--
+
+DROP TABLE IF EXISTS `api_sitesettings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `api_sitesettings` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `openai_api_key` varchar(255) DEFAULT NULL,
+  `support_email` varchar(254) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `api_sitesettings`
+--
+
+LOCK TABLES `api_sitesettings` WRITE;
+/*!40000 ALTER TABLE `api_sitesettings` DISABLE KEYS */;
+INSERT INTO `api_sitesettings` VALUES (1,'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','faris1.salhi@gmail.com');
+/*!40000 ALTER TABLE `api_sitesettings` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -350,7 +487,7 @@ CREATE TABLE `api_user` (
 
 LOCK TABLES `api_user` WRITE;
 /*!40000 ALTER TABLE `api_user` DISABLE KEYS */;
-INSERT INTO `api_user` VALUES ('pbkdf2_sha256$870000$OgWLGHZsqcOi2s0WsIhuDs$hUj1IrQni0MONY52rt/AzKqEfWP3ZOrZALwqtxkEREw=','2025-04-19 20:08:24.183345',0,'Napoleon','Bonaparte',0,1,'2025-04-19 20:08:23.793309','emperor@elba.fr'),('pbkdf2_sha256$870000$FNIh9Gm5J5BeT5Sw5nV1ak$edC+suYDeMHlbhSYEQw1QIdo/I3gn707w0gth0dByVg=','2025-04-20 18:47:32.046364',1,'Faris','Salhi',1,1,'2025-04-17 17:57:02.000000','faris1.salhi@gmail.com'),('pbkdf2_sha256$870000$VtfKQtxereqJOULhS76PKS$DORFYhj6ENDVrxf6xqHRcGlMMTqF/KxthobTW6uAGvk=','2025-04-19 20:05:12.123948',0,'John','Pork',0,1,'2025-04-17 22:08:06.099815','john.pork@gmail.com'),('pbkdf2_sha256$870000$4H3k2YkmguIbQBvpDWvdK9$U5ofaQ4LX/+BPjBuU41yISgLAueMzfR5BULcTkeSuR4=','2025-04-20 18:33:40.218140',0,'Jason','Statham',0,1,'2025-04-19 21:09:17.105366','jstatham@toughmail.uk'),('pbkdf2_sha256$870000$cFsPKjvixoPT15FudUoelq$8dtOurtjEs5wchBXMI3kxANs93gE0gzzWE9SSVJrn2c=','2025-04-19 19:59:27.158759',0,'Henry','Tudor',0,1,'2025-04-19 19:59:26.738595','kinghenryv@houseoflancaster.uk'),('pbkdf2_sha256$870000$zNUlAFsMVLLO5R06LzKx1f$PI0H8hHa5nTgNfLo63tZRxZa+Iv3d6MhhVET1ZivVl0=','2025-04-20 18:32:55.353409',0,'Paul','Atreides',0,1,'2025-04-19 19:37:15.886634','muadib@arrakis.com'),('pbkdf2_sha256$870000$A0VNMx1Lb5QEIm0d6uuMBp$mG9Vb1YoSqDM45RZ0pVRdSzo8iRSithGtU451ZOesqE=','2025-04-19 21:07:32.215682',0,'Patrick','Bateman',0,1,'2025-04-19 20:11:49.459282','pbusiness@pierceandpierce.nyc'),('pbkdf2_sha256$870000$fefkcVpIXVhlOHzW286VVh$edN3Ky5WgGZlRSYirQ/r15NdwY+841YGWiCBUSyIkVQ=','2025-04-19 20:19:06.323365',0,'Daenerys','Targaryen',0,1,'2025-04-19 20:19:05.921326','queen@dragonstone.essos'),('pbkdf2_sha256$870000$jHZIkhzwuwK4Le1fvMWtrF$KprVaNHvwJgE1a724HCXNQfqGQ/iOfH3uK985GevYTk=','2025-04-19 19:52:57.727557',0,'Darth','Vader',0,1,'2025-04-19 19:52:57.312511','vader@empire.gov'),('pbkdf2_sha256$870000$FKnB9dfjgcVzuRlV4Q1Gd2$6CDBGA0etTizWONZBF1VryVBGAhbVq/APvhuazSNkeQ=','2025-04-19 20:14:51.661565',0,'Joker','',0,1,'2025-04-19 20:14:51.267679','why_so_serious@chaosmail.com');
+INSERT INTO `api_user` VALUES ('pbkdf2_sha256$870000$OgWLGHZsqcOi2s0WsIhuDs$hUj1IrQni0MONY52rt/AzKqEfWP3ZOrZALwqtxkEREw=','2025-04-19 20:08:24.183345',0,'Napoleon','Bonaparte',0,1,'2025-04-19 20:08:23.793309','emperor@elba.fr'),('pbkdf2_sha256$870000$FNIh9Gm5J5BeT5Sw5nV1ak$edC+suYDeMHlbhSYEQw1QIdo/I3gn707w0gth0dByVg=','2025-04-22 16:44:16.820355',1,'Faris','Salhi',1,1,'2025-04-17 17:57:02.000000','faris1.salhi@gmail.com'),('pbkdf2_sha256$870000$VtfKQtxereqJOULhS76PKS$DORFYhj6ENDVrxf6xqHRcGlMMTqF/KxthobTW6uAGvk=','2025-04-22 16:54:28.887802',0,'John','Pork',0,1,'2025-04-17 22:08:06.099815','john.pork@gmail.com'),('pbkdf2_sha256$870000$4H3k2YkmguIbQBvpDWvdK9$U5ofaQ4LX/+BPjBuU41yISgLAueMzfR5BULcTkeSuR4=','2025-04-20 18:33:40.218140',0,'Jason','Statham',0,1,'2025-04-19 21:09:17.105366','jstatham@toughmail.uk'),('pbkdf2_sha256$870000$cFsPKjvixoPT15FudUoelq$8dtOurtjEs5wchBXMI3kxANs93gE0gzzWE9SSVJrn2c=','2025-04-19 19:59:27.158759',0,'Henry','Tudor',0,1,'2025-04-19 19:59:26.738595','kinghenryv@houseoflancaster.uk'),('pbkdf2_sha256$870000$zNUlAFsMVLLO5R06LzKx1f$PI0H8hHa5nTgNfLo63tZRxZa+Iv3d6MhhVET1ZivVl0=','2025-04-22 16:41:32.000948',0,'Paul','Atreides',0,1,'2025-04-19 19:37:15.886634','muadib@arrakis.com'),('pbkdf2_sha256$870000$A0VNMx1Lb5QEIm0d6uuMBp$mG9Vb1YoSqDM45RZ0pVRdSzo8iRSithGtU451ZOesqE=','2025-04-19 21:07:32.215682',0,'Patrick','Bateman',0,1,'2025-04-19 20:11:49.459282','pbusiness@pierceandpierce.nyc'),('pbkdf2_sha256$870000$fefkcVpIXVhlOHzW286VVh$edN3Ky5WgGZlRSYirQ/r15NdwY+841YGWiCBUSyIkVQ=','2025-04-19 20:19:06.323365',0,'Daenerys','Targaryen',0,1,'2025-04-19 20:19:05.921326','queen@dragonstone.essos'),('pbkdf2_sha256$870000$jHZIkhzwuwK4Le1fvMWtrF$KprVaNHvwJgE1a724HCXNQfqGQ/iOfH3uK985GevYTk=','2025-04-22 16:47:34.634288',0,'Darth','Vader',0,1,'2025-04-19 19:52:57.312511','vader@empire.gov'),('pbkdf2_sha256$870000$FKnB9dfjgcVzuRlV4Q1Gd2$6CDBGA0etTizWONZBF1VryVBGAhbVq/APvhuazSNkeQ=','2025-04-19 20:14:51.661565',0,'Joker','',0,1,'2025-04-19 20:14:51.267679','why_so_serious@chaosmail.com');
 /*!40000 ALTER TABLE `api_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -466,6 +603,36 @@ LOCK TABLES `api_video_game_product` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `api_wishlistitem`
+--
+
+DROP TABLE IF EXISTS `api_wishlistitem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `api_wishlistitem` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `customer_email` varchar(254) NOT NULL,
+  `object_id` int unsigned NOT NULL,
+  `content_type_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `api_wishlistitem_customer_email_content_t_1a1c663d_uniq` (`customer_email`,`content_type_id`,`object_id`),
+  KEY `api_wishlistitem_content_type_id_57416ea8_fk_django_co` (`content_type_id`),
+  CONSTRAINT `api_wishlistitem_content_type_id_57416ea8_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
+  CONSTRAINT `api_wishlistitem_chk_1` CHECK ((`object_id` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `api_wishlistitem`
+--
+
+LOCK TABLES `api_wishlistitem` WRITE;
+/*!40000 ALTER TABLE `api_wishlistitem` DISABLE KEYS */;
+INSERT INTO `api_wishlistitem` VALUES (1,'faris1.salhi@gmail.com',1,7),(2,'faris1.salhi@gmail.com',2,7),(3,'faris1.salhi@gmail.com',2,9),(9,'john.pork@gmail.com',3,7),(14,'john.pork@gmail.com',5,7),(13,'john.pork@gmail.com',1,8),(11,'john.pork@gmail.com',1,9),(12,'john.pork@gmail.com',2,10),(10,'john.pork@gmail.com',2,15),(7,'muadib@arrakis.com',3,7),(6,'muadib@arrakis.com',1,8),(8,'muadib@arrakis.com',6,14),(4,'muadib@arrakis.com',6,15),(5,'muadib@arrakis.com',1,16);
+/*!40000 ALTER TABLE `api_wishlistitem` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `auth_group`
 --
 
@@ -532,7 +699,7 @@ CREATE TABLE `auth_permission` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `auth_permission_content_type_id_codename_01ab375a_uniq` (`content_type_id`,`codename`),
   CONSTRAINT `auth_permission_content_type_id_2f476e4b_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -541,7 +708,7 @@ CREATE TABLE `auth_permission` (
 
 LOCK TABLES `auth_permission` WRITE;
 /*!40000 ALTER TABLE `auth_permission` DISABLE KEYS */;
-INSERT INTO `auth_permission` VALUES (1,'Can add log entry',1,'add_logentry'),(2,'Can change log entry',1,'change_logentry'),(3,'Can delete log entry',1,'delete_logentry'),(4,'Can view log entry',1,'view_logentry'),(5,'Can add permission',2,'add_permission'),(6,'Can change permission',2,'change_permission'),(7,'Can delete permission',2,'delete_permission'),(8,'Can view permission',2,'view_permission'),(9,'Can add group',3,'add_group'),(10,'Can change group',3,'change_group'),(11,'Can delete group',3,'delete_group'),(12,'Can view group',3,'view_group'),(13,'Can add content type',4,'add_contenttype'),(14,'Can change content type',4,'change_contenttype'),(15,'Can delete content type',4,'delete_contenttype'),(16,'Can view content type',4,'view_contenttype'),(17,'Can add session',5,'add_session'),(18,'Can change session',5,'change_session'),(19,'Can delete session',5,'delete_session'),(20,'Can view session',5,'view_session'),(21,'Can add user',6,'add_user'),(22,'Can change user',6,'change_user'),(23,'Can delete user',6,'delete_user'),(24,'Can view user',6,'view_user'),(25,'Can add laptop',7,'add_laptop'),(26,'Can change laptop',7,'change_laptop'),(27,'Can delete laptop',7,'delete_laptop'),(28,'Can view laptop',7,'view_laptop'),(29,'Can add pc',8,'add_pc'),(30,'Can change pc',8,'change_pc'),(31,'Can delete pc',8,'delete_pc'),(32,'Can view pc',8,'view_pc'),(33,'Can add phone',9,'add_phone'),(34,'Can change phone',9,'change_phone'),(35,'Can delete phone',9,'delete_phone'),(36,'Can view phone',9,'view_phone'),(37,'Can add tv',10,'add_tv'),(38,'Can change tv',10,'change_tv'),(39,'Can delete tv',10,'delete_tv'),(40,'Can view tv',10,'view_tv'),(41,'Can add user',11,'add_admin'),(42,'Can change user',11,'change_admin'),(43,'Can delete user',11,'delete_admin'),(44,'Can view user',11,'view_admin'),(45,'Can add user',12,'add_customer'),(46,'Can change user',12,'change_customer'),(47,'Can delete user',12,'delete_customer'),(48,'Can view user',12,'view_customer'),(49,'Can add video_ game_ product',13,'add_video_game_product'),(50,'Can change video_ game_ product',13,'change_video_game_product'),(51,'Can delete video_ game_ product',13,'delete_video_game_product'),(52,'Can view video_ game_ product',13,'view_video_game_product'),(53,'Can add console',14,'add_console'),(54,'Can change console',14,'change_console'),(55,'Can delete console',14,'delete_console'),(56,'Can view console',14,'view_console'),(57,'Can add video_ game',15,'add_video_game'),(58,'Can change video_ game',15,'change_video_game'),(59,'Can delete video_ game',15,'delete_video_game'),(60,'Can view video_ game',15,'view_video_game'),(61,'Can add accessory',16,'add_accessory'),(62,'Can change accessory',16,'change_accessory'),(63,'Can delete accessory',16,'delete_accessory'),(64,'Can view accessory',16,'view_accessory'),(65,'Can add cart_ includes',17,'add_cart_includes'),(66,'Can change cart_ includes',17,'change_cart_includes'),(67,'Can delete cart_ includes',17,'delete_cart_includes'),(68,'Can view cart_ includes',17,'view_cart_includes'),(69,'Can add review',18,'add_review'),(70,'Can change review',18,'change_review'),(71,'Can delete review',18,'delete_review'),(72,'Can view review',18,'view_review'),(73,'Can add discounted product',19,'add_discountedproduct'),(74,'Can change discounted product',19,'change_discountedproduct'),(75,'Can delete discounted product',19,'delete_discountedproduct'),(76,'Can view discounted product',19,'view_discountedproduct');
+INSERT INTO `auth_permission` VALUES (1,'Can add log entry',1,'add_logentry'),(2,'Can change log entry',1,'change_logentry'),(3,'Can delete log entry',1,'delete_logentry'),(4,'Can view log entry',1,'view_logentry'),(5,'Can add permission',2,'add_permission'),(6,'Can change permission',2,'change_permission'),(7,'Can delete permission',2,'delete_permission'),(8,'Can view permission',2,'view_permission'),(9,'Can add group',3,'add_group'),(10,'Can change group',3,'change_group'),(11,'Can delete group',3,'delete_group'),(12,'Can view group',3,'view_group'),(13,'Can add content type',4,'add_contenttype'),(14,'Can change content type',4,'change_contenttype'),(15,'Can delete content type',4,'delete_contenttype'),(16,'Can view content type',4,'view_contenttype'),(17,'Can add session',5,'add_session'),(18,'Can change session',5,'change_session'),(19,'Can delete session',5,'delete_session'),(20,'Can view session',5,'view_session'),(21,'Can add user',6,'add_user'),(22,'Can change user',6,'change_user'),(23,'Can delete user',6,'delete_user'),(24,'Can view user',6,'view_user'),(25,'Can add laptop',7,'add_laptop'),(26,'Can change laptop',7,'change_laptop'),(27,'Can delete laptop',7,'delete_laptop'),(28,'Can view laptop',7,'view_laptop'),(29,'Can add pc',8,'add_pc'),(30,'Can change pc',8,'change_pc'),(31,'Can delete pc',8,'delete_pc'),(32,'Can view pc',8,'view_pc'),(33,'Can add phone',9,'add_phone'),(34,'Can change phone',9,'change_phone'),(35,'Can delete phone',9,'delete_phone'),(36,'Can view phone',9,'view_phone'),(37,'Can add tv',10,'add_tv'),(38,'Can change tv',10,'change_tv'),(39,'Can delete tv',10,'delete_tv'),(40,'Can view tv',10,'view_tv'),(41,'Can add user',11,'add_admin'),(42,'Can change user',11,'change_admin'),(43,'Can delete user',11,'delete_admin'),(44,'Can view user',11,'view_admin'),(45,'Can add user',12,'add_customer'),(46,'Can change user',12,'change_customer'),(47,'Can delete user',12,'delete_customer'),(48,'Can view user',12,'view_customer'),(49,'Can add video_ game_ product',13,'add_video_game_product'),(50,'Can change video_ game_ product',13,'change_video_game_product'),(51,'Can delete video_ game_ product',13,'delete_video_game_product'),(52,'Can view video_ game_ product',13,'view_video_game_product'),(53,'Can add console',14,'add_console'),(54,'Can change console',14,'change_console'),(55,'Can delete console',14,'delete_console'),(56,'Can view console',14,'view_console'),(57,'Can add video_ game',15,'add_video_game'),(58,'Can change video_ game',15,'change_video_game'),(59,'Can delete video_ game',15,'delete_video_game'),(60,'Can view video_ game',15,'view_video_game'),(61,'Can add accessory',16,'add_accessory'),(62,'Can change accessory',16,'change_accessory'),(63,'Can delete accessory',16,'delete_accessory'),(64,'Can view accessory',16,'view_accessory'),(65,'Can add cart_ includes',17,'add_cart_includes'),(66,'Can change cart_ includes',17,'change_cart_includes'),(67,'Can delete cart_ includes',17,'delete_cart_includes'),(68,'Can view cart_ includes',17,'view_cart_includes'),(69,'Can add review',18,'add_review'),(70,'Can change review',18,'change_review'),(71,'Can delete review',18,'delete_review'),(72,'Can view review',18,'view_review'),(73,'Can add discounted product',19,'add_discountedproduct'),(74,'Can change discounted product',19,'change_discountedproduct'),(75,'Can delete discounted product',19,'delete_discountedproduct'),(76,'Can view discounted product',19,'view_discountedproduct'),(77,'Can add wishlist item',20,'add_wishlistitem'),(78,'Can change wishlist item',20,'change_wishlistitem'),(79,'Can delete wishlist item',20,'delete_wishlistitem'),(80,'Can view wishlist item',20,'view_wishlistitem'),(81,'Can add order item',21,'add_orderitem'),(82,'Can change order item',21,'change_orderitem'),(83,'Can delete order item',21,'delete_orderitem'),(84,'Can view order item',21,'view_orderitem'),(85,'Can add order',22,'add_order'),(86,'Can change order',22,'change_order'),(87,'Can delete order',22,'delete_order'),(88,'Can view order',22,'view_order'),(89,'Can add site settings',23,'add_sitesettings'),(90,'Can change site settings',23,'change_sitesettings'),(91,'Can delete site settings',23,'delete_sitesettings'),(92,'Can view site settings',23,'view_sitesettings'),(93,'Can add product view history',24,'add_productviewhistory'),(94,'Can change product view history',24,'change_productviewhistory'),(95,'Can delete product view history',24,'delete_productviewhistory'),(96,'Can view product view history',24,'view_productviewhistory');
 /*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -593,7 +760,7 @@ CREATE TABLE `django_content_type` (
   `model` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `django_content_type_app_label_model_76bd3d3b_uniq` (`app_label`,`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -602,7 +769,7 @@ CREATE TABLE `django_content_type` (
 
 LOCK TABLES `django_content_type` WRITE;
 /*!40000 ALTER TABLE `django_content_type` DISABLE KEYS */;
-INSERT INTO `django_content_type` VALUES (1,'admin','logentry'),(16,'api','accessory'),(11,'api','admin'),(17,'api','cart_includes'),(14,'api','console'),(12,'api','customer'),(19,'api','discountedproduct'),(7,'api','laptop'),(8,'api','pc'),(9,'api','phone'),(18,'api','review'),(10,'api','tv'),(6,'api','user'),(15,'api','video_game'),(13,'api','video_game_product'),(3,'auth','group'),(2,'auth','permission'),(4,'contenttypes','contenttype'),(5,'sessions','session');
+INSERT INTO `django_content_type` VALUES (1,'admin','logentry'),(16,'api','accessory'),(11,'api','admin'),(17,'api','cart_includes'),(14,'api','console'),(12,'api','customer'),(19,'api','discountedproduct'),(7,'api','laptop'),(22,'api','order'),(21,'api','orderitem'),(8,'api','pc'),(9,'api','phone'),(24,'api','productviewhistory'),(18,'api','review'),(23,'api','sitesettings'),(10,'api','tv'),(6,'api','user'),(15,'api','video_game'),(13,'api','video_game_product'),(20,'api','wishlistitem'),(3,'auth','group'),(2,'auth','permission'),(4,'contenttypes','contenttype'),(5,'sessions','session');
 /*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -619,7 +786,7 @@ CREATE TABLE `django_migrations` (
   `name` varchar(255) NOT NULL,
   `applied` datetime(6) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -628,7 +795,7 @@ CREATE TABLE `django_migrations` (
 
 LOCK TABLES `django_migrations` WRITE;
 /*!40000 ALTER TABLE `django_migrations` DISABLE KEYS */;
-INSERT INTO `django_migrations` VALUES (1,'contenttypes','0001_initial','2025-03-26 20:39:53.676090'),(2,'contenttypes','0002_remove_content_type_name','2025-03-26 20:39:53.691655'),(3,'auth','0001_initial','2025-03-26 20:39:53.728292'),(4,'auth','0002_alter_permission_name_max_length','2025-03-26 20:39:53.737439'),(5,'auth','0003_alter_user_email_max_length','2025-03-26 20:39:53.740285'),(6,'auth','0004_alter_user_username_opts','2025-03-26 20:39:53.742199'),(7,'auth','0005_alter_user_last_login_null','2025-03-26 20:39:53.744238'),(8,'auth','0006_require_contenttypes_0002','2025-03-26 20:39:53.744568'),(9,'auth','0007_alter_validators_add_error_messages','2025-03-26 20:39:53.746160'),(10,'auth','0008_alter_user_username_max_length','2025-03-26 20:39:53.747717'),(11,'auth','0009_alter_user_last_name_max_length','2025-03-26 20:39:53.749417'),(12,'auth','0010_alter_group_name_max_length','2025-03-26 20:39:53.754476'),(13,'auth','0011_update_proxy_permissions','2025-03-26 20:39:53.756566'),(14,'auth','0012_alter_user_first_name_max_length','2025-03-26 20:39:53.758098'),(15,'api','0001_initial','2025-03-26 20:39:53.828661'),(16,'admin','0001_initial','2025-03-26 20:39:53.846950'),(17,'admin','0002_logentry_remove_auto_add','2025-03-26 20:39:53.850037'),(18,'admin','0003_logentry_add_action_flag_choices','2025-03-26 20:39:53.853945'),(19,'sessions','0001_initial','2025-03-26 20:39:53.858898'),(20,'api','0002_video_game_product_console_video_game','2025-03-26 20:43:19.044047'),(24,'api','0002_console_image_laptop_image_pc_image_phone_image_and_more','2025-04-18 20:26:59.003656'),(25,'api','0003_alter_customer_managers_alter_user_managers_and_more','2025-04-18 20:26:59.008534'),(26,'api','0004_accessory_console_brand_laptop_brand_pc_brand_and_more','2025-04-18 20:26:59.010001'),(27,'api','0005_delete_console_delete_video_game','2025-04-18 22:28:20.460029'),(28,'api','0006_console_video_game','2025-04-18 22:31:13.961371'),(29,'api','0007_alter_video_game_genre','2025-04-18 23:09:00.637564'),(30,'api','0008_cart_includes','2025-04-19 19:00:55.655930'),(31,'api','0009_review','2025-04-19 19:19:50.432983'),(32,'api','0002_delete_cart_includes','2025-04-20 18:07:06.115848'),(33,'api','0003_cart_includes','2025-04-20 18:08:58.629999'),(34,'api','0004_discountedproduct','2025-04-20 18:48:28.423124');
+INSERT INTO `django_migrations` VALUES (1,'contenttypes','0001_initial','2025-03-26 20:39:53.676090'),(2,'contenttypes','0002_remove_content_type_name','2025-03-26 20:39:53.691655'),(3,'auth','0001_initial','2025-03-26 20:39:53.728292'),(4,'auth','0002_alter_permission_name_max_length','2025-03-26 20:39:53.737439'),(5,'auth','0003_alter_user_email_max_length','2025-03-26 20:39:53.740285'),(6,'auth','0004_alter_user_username_opts','2025-03-26 20:39:53.742199'),(7,'auth','0005_alter_user_last_login_null','2025-03-26 20:39:53.744238'),(8,'auth','0006_require_contenttypes_0002','2025-03-26 20:39:53.744568'),(9,'auth','0007_alter_validators_add_error_messages','2025-03-26 20:39:53.746160'),(10,'auth','0008_alter_user_username_max_length','2025-03-26 20:39:53.747717'),(11,'auth','0009_alter_user_last_name_max_length','2025-03-26 20:39:53.749417'),(12,'auth','0010_alter_group_name_max_length','2025-03-26 20:39:53.754476'),(13,'auth','0011_update_proxy_permissions','2025-03-26 20:39:53.756566'),(14,'auth','0012_alter_user_first_name_max_length','2025-03-26 20:39:53.758098'),(15,'api','0001_initial','2025-03-26 20:39:53.828661'),(16,'admin','0001_initial','2025-03-26 20:39:53.846950'),(17,'admin','0002_logentry_remove_auto_add','2025-03-26 20:39:53.850037'),(18,'admin','0003_logentry_add_action_flag_choices','2025-03-26 20:39:53.853945'),(19,'sessions','0001_initial','2025-03-26 20:39:53.858898'),(20,'api','0002_video_game_product_console_video_game','2025-03-26 20:43:19.044047'),(24,'api','0002_console_image_laptop_image_pc_image_phone_image_and_more','2025-04-18 20:26:59.003656'),(25,'api','0003_alter_customer_managers_alter_user_managers_and_more','2025-04-18 20:26:59.008534'),(26,'api','0004_accessory_console_brand_laptop_brand_pc_brand_and_more','2025-04-18 20:26:59.010001'),(27,'api','0005_delete_console_delete_video_game','2025-04-18 22:28:20.460029'),(28,'api','0006_console_video_game','2025-04-18 22:31:13.961371'),(29,'api','0007_alter_video_game_genre','2025-04-18 23:09:00.637564'),(30,'api','0008_cart_includes','2025-04-19 19:00:55.655930'),(31,'api','0009_review','2025-04-19 19:19:50.432983'),(32,'api','0002_delete_cart_includes','2025-04-20 18:07:06.115848'),(33,'api','0003_cart_includes','2025-04-20 18:08:58.629999'),(34,'api','0004_discountedproduct','2025-04-20 18:48:28.423124'),(35,'api','0005_wishlistitem','2025-04-21 20:12:16.009181'),(36,'api','0006_order_orderitem','2025-04-22 14:21:37.295742'),(37,'api','0007_sitesettings','2025-04-22 16:33:12.936731'),(38,'api','0008_productviewhistory','2025-04-22 18:21:17.435113');
 /*!40000 ALTER TABLE `django_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -654,7 +821,7 @@ CREATE TABLE `django_session` (
 
 LOCK TABLES `django_session` WRITE;
 /*!40000 ALTER TABLE `django_session` DISABLE KEYS */;
-INSERT INTO `django_session` VALUES ('lq3d8jdb7050i29ywq203jwe2l77phw6','.eJxVzMsOwiAQheF3YW0IOJ1eXBn3PkMzMFB6A0PblfHdbZMudH2-879FS9sa2m1xue1Z3MSQQpSvlMd7N1M_SZtmcflVhuzo4kF5oNilXcQ190YeRJ7rIp-J3fQ47V8g0BL2d2mKmhUo9N5XZBRVqrRFrUpsCDWiA63BMBROQ8PWOmAkZMMe6qv1Wny-1Dk_Pg:1u5481:ILnXjTQBC8DBeo85HPk6x_oPHtVLrHSAGFy-domyh9E','2025-04-30 14:52:41.798129'),('wwnb90hmvfsdt36vfhiod87q8y212je8','.eJxVzEEOwiAQheG7sDaEoVSKK-PeM5ABhoK2JYF2Zby7NulC1-97_4tZ3NZkt0bV5sAuLGLNDXjDKeXrOGOeuC8zO_1Ch_5Jy67DA5exfMWy1uz4TvixNn4vgabbYf8CCVva31EYRVEr4XQPHpBMBD0YrQcPEoU0qvMhyA6BgEh28jyABHQqIqnesfcHic8_zg:1u6ZhU:0sYr9o1YZRxmtvx6-B5dLpez6D7Ol03EEYN7VFjhWEA','2025-05-04 18:47:32.049150');
+INSERT INTO `django_session` VALUES ('lq3d8jdb7050i29ywq203jwe2l77phw6','.eJxVzMsOwiAQheF3YW0IOJ1eXBn3PkMzMFB6A0PblfHdbZMudH2-879FS9sa2m1xue1Z3MSQQpSvlMd7N1M_SZtmcflVhuzo4kF5oNilXcQ190YeRJ7rIp-J3fQ47V8g0BL2d2mKmhUo9N5XZBRVqrRFrUpsCDWiA63BMBROQ8PWOmAkZMMe6qv1Wny-1Dk_Pg:1u5481:ILnXjTQBC8DBeo85HPk6x_oPHtVLrHSAGFy-domyh9E','2025-04-30 14:52:41.798129');
 /*!40000 ALTER TABLE `django_session` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -667,4 +834,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-20 13:17:39
+-- Dump completed on 2025-04-22 17:09:04

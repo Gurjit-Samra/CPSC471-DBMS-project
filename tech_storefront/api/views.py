@@ -7,10 +7,12 @@ from decimal import Decimal
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db.models import Count, F, Q, Sum
 from django.db.models.functions import TruncDate
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.db import models
 
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view
@@ -28,6 +30,7 @@ from .models.product_models import (
     Phone,
     TV,
     Video_Game,
+    ProductViewHistory,
 )
 from .models.review_models import Review
 from .models.user_models import Admin, Customer
@@ -292,6 +295,16 @@ class ProductDetailView(APIView):
             product = Model.objects.get(id=id)
         except Model.DoesNotExist:
             return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        if request.user.is_authenticated:
+            # content type for the product model
+            ctype = ContentType.objects.get_for_model(Model)
+            ProductViewHistory.objects.create(
+                user_email=request.user.email,
+                content_type=ctype,
+                object_id=id,
+            )
+
         product_data = Serializer(product).data
         reviews = Review.objects.filter(product_type=type, product_id=id)
         product_data["reviews"] = ReviewSerializer(reviews, many=True).data
@@ -900,3 +913,112 @@ class SiteSettingsView(APIView):
             "openai_api_key": obj.openai_api_key,
             "support_email": obj.support_email
         }, status=status.HTTP_200_OK)
+    
+@api_view(['GET'])
+def recommend_or_trending(request):
+    """
+    Returns either "Recommended Products" (based on user’s view history)
+    or "Trending Products" (if the user has no history or is not logged in).
+    """
+    user = request.user
+    if not user.is_authenticated:
+        # Not logged in => default to trending
+        return Response({
+            "mode": "trending",
+            "products": get_trending_products()
+        })
+
+    # Check how many total views the user has
+    total_views = ProductViewHistory.objects.filter(user_email=user.email).count()
+    if total_views == 0:
+        return Response({
+            "mode": "trending",
+            "products": get_trending_products()
+        })
+
+    # Count how many times each content_type was viewed
+    ctype_counts = (ProductViewHistory.objects
+                    .filter(user_email=user.email)
+                    .values('content_type')
+                    .annotate(count=Count('id'))
+                    .order_by('-count'))
+    if not ctype_counts:
+        return Response({
+            "mode": "trending",
+            "products": get_trending_products()
+        })
+
+    top_ctype_id = ctype_counts[0]['content_type']
+    top_ctype = ContentType.objects.get(id=top_ctype_id)
+    model_cls = top_ctype.model_class()
+    queryset = model_cls.objects.all().order_by('-id')[:6]
+
+    from .serializers import (
+        LaptopSerializer, PCSerializer, TVSerializer, PhoneSerializer,
+        ConsoleSerializer, VideoGameSerializer, AccessorySerializer
+    )
+
+    serializer_map = {
+        'laptop': LaptopSerializer,
+        'pc': PCSerializer,
+        'tv': TVSerializer,
+        'phone': PhoneSerializer,
+        'console': ConsoleSerializer,
+        'video_game': VideoGameSerializer,
+        'accessory': AccessorySerializer
+    }
+    model_name = top_ctype.model
+    SerializerClass = serializer_map.get(model_name)
+    if not SerializerClass:
+        return Response({
+            "mode": "trending",
+            "products": get_trending_products()
+        })
+
+    serialized = SerializerClass(queryset, many=True).data
+
+    for item in serialized:
+        item["type"] = model_name
+
+    return Response({
+        "mode": "recommended",
+        "products": serialized
+    })
+
+
+def get_trending_products():
+    """
+    Returns a list of 'trending' products by count of reviews.
+    """
+    trending_candidates = []
+
+    def add_candidates(model_cls, serializer_cls, product_type_name):
+        from .models.review_models import Review
+        products_with_count = model_cls.objects.annotate(
+            review_count=Count('review', filter=Review.objects.filter(product_type=product_type_name, product_id=models.OuterRef('pk')))
+        ).all()
+        for p in products_with_count:
+            trending_candidates.append( (p, p.review_count, product_type_name, serializer_cls) )
+
+    from .serializers import (
+        LaptopSerializer, PCSerializer, TVSerializer, PhoneSerializer,
+        ConsoleSerializer, VideoGameSerializer, AccessorySerializer
+    )
+    add_candidates(Laptop,  LaptopSerializer,  'laptop')
+    add_candidates(PC,      PCSerializer,      'pc')
+    add_candidates(TV,      TVSerializer,      'tv')
+    add_candidates(Phone,   PhoneSerializer,   'phone')
+    add_candidates(Console, ConsoleSerializer, 'console')
+    add_candidates(Video_Game, VideoGameSerializer, 'video_game')
+    add_candidates(Accessory, AccessorySerializer, 'accessory')
+
+    trending_candidates.sort(key=lambda x: x[1], reverse=True)
+    top6 = trending_candidates[:6]
+
+    results = []
+    for obj, review_count, tname, ser_cls in top6:
+        ser_data = ser_cls(obj).data
+        ser_data["type"] = tname
+        results.append(ser_data)
+
+    return results

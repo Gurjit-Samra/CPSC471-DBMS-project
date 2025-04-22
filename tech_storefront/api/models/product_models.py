@@ -1,5 +1,9 @@
 from django.db import models
 from .user_models import Admin
+from django.utils import timezone
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 # Abstract Product
 class Product(models.Model):
@@ -76,3 +80,16 @@ class DiscountedProduct(models.Model):
 
     class Meta:
         unique_together = (('product_type', 'product_id', 'admin'),)
+
+class ProductViewHistory(models.Model):
+    """
+    Records when a user (identified by email) has viewed a given product.
+    """
+    user_email = models.EmailField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    product = GenericForeignKey('content_type', 'object_id')
+    viewed_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.user_email} viewed {self.product} at {self.viewed_at}"

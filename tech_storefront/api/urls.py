@@ -18,6 +18,8 @@ from .views import SignInView
 from .views import AdminAnalyticsView
 from .views import ChatBotView
 from .views import SiteSettingsView
+from .views import recommend_or_trending
+
 
 urlpatterns = [
     path('home', CustomerRegistrationView.as_view()),
@@ -39,6 +41,8 @@ urlpatterns = [
     path('admin-analytics/', AdminAnalyticsView.as_view(), name='admin-analytics'),
     path('chatbot/', ChatBotView.as_view(), name='chatbot'),
     path("site-settings/", SiteSettingsView.as_view(), name="site-settings"),
+    path('products/recommend-or-trending/', recommend_or_trending, name='recommend-or-trending'),
+
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

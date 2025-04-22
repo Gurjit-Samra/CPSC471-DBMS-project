@@ -1,3 +1,5 @@
+// tech_storefront/frontend/src/components/ProductsPage.js
+
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -19,12 +21,30 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ShoppingCart from "./ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import Link from "@mui/material/Link"; // Add this import
+import Link from "@mui/material/Link";
 import { useAuth } from "./AuthContext";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+
+/**
+ * Helper to retrieve CSRF token from cookies.
+ */
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
 
 export default function ProductsPage() {
   const [wishlist, setWishlist] = useState([]);
@@ -38,18 +58,11 @@ export default function ProductsPage() {
   const { user, setUser } = useAuth();
   const [search, setSearch] = useState("");
 
-  const TYPE_DISPLAY_NAMES = {
-    laptop: "Laptops",
-    phone: "Phones",
-    tv: "TVs",
-    pc: "PCs",
-    video_game: "Video Games",
-    console: "Consoles",
-    accessory: "Accessories",
-    all: "All",
-  };
+  // State for recommended-or-trending section
+  const [recMode, setRecMode] = useState(""); // "recommended" or "trending"
+  const [recProducts, setRecProducts] = useState([]);
 
-  // fetch product data from backend
+  // Fetch product data from backend
   useEffect(() => {
     const params = new URLSearchParams();
     if (search) params.append("search", search);
@@ -64,7 +77,7 @@ export default function ProductsPage() {
       });
   }, [search]);
 
-  // Searching from the backend
+  // Fetch search suggestions from backend
   useEffect(() => {
     if (!search) {
       setSuggestions([]);
@@ -76,48 +89,88 @@ export default function ProductsPage() {
       .catch(() => setSuggestions([]));
   }, [search]);
 
-  // Helper function to get CSRF token
-  const getCookie = (name) => {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-      const cookies = document.cookie.split(";");
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === name + "=") {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
+  // Fetch recommended-or-trending when the page loads
+  useEffect(() => {
+    fetch("/api/products/recommend-or-trending/", {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setRecMode(data.mode);
+        setRecProducts(data.products);
+      })
+      .catch((err) => {
+        console.error("Error fetching recommended/trending:", err);
+      });
+  }, []);
+
+  // Fetch wishlist when user is logged in
+  const fetchWishlist = async () => {
+    try {
+      const response = await fetch("/api/wishlist/", { credentials: "include" });
+      if (response.ok) {
+        const data = await response.json();
+        setWishlist(data);
       }
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
     }
-    return cookieValue;
   };
 
+  // Fetch cart items
+  const fetchCart = async () => {
+    try {
+      const response = await fetch("/api/cart/", { credentials: "include" });
+      if (response.ok) {
+        const data = await response.json();
+        setCart(data);
+      }
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+    }
+  };
+
+  // When user logs in, fetch cart and wishlist
+  useEffect(() => {
+    if (user) {
+      fetchCart();
+      fetchWishlist();
+    }
+  }, [user]);
+
+  // Add item to cart
   const handleAddToCart = async (product) => {
+    if (!user) {
+      // If not logged in, prompt
+      navigate("/sign-in");
+      return;
+    }
     const csrftoken = getCookie("csrftoken");
     try {
       const response = await fetch("/api/cart/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken, // Include CSRF token
+          "X-CSRFToken": csrftoken,
         },
-        credentials: "include", // Include cookies for authentication
+        credentials: "include",
         body: JSON.stringify({
           product_id: product.id,
           product_type: product.type,
-          quantity: 1, // Default quantity is 1
+          quantity: 1,
         }),
       });
 
       if (response.ok) {
         const updatedCartItem = await response.json();
         setCart((prev) => {
+          // If item already in cart, update
           const existingItem = prev.find(
-            (item) => item.product_id === updatedCartItem.product_id
+            (item) => item.object_id === updatedCartItem.object_id
           );
           if (existingItem) {
             return prev.map((item) =>
-              item.product_id === updatedCartItem.product_id
+              item.object_id === updatedCartItem.object_id
                 ? updatedCartItem
                 : item
             );
@@ -132,50 +185,7 @@ export default function ProductsPage() {
     }
   };
 
-  // Fetch wishlist when the user is logged in
-  const fetchWishlist = async () => {
-    try {
-      const response = await fetch("/api/wishlist/", {
-        credentials: "include",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setWishlist(data);
-      }
-    } catch (error) {
-      console.error("Error fetching wishlist:", error);
-    }
-  };
-
-  // Fetch cart items when the user is logged in
-  const fetchCart = async () => {
-    try {
-      const response = await fetch("/api/cart/", {
-        credentials: "include",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setCart(data);
-      }
-    } catch (error) {
-      console.error("Error fetching cart items:", error);
-    }
-  };
-
-  // Get the cart when the user signs in
-  useEffect(() => {
-    if (user) {
-      fetchCart();
-    }
-  }, [user]);
-
-  // get the wishlist when the user signs in
-  useEffect(() => {
-    if (user) {
-      fetchWishlist();
-    }
-  }, [user]);
-
+  // Remove item from cart
   const handleRemoveFromCart = async (object_id, product_type) => {
     const csrftoken = getCookie("csrftoken");
     try {
@@ -186,20 +196,18 @@ export default function ProductsPage() {
           "X-CSRFToken": csrftoken,
         },
         credentials: "include",
-        body: JSON.stringify({
-          product_id: object_id,
-          product_type: product_type,
-        }),
+        body: JSON.stringify({ product_id: object_id, product_type }),
       });
       if (response.ok) {
-        fetchCart(); // Refresh cart after deletion
+        fetchCart(); // Refresh cart
       }
     } catch (error) {
       console.error("Error removing from cart:", error);
     }
   };
 
-  const updateCartQuantity = async (product_id, product_type, newQuantity) => {
+  // Update cart quantity
+  const updateCartQuantity = async (object_id, product_type, newQuantity) => {
     const csrftoken = getCookie("csrftoken");
     try {
       const response = await fetch("/api/cart/", {
@@ -210,41 +218,93 @@ export default function ProductsPage() {
         },
         credentials: "include",
         body: JSON.stringify({
-          product_id,
+          product_id: object_id,
           product_type,
           quantity: newQuantity,
         }),
       });
       if (response.ok) {
-        fetchCart(); // Refresh cart after update
+        fetchCart();
       }
     } catch (error) {
       console.error("Error updating cart quantity:", error);
     }
   };
 
-  const handleCartOpen = () => {
-    setCartOpen(true);
-    fetchCart(); // Fetch cart items when opening the cart
-  };
+  // Open cart drawer
+  const handleCartOpen = () => setCartOpen(true);
+  // Close cart drawer
+  const handleCartClose = () => setCartOpen(false);
 
-  const handleCartClose = () => {
-    setCartOpen(false);
-  };
-
+  // Move to checkout
   const handleCheckout = () => {
-    if (user) {
-      navigate("/checkout");
-    } else {
+    if (!user) {
       navigate("/sign-in");
+    } else {
+      navigate("/checkout");
     }
-  }
+  };
 
-  // Menu open/close handlers
-  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
+  // Toggle wishlist item
+  const handleAddToWishlist = async (product) => {
+    if (!user) {
+      navigate("/sign-in");
+      return;
+    }
+    const csrftoken = getCookie("csrftoken");
+    const isWishlisted = wishlist.some(
+      (item) =>
+        item.object_id === product.id && item.product_type === product.type
+    );
+    try {
+      if (isWishlisted) {
+        // Remove
+        await fetch("/api/wishlist/", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            product_id: product.id,
+            product_type: product.type,
+          }),
+        });
+        setWishlist((prev) =>
+          prev.filter(
+            (item) =>
+              !(
+                item.object_id === product.id &&
+                item.product_type === product.type
+              )
+          )
+        );
+      } else {
+        // Add
+        const res = await fetch("/api/wishlist/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            product_id: product.id,
+            product_type: product.type,
+          }),
+        });
+        if (res.ok) {
+          const newItem = await res.json();
+          setWishlist((prev) => [...prev, newItem]);
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+    }
+  };
 
-  // Sign out handler
+  // Sign out
   const handleSignOut = async () => {
     const csrftoken = getCookie("csrftoken");
     await fetch("/api/logout/", {
@@ -257,72 +317,36 @@ export default function ProductsPage() {
     });
     setUser(null);
     handleMenuClose();
-    navigate("/"); // Redirect to landing page
+    navigate("/");
   };
 
-  // Placeholder handler for wishlist
-  const handleAddToWishlist = async (product) => {
-    // Get CSRF token
-    const csrftoken = getCookie("csrftoken");
-    const isWishlisted = wishlist.some(
-      (item) =>
-        item.object_id === product.id && item.product_type === product.type
-    );
-    const url = "/api/wishlist/";
-    const payload = {
-      product_id: product.id,
-      product_type: product.type,
-    };
+  // Menu open/close
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
 
-    if (isWishlisted) {
-      await fetch(url, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-        },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-      setWishlist((prev) =>
-        prev.filter(
-          (item) =>
-            !(
-              item.object_id === product.id &&
-              item.product_type === product.type
-            )
-        )
-      );
-    } else {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-        },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-      if (res.ok) {
-        const newItem = await res.json();
-        setWishlist((prev) => [...prev, newItem]);
-      }
-    }
-  };
-
-  // Get unique categories from products
+  // Generate categories from all products
   const categories = [
     "All",
-    ...Array.from(
-      new Set(products.map((p) => p.category || p.type || "Other"))
-    ),
+    ...Array.from(new Set(products.map((p) => p.category || p.type || "Other"))),
   ];
 
-  // Filter products by category
+  // Filter by category (if user selected a category)
   const filteredProducts =
     filter === "All"
       ? products
       : products.filter((p) => (p.category || p.type) === filter);
+
+  // Helper map for display
+  const TYPE_DISPLAY_NAMES = {
+    laptop: "Laptops",
+    phone: "Phones",
+    tv: "TVs",
+    pc: "PCs",
+    video_game: "Video Games",
+    console: "Consoles",
+    accessory: "Accessories",
+    all: "All",
+  };
 
   return (
     <Box
@@ -416,7 +440,6 @@ export default function ProductsPage() {
               </Button>
             </>
           )}
-          {/* User Icon, Name, and Menu */}
           {user && (
             <>
               <Stack direction="row" alignItems="center" spacing={1}>
@@ -447,8 +470,8 @@ export default function ProductsPage() {
                     borderRadius: 3,
                     pointerEvents: "none",
                     backgroundColor: "transparent !important",
-                    px: 2, // horizontal padding
-                    py: 1, // vertical padding
+                    px: 2,
+                    py: 1,
                   }}
                 >
                   <Typography variant="subtitle2">{user.email}</Typography>
@@ -495,8 +518,7 @@ export default function ProductsPage() {
                   <Typography color="primary">My Orders</Typography>
                 </MenuItem>
 
-                {/* Admin Dashboard Button */}
-                {user && (user.is_staff || user.is_superuser) && (
+                {(user.is_staff || user.is_superuser) && (
                   <MenuItem
                     component={RouterLink}
                     to="/admin-dashboard"
@@ -527,8 +549,6 @@ export default function ProductsPage() {
               </Menu>
             </>
           )}
-
-          {/* Cart Icon */}
           <IconButton color="primary" sx={{ ml: 2 }} onClick={handleCartOpen}>
             <Badge badgeContent={cart.length} color="secondary">
               <ShoppingCartIcon />
@@ -537,7 +557,7 @@ export default function ProductsPage() {
         </Stack>
       </Box>
 
-      {/* scrollable products area */}
+      {/* Main scrollable area */}
       <Box
         sx={{
           flex: 1,
@@ -559,13 +579,8 @@ export default function ProductsPage() {
             boxSizing: "border-box",
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              mb: 3,
-            }}
-          >
+          {/* Search Bar */}
+          <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
             <Autocomplete
               freeSolo
               options={suggestions}
@@ -593,9 +608,111 @@ export default function ProductsPage() {
             />
           </Box>
 
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>
-            Shop Products
-          </Typography>
+          {/* If we have a recommended/trending list, show it here */}
+          {recMode && recProducts.length > 0 && (
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
+                {recMode === "recommended"
+                  ? "Recommended Products"
+                  : "Trending Products"}
+              </Typography>
+              <Grid container spacing={2}>
+                {recProducts.map((item) => (
+                  <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={4}
+                    key={`${item.type}${item.id}`}
+                  >
+                    <Card
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        borderRadius: 4,
+                        boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <Box sx={{ position: "relative" }}>
+                        <CardMedia
+                          component="img"
+                          height="140"
+                          image={item.image}
+                          alt={item.name}
+                          sx={{
+                            objectFit: "contain",
+                            backgroundColor: "#f5f5f5",
+                          }}
+                        />
+                        {/* (No wishlist button here, but you can add if you want) */}
+                      </Box>
+                      <CardContent>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            fontWeight: 700,
+                            mb: 1,
+                            cursor: "pointer",
+                          }}
+                          onClick={() =>
+                            navigate(`/products/${item.type}/${item.id}`)
+                          }
+                        >
+                          {item.name}
+                        </Typography>
+
+                        {item.percent_discount ? (
+                          <Typography variant="h6" color="primary">
+                            <span
+                              style={{
+                                textDecoration: "line-through",
+                                marginRight: 8,
+                                color: "#888",
+                              }}
+                            >
+                              ${Number(item.price).toFixed(2)}
+                            </span>
+                            $
+                            {(
+                              Number(item.price) *
+                              (1 - item.percent_discount / 100)
+                            ).toFixed(2)}
+                          </Typography>
+                        ) : (
+                          <Typography variant="h6" color="primary">
+                            ${Number(item.price).toFixed(2)}
+                          </Typography>
+                        )}
+                      </CardContent>
+                      <CardActions>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          sx={{
+                            borderRadius: "999px",
+                            textTransform: "none",
+                          }}
+                          onClick={() => handleAddToCart(item)}
+                        >
+                          Add to Cart
+                        </Button>
+                        <Button
+                          variant="text"
+                          size="small"
+                          onClick={() =>
+                            navigate(`/products/${item.type}/${item.id}`)
+                          }
+                        >
+                          View
+                        </Button>
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          )}
 
           {/* Category Filter Buttons */}
           <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
@@ -619,6 +736,7 @@ export default function ProductsPage() {
             ))}
           </Stack>
 
+          {/* Main product grid */}
           <Grid
             container
             spacing={4}
@@ -631,8 +749,8 @@ export default function ProductsPage() {
                 xs={12}
                 sm={6}
                 md={4}
-                key={`${product.type}${product.id}`} //  unique key
-                sx={{ display: "flex" }} // make each cell a flex container
+                key={`${product.type}${product.id}`}
+                sx={{ display: "flex" }}
               >
                 <Card
                   sx={{
@@ -662,17 +780,16 @@ export default function ProductsPage() {
                       sx={{
                         width: "100%",
                         height: 180,
-                        objectFit: "contain", // fill and crop
-                        transition: "transform 0.3s cubic-bezier(.4,2,.6,1)", // smooth zoom
+                        objectFit: "contain",
+                        transition: "transform 0.3s cubic-bezier(.4,2,.6,1)",
                         "&:hover": {
-                          transform: "scale(1.05)", // zoom out slightly on hover
+                          transform: "scale(1.05)",
                           zIndex: 1,
                         },
                         background: "#ffffff",
                         p: 0,
                       }}
                     />
-                    {/* Heart Button - absolute position top right */}
                     <IconButton
                       aria-label="toggle wishlist"
                       sx={{
@@ -689,7 +806,8 @@ export default function ProductsPage() {
                     >
                       {wishlist.some(
                         (item) =>
-                          item.object_id === product.id && item.product_type === product.type
+                          item.object_id === product.id &&
+                          item.product_type === product.type
                       ) ? (
                         <FavoriteIcon color="error" />
                       ) : (
@@ -740,7 +858,6 @@ export default function ProductsPage() {
                       color="primary"
                       sx={{ fontWeight: 700, mb: 2 }}
                     >
-                    {/* Check if there's a discount */}
                       {product.percent_discount ? (
                         <>
                           <span
@@ -752,13 +869,11 @@ export default function ProductsPage() {
                           >
                             ${Number(product.price).toFixed(2)}
                           </span>
-                          <span>
-                            $
-                            {(
-                              Number(product.price) *
-                              (1 - product.percent_discount / 100)
-                            ).toFixed(2)}
-                          </span>
+                          $
+                          {(
+                            Number(product.price) *
+                            (1 - product.percent_discount / 100)
+                          ).toFixed(2)}
                         </>
                       ) : (
                         `$${Number(product.price).toFixed(2)}`
@@ -779,13 +894,7 @@ export default function ProductsPage() {
                           boxShadow: "none",
                         },
                       }}
-                      onClick={() => {
-                        if (user) {
-                          handleAddToCart(product);
-                        } else {
-                          navigate("/sign-in");
-                        }
-                      }}
+                      onClick={() => handleAddToCart(product)}
                     >
                       Add to Cart
                     </Button>
@@ -797,7 +906,7 @@ export default function ProductsPage() {
         </Box>
       </Box>
 
-      {/* cart drawer/modal */}
+      {/* Cart drawer/modal */}
       <ShoppingCart
         cart={cart}
         open={cartOpen}

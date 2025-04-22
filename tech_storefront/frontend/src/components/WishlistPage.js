@@ -240,6 +240,20 @@ export default function WishlistPage() {
                 >
                   <Typography color="primary">My Wishlist</Typography>
                 </MenuItem>
+
+                <MenuItem
+                  component={RouterLink}
+                  to="/my-orders"
+                  sx={{
+                    borderRadius: 3,
+                    px: 2,
+                    py: 1,
+                    "&:hover": { backgroundColor: "#f0f4fa" },
+                  }}
+                >
+                  <Typography color="primary">My Orders</Typography>
+                </MenuItem>
+
                 <MenuItem
                   onClick={handleSignOut}
                   sx={{

@@ -12,7 +12,8 @@ import WishlistPage from "./WishlistPage";
 import CheckoutPage from "./CheckoutPage";
 import OrderSuccessPage from "./OrderSuccessPage";
 import CartPage from "./CartPage";
-
+import MyOrdersPage from "./MyOrdersPage";
+import MyOrderDetailPage from "./MyOrderDetailPage";
 
 export default function App() {
   return (
@@ -29,6 +30,8 @@ export default function App() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/my-orders" element={<MyOrdersPage />} />
+          <Route path="/my-orders/:orderId" element={<MyOrderDetailPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

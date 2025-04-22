@@ -393,10 +393,18 @@ class WishlistView(APIView):
 class OrderView(APIView):
     """
     POST /api/order/ to place a new order
-    GET /api/order/ to list or retrieve orders (if you like)
+    GET /api/order/ to list or retrieve orders
     """
 
     permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        """
+        Returns a list of all orders for the currently authenticated user.
+        """
+        orders = Order.objects.filter(customer=request.user).order_by('-created_at')
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         # Expect data for shipping/billing. Example fields:

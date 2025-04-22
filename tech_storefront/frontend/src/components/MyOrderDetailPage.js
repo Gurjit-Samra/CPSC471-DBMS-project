@@ -1,5 +1,3 @@
-// tech_storefront/frontend/src/components/OrderSuccessPage.js
-
 import React, { useEffect, useState } from "react";
 import {
     Box,
@@ -38,17 +36,39 @@ import {
     return cookieValue;
     }
 
-    export default function OrderSuccessPage() {
+    export default function MyOrderDetailPage() {
     const { user, setUser } = useAuth();
-    const navigate = useNavigate();
     const { orderId } = useParams();
+    const navigate = useNavigate();
 
-    // For the user menu in header
+    const [order, setOrder] = useState(null);
+    const [error, setError] = useState("");
     const [anchorEl, setAnchorEl] = useState(null);
-    const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+
+    // If you'd like a cart icon in the header
+    const [cartCount] = useState(0);
+
+    useEffect(() => {
+        if (!user) {
+        // If not signed in, redirect to sign in or show a message
+        setError("You must be signed in to view this order.");
+        return;
+        }
+        fetch(`/api/order/${orderId}/`, { credentials: "include" })
+        .then((res) => {
+            if (!res.ok) {
+            throw new Error("Failed to fetch order details (perhaps no permission).");
+            }
+            return res.json();
+        })
+        .then((data) => setOrder(data))
+        .catch((err) => setError(err.message));
+    }, [orderId, user]);
+
+    // Menu open/close
+    const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
     const handleMenuClose = () => setAnchorEl(null);
 
-    // Sign out handler for user
     const handleSignOut = async () => {
         const csrftoken = getCookie("csrftoken");
         await fetch("/api/logout/", {
@@ -64,24 +84,25 @@ import {
         navigate("/");
     };
 
-    const [cartCount, setCartCount] = useState(0);
-
-    // For order data
-    const [order, setOrder] = useState(null);
-    const [error, setError] = useState("");
-
-    useEffect(() => {
-        // Fetch the newly created order details
-        fetch(`/api/order/${orderId}/`, { credentials: "include" })
-        .then((res) => {
-            if (!res.ok) {
-            throw new Error("Failed to fetch order details.");
-            }
-            return res.json();
-        })
-        .then((data) => setOrder(data))
-        .catch((err) => setError(err.message));
-    }, [orderId]);
+    if (!user) {
+        return (
+        <Box
+            sx={{
+            minHeight: "100vh",
+            width: "100vw",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#f5f5f5",
+            p: 4,
+            }}
+        >
+            <Typography variant="h6" color="error">
+            {error || "You must sign in to view your order."}
+            </Typography>
+        </Box>
+        );
+    }
 
     if (error) {
         return (
@@ -121,7 +142,7 @@ import {
         );
     }
 
-    // If we have order data, deconstruct relevant fields
+    // Deconstruct the order fields
     const {
         id,
         created_at,
@@ -148,7 +169,6 @@ import {
         items,
     } = order;
 
-    // The page below mimics the "ProductsPage" or "LandingPage" style:
     return (
         <Box
         sx={{
@@ -201,44 +221,6 @@ import {
             </RouterLink>
 
             <Stack direction="row" spacing={2} alignItems="center">
-            {!user && (
-                <>
-                <Button
-                    component={RouterLink}
-                    to="/sign-in"
-                    variant="outlined"
-                    color="primary"
-                    sx={{
-                    fontWeight: 600,
-                    borderRadius: "999px",
-                    boxShadow: "none",
-                    "&:hover": {
-                        backgroundColor: "1875D2",
-                        boxShadow: "none",
-                    },
-                    }}
-                >
-                    Sign In
-                </Button>
-                <Button
-                    component={RouterLink}
-                    to="/customer-registration"
-                    variant="contained"
-                    color="primary"
-                    sx={{
-                    fontWeight: 600,
-                    borderRadius: "999px",
-                    boxShadow: "none",
-                    "&:hover": {
-                        backgroundColor: "1875D2",
-                        boxShadow: "none",
-                    },
-                    }}
-                >
-                    Create Account
-                </Button>
-                </>
-            )}
             {user && (
                 <>
                 <Stack direction="row" alignItems="center" spacing={1}>
@@ -276,32 +258,6 @@ import {
                     <Typography variant="subtitle2">{user.email}</Typography>
                     </MenuItem>
                     <MenuItem
-                    component={RouterLink}
-                    to="/wishlist"
-                    sx={{
-                        borderRadius: 3,
-                        px: 2,
-                        py: 1,
-                        "&:hover": { backgroundColor: "#f0f4fa" },
-                    }}
-                    >
-                    <Typography color="primary">My Wishlist</Typography>
-                    </MenuItem>
-
-                    <MenuItem
-                        component={RouterLink}
-                        to="/my-orders"
-                        sx={{
-                        borderRadius: 3,
-                        px: 2,
-                        py: 1,
-                        "&:hover": { backgroundColor: "#f0f4fa" },
-                        }}
-                    >
-                        <Typography color="primary">My Orders</Typography>
-                    </MenuItem>
-
-                    <MenuItem
                     onClick={handleSignOut}
                     sx={{
                         borderRadius: 3,
@@ -317,9 +273,7 @@ import {
                 </Menu>
                 </>
             )}
-
-            {/* Example Cart Icon, if you want it on success page too */}
-            <IconButton color="primary" sx={{ ml: 1 }}>
+            <IconButton color="primary" sx={{ ml: 2 }}>
                 <Badge badgeContent={cartCount} color="secondary">
                 <ShoppingCartIcon />
                 </Badge>
@@ -327,7 +281,7 @@ import {
             </Stack>
         </Box>
 
-        {/* Main content container, scrollable */}
+        {/* Main */}
         <Box
             sx={{
             flex: 1,
@@ -338,7 +292,7 @@ import {
             px: 0,
             py: { xs: 2, md: 4 },
             width: "100vw",
-            pt: { xs: "64px", md: "93px" }, // enough top padding to clear the header
+            pt: { xs: "64px", md: "93px" },
             }}
         >
             <Box
@@ -349,12 +303,8 @@ import {
                 mb: 4,
             }}
             >
-            {/* PAGE TITLE */}
             <Typography variant="h4" sx={{ fontWeight: 800, mb: 2 }}>
-                Thank You for Your Order!
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 3 }}>
-                Your order was placed successfully.
+                Order #{id}
             </Typography>
 
             <Card
@@ -366,17 +316,11 @@ import {
                 }}
             >
                 <CardHeader
-                title={`Order #${id}`}
-                subheader={`Placed on: ${new Date(created_at).toLocaleString()}`}
+                title={`Placed on: ${new Date(created_at).toLocaleString()}`}
+                subheader={`Status: ${status.charAt(0).toUpperCase() + status.slice(1)}`}
                 />
                 <CardContent>
                 <Typography variant="h6" sx={{ mb: 2 }}>
-                    Status:{" "}
-                    <strong>
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </strong>
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
                     Items:
                 </Typography>
                 <List sx={{ mb: 2 }}>
@@ -391,7 +335,7 @@ import {
                 </List>
                 <Divider sx={{ mb: 2 }} />
                 <Typography variant="h6">
-                    Total: <strong>${Number(total).toFixed(2)}</strong>
+                    Total Paid: <strong>${Number(total).toFixed(2)}</strong>
                 </Typography>
                 </CardContent>
             </Card>
@@ -450,10 +394,7 @@ import {
                 </CardContent>
             </Card>
 
-            {/* Continue Shopping Button */}
             <Button
-                component={RouterLink}
-                to="/products"
                 variant="contained"
                 color="primary"
                 sx={{
@@ -465,11 +406,12 @@ import {
                     boxShadow: "none",
                 },
                 }}
+                onClick={() => navigate("/my-orders")}
             >
-                Continue Shopping
+                Back to My Orders
             </Button>
             </Box>
         </Box>
         </Box>
     );
-    }
+}

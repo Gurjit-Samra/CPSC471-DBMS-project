@@ -16,17 +16,18 @@ import {
   Menu,
   MenuItem,
   Divider,
+  TextField,
+  Autocomplete,
 } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import ShoppingCart from "./ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
-import Link from "@mui/material/Link";
-import { useAuth } from "./AuthContext";
-import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import Link from "@mui/material/Link";
+
+import ShoppingCart from "./ShoppingCart";
+import { useAuth } from "./AuthContext";
 
 /**
  * Helper to retrieve CSRF token from cookies.
@@ -47,37 +48,46 @@ function getCookie(name) {
 }
 
 export default function ProductsPage() {
+  // WishList & Cart
   const [wishlist, setWishlist] = useState([]);
-  const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [filter, setFilter] = useState("All");
+
+  // Products & Search
+  const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const navigate = useNavigate();
-  const { user, setUser } = useAuth();
-  const [search, setSearch] = useState("");
 
-  // State for recommended-or-trending section
+  // Filtering
+  const [filter, setFilter] = useState("All");
+  // Additional attribute filters:
+  const [brandFilter, setBrandFilter] = useState("");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+  const [ramFilter, setRamFilter] = useState(""); // for laptop/pc
+  const [screenSizeFilter, setScreenSizeFilter] = useState(""); // for phone/tv
+
+  // Recommended or trending
   const [recMode, setRecMode] = useState(""); // "recommended" or "trending"
   const [recProducts, setRecProducts] = useState([]);
 
-  // Fetch product data from backend
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (search) params.append("search", search);
-    fetch(`/api/products/?${params.toString()}`, {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((err) => {
-        console.error("Failed to fetch products:", err);
-        setProducts([]); // fallback
-      });
-  }, [search]);
+  // Auth & Menu
+  const { user, setUser } = useAuth();
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  // Fetch search suggestions from backend
+  // ----------------------------
+  //       USE EFFECTS
+  // ----------------------------
+  // 1) If user is logged in, fetch cart & wishlist
+  useEffect(() => {
+    if (user) {
+      fetchWishlist();
+      fetchCart();
+    }
+  }, [user]);
+
+  // 2) Get product suggestions whenever "search" changes
   useEffect(() => {
     if (!search) {
       setSuggestions([]);
@@ -89,11 +99,9 @@ export default function ProductsPage() {
       .catch(() => setSuggestions([]));
   }, [search]);
 
-  // Fetch recommended-or-trending when the page loads
+  // 3) Fetch recommended or trending
   useEffect(() => {
-    fetch("/api/products/recommend-or-trending/", {
-      credentials: "include",
-    })
+    fetch("/api/products/recommend-or-trending/", { credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
         setRecMode(data.mode);
@@ -104,44 +112,67 @@ export default function ProductsPage() {
       });
   }, []);
 
-  // Fetch wishlist when user is logged in
+  // 4) Actually fetch products with filters
+  const fetchProducts = () => {
+    let url = `/api/products/?search=${encodeURIComponent(search)}`;
+
+    if (brandFilter) {
+      url += `&brand=${encodeURIComponent(brandFilter)}`;
+    }
+    if (priceMin) {
+      url += `&price_min=${encodeURIComponent(priceMin)}`;
+    }
+    if (priceMax) {
+      url += `&price_max=${encodeURIComponent(priceMax)}`;
+    }
+    if (ramFilter) {
+      url += `&ram=${encodeURIComponent(ramFilter)}`;
+    }
+    if (screenSizeFilter) {
+      url += `&screen_size=${encodeURIComponent(screenSizeFilter)}`;
+    }
+
+    fetch(url, { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => setProducts(data))
+      .catch((err) => {
+        console.error("Failed to fetch products:", err);
+        setProducts([]);
+      });
+  };
+
+  // Re-fetch products whenever filters/search changes
+  useEffect(() => {
+    fetchProducts();
+  }, [search, brandFilter, priceMin, priceMax, ramFilter, screenSizeFilter]);
+
+  // ----------------------------
+  //       API HELPERS
+  // ----------------------------
   const fetchWishlist = async () => {
     try {
-      const response = await fetch("/api/wishlist/", { credentials: "include" });
-      if (response.ok) {
-        const data = await response.json();
-        setWishlist(data);
+      const res = await fetch("/api/wishlist/", { credentials: "include" });
+      if (res.ok) {
+        setWishlist(await res.json());
       }
     } catch (error) {
       console.error("Error fetching wishlist:", error);
     }
   };
 
-  // Fetch cart items
   const fetchCart = async () => {
     try {
-      const response = await fetch("/api/cart/", { credentials: "include" });
-      if (response.ok) {
-        const data = await response.json();
-        setCart(data);
+      const res = await fetch("/api/cart/", { credentials: "include" });
+      if (res.ok) {
+        setCart(await res.json());
       }
     } catch (error) {
       console.error("Error fetching cart items:", error);
     }
   };
 
-  // When user logs in, fetch cart and wishlist
-  useEffect(() => {
-    if (user) {
-      fetchCart();
-      fetchWishlist();
-    }
-  }, [user]);
-
-  // Add item to cart
   const handleAddToCart = async (product) => {
     if (!user) {
-      // If not logged in, prompt
       navigate("/sign-in");
       return;
     }
@@ -164,7 +195,6 @@ export default function ProductsPage() {
       if (response.ok) {
         const updatedCartItem = await response.json();
         setCart((prev) => {
-          // If item already in cart, update
           const existingItem = prev.find(
             (item) => item.object_id === updatedCartItem.object_id
           );
@@ -185,7 +215,6 @@ export default function ProductsPage() {
     }
   };
 
-  // Remove item from cart
   const handleRemoveFromCart = async (object_id, product_type) => {
     const csrftoken = getCookie("csrftoken");
     try {
@@ -199,14 +228,13 @@ export default function ProductsPage() {
         body: JSON.stringify({ product_id: object_id, product_type }),
       });
       if (response.ok) {
-        fetchCart(); // Refresh cart
+        fetchCart();
       }
     } catch (error) {
       console.error("Error removing from cart:", error);
     }
   };
 
-  // Update cart quantity
   const updateCartQuantity = async (object_id, product_type, newQuantity) => {
     const csrftoken = getCookie("csrftoken");
     try {
@@ -231,21 +259,7 @@ export default function ProductsPage() {
     }
   };
 
-  // Open cart drawer
-  const handleCartOpen = () => setCartOpen(true);
-  // Close cart drawer
-  const handleCartClose = () => setCartOpen(false);
-
-  // Move to checkout
-  const handleCheckout = () => {
-    if (!user) {
-      navigate("/sign-in");
-    } else {
-      navigate("/checkout");
-    }
-  };
-
-  // Toggle wishlist item
+  // Wishlist toggling
   const handleAddToWishlist = async (product) => {
     if (!user) {
       navigate("/sign-in");
@@ -256,9 +270,10 @@ export default function ProductsPage() {
       (item) =>
         item.object_id === product.id && item.product_type === product.type
     );
+
     try {
       if (isWishlisted) {
-        // Remove
+        // remove
         await fetch("/api/wishlist/", {
           method: "DELETE",
           headers: {
@@ -281,7 +296,7 @@ export default function ProductsPage() {
           )
         );
       } else {
-        // Add
+        // add
         const res = await fetch("/api/wishlist/", {
           method: "POST",
           headers: {
@@ -304,7 +319,20 @@ export default function ProductsPage() {
     }
   };
 
-  // Sign out
+  // Cart drawer open/close
+  const handleCartOpen = () => setCartOpen(true);
+  const handleCartClose = () => setCartOpen(false);
+
+  // Checkout
+  const handleCheckout = () => {
+    if (!user) navigate("/sign-in");
+    else navigate("/checkout");
+  };
+
+  // Sign out & user menu
+  const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+
   const handleSignOut = async () => {
     const csrftoken = getCookie("csrftoken");
     await fetch("/api/logout/", {
@@ -320,23 +348,19 @@ export default function ProductsPage() {
     navigate("/");
   };
 
-  // Menu open/close
-  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
-
-  // Generate categories from all products
+  // Build category array
   const categories = [
     "All",
     ...Array.from(new Set(products.map((p) => p.category || p.type || "Other"))),
   ];
 
-  // Filter by category (if user selected a category)
+  // Filter by category if user picks something other than "All"
   const filteredProducts =
     filter === "All"
       ? products
       : products.filter((p) => (p.category || p.type) === filter);
 
-  // Helper map for display
+  // Type display map
   const TYPE_DISPLAY_NAMES = {
     laptop: "Laptops",
     phone: "Phones",
@@ -360,7 +384,7 @@ export default function ProductsPage() {
         backgroundPosition: "center",
       }}
     >
-      {/* Header */}
+      {/* HEADER */}
       <Box
         sx={{
           position: "fixed",
@@ -401,6 +425,7 @@ export default function ProductsPage() {
             FGG Tech
           </Typography>
         </RouterLink>
+
         <Stack direction="row" spacing={2} alignItems="center">
           {!user && (
             <>
@@ -440,6 +465,7 @@ export default function ProductsPage() {
               </Button>
             </>
           )}
+
           {user && (
             <>
               <Stack direction="row" alignItems="center" spacing={1}>
@@ -450,6 +476,7 @@ export default function ProductsPage() {
                   {user.first_name} {user.last_name}
                 </Typography>
               </Stack>
+
               <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
@@ -504,7 +531,6 @@ export default function ProductsPage() {
                 >
                   <Typography color="primary">My Wishlist</Typography>
                 </MenuItem>
-
                 <MenuItem
                   component={RouterLink}
                   to="/my-orders"
@@ -549,6 +575,7 @@ export default function ProductsPage() {
               </Menu>
             </>
           )}
+
           <IconButton color="primary" sx={{ ml: 2 }} onClick={handleCartOpen}>
             <Badge badgeContent={cart.length} color="secondary">
               <ShoppingCartIcon />
@@ -557,7 +584,7 @@ export default function ProductsPage() {
         </Stack>
       </Box>
 
-      {/* Main scrollable area */}
+      {/* MAIN CONTENT */}
       <Box
         sx={{
           flex: 1,
@@ -579,7 +606,7 @@ export default function ProductsPage() {
             boxSizing: "border-box",
           }}
         >
-          {/* Search Bar */}
+          {/* SEARCH BAR */}
           <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
             <Autocomplete
               freeSolo
@@ -608,7 +635,7 @@ export default function ProductsPage() {
             />
           </Box>
 
-          {/* If we have a recommended/trending list, show it here */}
+          {/* RECOMMENDED OR TRENDING */}
           {recMode && recProducts.length > 0 && (
             <Box sx={{ mb: 4 }}>
               <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
@@ -645,7 +672,6 @@ export default function ProductsPage() {
                             backgroundColor: "#f5f5f5",
                           }}
                         />
-                        {/* (No wishlist button here, but you can add if you want) */}
                       </Box>
                       <CardContent>
                         <Typography
@@ -714,7 +740,7 @@ export default function ProductsPage() {
             </Box>
           )}
 
-          {/* Category Filter Buttons */}
+          {/* CATEGORY BUTTONS */}
           <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
             {categories.map((cat) => (
               <Button
@@ -736,13 +762,79 @@ export default function ProductsPage() {
             ))}
           </Stack>
 
-          {/* Main product grid */}
-          <Grid
-            container
-            spacing={4}
-            alignItems="stretch"
-            sx={{ margin: 0, width: "100%" }}
+          {/* FILTER FIELDS UI */}
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              flexWrap: "wrap",
+              mt: 2,
+              mb: 2,
+              backgroundColor: "rgba(255,255,255,0.7)",
+              p: 2,
+              borderRadius: 2,
+            }}
           >
+            <TextField
+              label="Brand"
+              size="small"
+              value={brandFilter}
+              onChange={(e) => setBrandFilter(e.target.value)}
+            />
+            <TextField
+              label="Min Price"
+              size="small"
+              type="number"
+              value={priceMin}
+              onChange={(e) => setPriceMin(e.target.value)}
+              sx={{ maxWidth: 120 }}
+            />
+            <TextField
+              label="Max Price"
+              size="small"
+              type="number"
+              value={priceMax}
+              onChange={(e) => setPriceMax(e.target.value)}
+              sx={{ maxWidth: 120 }}
+            />
+
+            {/* Show RAM filter if user is looking at PC or Laptop */}
+            {(filter.toLowerCase() === "pc" ||
+              filter.toLowerCase() === "laptop") && (
+              <TextField
+                label="Min RAM (GB)"
+                size="small"
+                type="number"
+                value={ramFilter}
+                onChange={(e) => setRamFilter(e.target.value)}
+                sx={{ maxWidth: 120 }}
+              />
+            )}
+
+            {/* Show screen size filter if user is looking at Phone or TV */}
+            {(filter.toLowerCase() === "phone" ||
+              filter.toLowerCase() === "tv") && (
+              <TextField
+                label="Min Screen Size"
+                size="small"
+                type="number"
+                value={screenSizeFilter}
+                onChange={(e) => setScreenSizeFilter(e.target.value)}
+                sx={{ maxWidth: 140 }}
+              />
+            )}
+
+            <Button
+              variant="contained"
+              onClick={fetchProducts}
+              sx={{ borderRadius: 8, ml: 1 }}
+            >
+              Apply Filters
+            </Button>
+          </Box>
+
+          {/* PRODUCT GRID */}
+          <Grid container spacing={4} alignItems="stretch">
             {filteredProducts.map((product) => (
               <Grid
                 item
@@ -815,6 +907,7 @@ export default function ProductsPage() {
                       )}
                     </IconButton>
                   </Box>
+
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Link
                       component={RouterLink}
@@ -880,6 +973,7 @@ export default function ProductsPage() {
                       )}
                     </Typography>
                   </CardContent>
+
                   <CardActions sx={{ mt: "auto" }}>
                     <Button
                       fullWidth
@@ -906,7 +1000,7 @@ export default function ProductsPage() {
         </Box>
       </Box>
 
-      {/* Cart drawer/modal */}
+      {/* CART DRAWER */}
       <ShoppingCart
         cart={cart}
         open={cartOpen}

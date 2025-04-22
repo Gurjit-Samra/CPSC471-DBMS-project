@@ -140,7 +140,15 @@ class LogoutView(APIView):
 
 class AllProductsView(APIView):
     def get(self, request):
+
         search = request.GET.get('search', '').strip().lower()
+
+        brand_filter = request.GET.get('brand', '').strip()
+        price_min = request.GET.get('price_min', '').strip()
+        price_max = request.GET.get('price_max', '').strip()
+        ram_filter = request.GET.get('ram', '').strip()
+        screen_size_filter = request.GET.get('screen_size', '').strip()
+
         laptops = Laptop.objects.all()
         pcs = PC.objects.all()
         tvs = TV.objects.all()
@@ -149,6 +157,8 @@ class AllProductsView(APIView):
         video_games = Video_Game.objects.all()
         accessories = Accessory.objects.all()
 
+        search_words = search.split()
+        matched_type = None
         type_keywords = {
             "laptop": laptops,
             "pc": pcs,
@@ -158,103 +168,109 @@ class AllProductsView(APIView):
             "video_game": video_games,
             "accessory": accessories
         }
-
-        # Split search into words and check for type keyword
-        search_words = search.split()
-        matched_type = None
         for word in search_words:
             if word in type_keywords:
                 matched_type = word
                 break
 
-        # If a type keyword is present, filter only that type with the rest of the search
         if matched_type:
-            # Remove the type keyword from the search string
-            rest_search = " ".join(w for w in search_words if w != matched_type).strip()
+            rest_search = " ".join([w for w in search_words if w != matched_type]).strip()
             query = (
                 Q(name__icontains=rest_search) |
                 Q(description__icontains=rest_search) |
                 Q(brand__icontains=rest_search)
-            ) if rest_search else Q()  # If no other search, match all
+            ) if rest_search else Q()
 
-            # Set all others to none
             laptops = laptops.none()
             pcs = pcs.none()
             tvs = tvs.none()
             phones = phones.none()
-            video_games = video_games.none()
             consoles = consoles.none()
+            video_games = video_games.none()
             accessories = accessories.none()
 
-            if matched_type in ("laptop", "laptops"):
+            if matched_type == "laptop":
                 laptops = Laptop.objects.filter(query)
-            elif matched_type in ("pc", "pcs"):
+            elif matched_type == "pc":
                 pcs = PC.objects.filter(query)
-            elif matched_type in ("tv", "tvs"):
+            elif matched_type == "tv":
                 tvs = TV.objects.filter(query)
-            elif matched_type in ("phone", "phones"):
+            elif matched_type == "phone":
                 phones = Phone.objects.filter(query)
-            elif matched_type in ("console", "consoles"):
+            elif matched_type == "console":
                 consoles = Console.objects.filter(query)
-            elif matched_type in ("video game", "video games", "game", "games"):
+            elif matched_type == "video_game":
                 video_games = Video_Game.objects.filter(query)
-            elif matched_type in ("accessory", "accessories"):
+            elif matched_type == "accessory":
                 accessories = Accessory.objects.filter(query)
+
         elif search:
-            laptop_query = (
+            common_q = (
                 Q(name__icontains=search) |
                 Q(description__icontains=search) |
                 Q(brand__icontains=search)
             )
-            pc_query = (
-                Q(name__icontains=search) |
-                Q(description__icontains=search) |
-                Q(brand__icontains=search)
-            )
-            tv_query = (
-                Q(name__icontains=search) |
-                Q(description__icontains=search) |
-                Q(brand__icontains=search)
-            )
-            phone_query = (
-                Q(name__icontains=search) |
-                Q(description__icontains=search) |
-                Q(brand__icontains=search)
-            )
-            console_query = (
-                Q(name__icontains=search) |
-                Q(description__icontains=search) |
-                Q(brand__icontains=search)
-            )
-            accessory_query = (
-                Q(name__icontains=search) |
-                Q(description__icontains=search) |
-                Q(brand__icontains=search)
-            )
-            video_game_query = (
-                Q(name__icontains=search) |
-                Q(description__icontains=search) |
-                Q(brand__icontains=search) |
-                Q(genre__icontains=search)
-            )
+            video_game_q = common_q | Q(genre__icontains=search)
 
-            laptops = laptops.filter(laptop_query)
-            pcs = pcs.filter(pc_query)
-            tvs = tvs.filter(tv_query)
-            phones = phones.filter(phone_query)
-            consoles = Console.objects.filter(console_query)
-            video_games = Video_Game.objects.filter(video_game_query)
-            accessories = Accessory.objects.filter(accessory_query)
+            laptops = laptops.filter(common_q)
+            pcs = pcs.filter(common_q)
+            tvs = tvs.filter(common_q)
+            phones = phones.filter(common_q)
+            consoles = consoles.filter(common_q)
+            video_games = video_games.filter(video_game_q)
+            accessories = accessories.filter(common_q)
 
-        laptops = LaptopSerializer(laptops, many=True).data
-        pcs = PCSerializer(pcs, many=True).data
-        tvs = TVSerializer(tvs, many=True).data
-        phones = PhoneSerializer(phones, many=True).data
-        consoles = ConsoleSerializer(consoles, many=True).data
-        video_games = VideoGameSerializer(video_games, many=True).data
-        accessories = AccessorySerializer(accessories, many=True).data
+        if brand_filter:
+            laptops = laptops.filter(brand__icontains=brand_filter)
+            pcs = pcs.filter(brand__icontains=brand_filter)
+            phones = phones.filter(brand__icontains=brand_filter)
+            tvs = tvs.filter(brand__icontains=brand_filter)
+            consoles = consoles.filter(brand__icontains=brand_filter)
+            video_games = video_games.filter(brand__icontains=brand_filter)
+            accessories = accessories.filter(brand__icontains=brand_filter)
 
-        # Helper to add percent_discount
+        if price_min.isdigit():
+            price_min_val = float(price_min)
+            laptops = laptops.filter(price__gte=price_min_val)
+            pcs = pcs.filter(price__gte=price_min_val)
+            tvs = tvs.filter(price__gte=price_min_val)
+            phones = phones.filter(price__gte=price_min_val)
+            consoles = consoles.filter(price__gte=price_min_val)
+            video_games = video_games.filter(price__gte=price_min_val)
+            accessories = accessories.filter(price__gte=price_min_val)
+
+        if price_max.isdigit():
+            price_max_val = float(price_max)
+            laptops = laptops.filter(price__lte=price_max_val)
+            pcs = pcs.filter(price__lte=price_max_val)
+            tvs = tvs.filter(price__lte=price_max_val)
+            phones = phones.filter(price__lte=price_max_val)
+            consoles = consoles.filter(price__lte=price_max_val)
+            video_games = video_games.filter(price__lte=price_max_val)
+            accessories = accessories.filter(price__lte=price_max_val)
+
+        if ram_filter.isdigit():
+            ram_val = int(ram_filter)
+            # apply only to laptops/pcs:
+            laptops = laptops.filter(ram__gte=ram_val)
+            pcs = pcs.filter(ram__gte=ram_val)
+
+        if screen_size_filter.isdigit():
+            screen_val = int(screen_size_filter)
+            # apply to phones & tvs (or whichever you want):
+            phones = phones.filter(screen_size__gte=screen_val)
+            tvs = tvs.filter(screen_size__gte=screen_val)
+
+        # Serialize all
+        laptops_data = LaptopSerializer(laptops, many=True).data
+        pcs_data = PCSerializer(pcs, many=True).data
+        tvs_data = TVSerializer(tvs, many=True).data
+        phones_data = PhoneSerializer(phones, many=True).data
+        consoles_data = ConsoleSerializer(consoles, many=True).data
+        video_games_data = VideoGameSerializer(video_games, many=True).data
+        accessories_data = AccessorySerializer(accessories, many=True).data
+
+        # Helper to add discount if any
         def add_discount(product_list, type_name):
             for product in product_list:
                 discount = DiscountedProduct.objects.filter(
@@ -266,24 +282,26 @@ class AllProductsView(APIView):
                     product["percent_discount"] = None
             return product_list
 
-        laptops = add_discount(laptops, "laptop")
-        pcs = add_discount(pcs, "pc")
-        tvs = add_discount(tvs, "tv")
-        phones = add_discount(phones, "phone")
-        consoles = add_discount(consoles, "console")
-        video_games = add_discount(video_games, "video_game")
-        accessories = add_discount(accessories, "accessory")
+        laptops_data = add_discount(laptops_data, "laptop")
+        pcs_data = add_discount(pcs_data, "pc")
+        tvs_data = add_discount(tvs_data, "tv")
+        phones_data = add_discount(phones_data, "phone")
+        consoles_data = add_discount(consoles_data, "console")
+        video_games_data = add_discount(video_games_data, "video_game")
+        accessories_data = add_discount(accessories_data, "accessory")
 
+        # Combine into a single list, but tag each with "type"
         products = (
-            [{"type": "laptop", **item} for item in laptops] +
-            [{"type": "pc", **item} for item in pcs] +
-            [{"type": "tv", **item} for item in tvs] +
-            [{"type": "phone", **item} for item in phones] +
-            [{"type": "console", **item} for item in consoles] +
-            [{"type": "video_game", **item} for item in video_games] +
-            [{"type": "accessory", **item} for item in accessories]
+            [{"type": "laptop", **item} for item in laptops_data] +
+            [{"type": "pc", **item} for item in pcs_data] +
+            [{"type": "tv", **item} for item in tvs_data] +
+            [{"type": "phone", **item} for item in phones_data] +
+            [{"type": "console", **item} for item in consoles_data] +
+            [{"type": "video_game", **item} for item in video_games_data] +
+            [{"type": "accessory", **item} for item in accessories_data]
         )
-        return Response(products)
+
+        return Response(products, status=status.HTTP_200_OK)
 
 class ProductDetailView(APIView):
     def get(self, request, type, id):

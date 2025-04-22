@@ -305,6 +305,15 @@ class ProductDetailView(APIView):
                 object_id=id,
             )
 
+            total_count = ProductViewHistory.objects.filter(
+                user_email=request.user.email
+            ).count()
+            if total_count > 100:
+                to_remove = total_count - 100
+                ProductViewHistory.objects.filter(
+                    user_email=request.user.email
+                ).order_by("viewed_at")[:to_remove].delete()
+
         product_data = Serializer(product).data
         reviews = Review.objects.filter(product_type=type, product_id=id)
         product_data["reviews"] = ReviewSerializer(reviews, many=True).data

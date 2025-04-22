@@ -44,5 +44,4 @@ urlpatterns = [
     path('products/recommend-or-trending/', recommend_or_trending, name='recommend-or-trending'),
 
 
-
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

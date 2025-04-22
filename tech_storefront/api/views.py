@@ -8,8 +8,8 @@ from decimal import Decimal
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.db.models import Count, F, Q, Sum
-from django.db.models.functions import TruncDate
+from django.db.models import Count, F, Q, Sum, OuterRef, Subquery, IntegerField
+from django.db.models.functions import TruncDate, Coalesce
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.db import models
@@ -1002,12 +1002,25 @@ def get_trending_products():
     trending_candidates = []
 
     def add_candidates(model_cls, serializer_cls, product_type_name):
-        from .models.review_models import Review
+        review_count_subq = (
+            Review.objects
+            .filter(
+                product_type=product_type_name,
+                product_id=OuterRef('pk')
+            )
+            .values('product_id')
+            .annotate(count=Count('id'))
+            .values('count')[:1]
+        )
+
         products_with_count = model_cls.objects.annotate(
-            review_count=Count('review', filter=Review.objects.filter(product_type=product_type_name, product_id=models.OuterRef('pk')))
-        ).all()
-        for p in products_with_count:
-            trending_candidates.append( (p, p.review_count, product_type_name, serializer_cls) )
+            review_count=Coalesce(Subquery(review_count_subq, output_field=IntegerField()), 0)
+        )
+
+        for product in products_with_count:
+            trending_candidates.append(
+                (product, product.review_count, product_type_name, serializer_cls)
+            )
 
     from .serializers import (
         LaptopSerializer, PCSerializer, TVSerializer, PhoneSerializer,

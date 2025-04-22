@@ -9,6 +9,6 @@ urlpatterns = [
     path('admin-sign-in/', index),
     path('wishlist/', index),
     path('checkout/', index),
-    re_path(r'^products/.+$', index),  # <-- Add this line
+    re_path(r'^products/.+$', index),
 ]
 

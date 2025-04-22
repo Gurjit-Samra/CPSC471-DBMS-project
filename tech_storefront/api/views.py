@@ -307,6 +307,38 @@ class ProductDetailView(APIView):
         except Exception as e:
             print("Discount lookup error:", e)
             product_data["percent_discount"] = None
+
+        similar_qs = Model.objects.exclude(id=id)
+
+        # If product.brand is set, get up to 3 brand matches
+        if product.brand:
+            brand_match = list(similar_qs.filter(brand__iexact=product.brand)[:3])
+            if len(brand_match) < 3:
+                needed = 3 - len(brand_match)
+                # Exclude the ones already in brand_match
+                brand_ids = [p.id for p in brand_match]
+                same_type = list(similar_qs.exclude(id__in=brand_ids)[:needed])
+                final_recs_list = brand_match + same_type
+            else:
+                final_recs_list = brand_match
+        else:
+            # no brand, just get first 3
+            final_recs_list = list(similar_qs[:3])
+
+        rec_serializer = Serializer(final_recs_list, many=True)
+        rec_data = rec_serializer.data
+
+        for r in rec_data:
+            disc = DiscountedProduct.objects.filter(
+                product_type=type, product_id=r["id"]
+            ).order_by('-percent_discount').first()
+            if disc:
+                r["percent_discount"] = float(disc.percent_discount)
+            else:
+                r["percent_discount"] = None
+
+        product_data["recommendations"] = rec_data
+
         return Response(product_data)
 
 @api_view(['GET'])

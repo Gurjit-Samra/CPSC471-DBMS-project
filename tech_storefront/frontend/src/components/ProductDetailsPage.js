@@ -13,7 +13,9 @@ import {
   Card,
   CardMedia,
   CardContent,
+  CardActions,
   CircularProgress,
+  Grid,
 } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ShoppingCart from "./ShoppingCart";
@@ -219,7 +221,7 @@ export default function ProductDetailsPage() {
     } else {
       navigate("/sign-in");
     }
-  }
+  };
 
   const handleWriteReview = () => {
     if (!user) {
@@ -619,6 +621,114 @@ export default function ProductDetailsPage() {
                   </Button>
                 </CardContent>
               </Card>
+
+              {/* Similar Products section */}
+              {product.recommendations && product.recommendations.length > 0 && (
+                <Box sx={{ mt: 4 }}>
+                  <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
+                    Similar Products
+                  </Typography>
+
+                  <Grid container spacing={2}>
+                    {product.recommendations.map((rec) => (
+                      <Grid item xs={12} sm={6} md={4} key={`${rec.type}${rec.id}`}>
+                        <Card
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            borderRadius: 4,
+                            boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
+                          }}
+                        >
+                          <CardMedia
+                            component="img"
+                            height="140"
+                            image={rec.image}
+                            alt={rec.name}
+                            sx={{
+                              objectFit: "contain",
+                              backgroundColor: "#f5f5f5",
+                            }}
+                          />
+                          <CardContent>
+                            <Typography
+                              variant="subtitle1"
+                              sx={{
+                                fontWeight: 700,
+                                mb: 1,
+                                cursor: "pointer",
+                              }}
+                              onClick={() =>
+                                navigate(`/products/${rec.type}/${rec.id}`)
+                              }
+                            >
+                              {rec.name}
+                            </Typography>
+
+                            {rec.percent_discount ? (
+                              <Typography variant="h6" color="primary">
+                                <span
+                                  style={{
+                                    textDecoration: "line-through",
+                                    marginRight: 8,
+                                    color: "#888",
+                                  }}
+                                >
+                                  ${Number(rec.price).toFixed(2)}
+                                </span>
+                                $
+                                {(
+                                  Number(rec.price) *
+                                  (1 - rec.percent_discount / 100)
+                                ).toFixed(2)}
+                              </Typography>
+                            ) : (
+                              <Typography variant="h6" color="primary">
+                                ${Number(rec.price).toFixed(2)}
+                              </Typography>
+                            )}
+                          </CardContent>
+                          <CardActions>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              sx={{
+                                borderRadius: "999px",
+                                textTransform: "none",
+                              }}
+                              onClick={() => {
+                                if (user) {
+                                  handleAddToCart({
+                                    id: rec.id,
+                                    type: rec.type,
+                                    price: rec.price,
+                                    name: rec.name,
+                                  });
+                                } else {
+                                  navigate("/sign-in");
+                                }
+                              }}
+                            >
+                              Add to Cart
+                            </Button>
+                            <Button
+                              variant="text"
+                              size="small"
+                              onClick={() =>
+                                navigate(`/products/${rec.type}/${rec.id}`)
+                              }
+                            >
+                              View
+                            </Button>
+                          </CardActions>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Box>
+              )}
+
+              {/* Show reviews if present */}
               {product.reviews && product.reviews.length > 0 && (
                 <Box sx={{ mt: 4 }}>
                   <Typography variant="h5" sx={{ mb: 2 }}>
@@ -649,6 +759,7 @@ export default function ProductDetailsPage() {
                   ))}
                 </Box>
               )}
+
               <Button
                 variant="outlined"
                 color="primary"

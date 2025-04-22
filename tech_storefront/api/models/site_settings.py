@@ -1,4 +1,4 @@
-# tech_storefront/api/models/config_models.py
+# tech_storefront/api/models/site_settings.py
 
 from django.db import models
 

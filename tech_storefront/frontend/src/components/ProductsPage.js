@@ -496,7 +496,7 @@ export default function ProductsPage() {
                 </MenuItem>
 
                 {/* Admin Dashboard Button */}
-                {(user.is_staff || user.is_superuser) && (
+                {user && (user.is_staff || user.is_superuser) && (
                   <MenuItem
                     component={RouterLink}
                     to="/admin-dashboard"
@@ -526,22 +526,6 @@ export default function ProductsPage() {
                 </MenuItem>
               </Menu>
             </>
-          )}
-
-          {/* Admin Dashboard Button */}
-          {(user.is_staff || user.is_superuser) && (
-            <MenuItem
-              component={RouterLink}
-              to="/admin-dashboard"
-              sx={{
-                borderRadius: 3,
-                px: 2,
-                py: 1,
-                "&:hover": { backgroundColor: "#f0f4fa" },
-              }}
-            >
-              <Typography color="primary">Admin Dashboard</Typography>
-            </MenuItem>
           )}
 
           {/* Cart Icon */}

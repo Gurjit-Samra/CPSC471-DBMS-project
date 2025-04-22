@@ -232,7 +232,7 @@ import {
             )}
 
             {/* Admin Dashboard Button */}
-            {(user.is_staff || user.is_superuser) && (
+            {user && (user.is_staff || user.is_superuser) && (
             <MenuItem
                 component={RouterLink}
                 to="/admin-dashboard"

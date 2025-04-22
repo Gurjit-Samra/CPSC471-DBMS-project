@@ -18,6 +18,13 @@ from decimal import Decimal
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Sum, Count, F
+from django.utils import timezone
+from datetime import timedelta
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.functions import TruncDate
+
+
 
 
 PRODUCT_MODEL_MAP = {
@@ -456,9 +463,6 @@ class OrderView(APIView):
         billing_postal_code = request.data.get('billing_postal_code')
         billing_phone = request.data.get('billing_phone')
 
-        # (Optional) payment info if you collect it
-        # e.g. card_number = request.data.get('card_number')
-
         if not all([shipping_first_name, shipping_last_name, shipping_address, shipping_city,
                     shipping_postal_code, shipping_phone,
                     billing_first_name, billing_last_name, billing_address, billing_city,
@@ -514,18 +518,11 @@ class OrderView(APIView):
 
             total += (price * quantity)
 
-        # Optional: add shipping or taxes if needed
-        # shipping_cost = Decimal("19.95")
-        # total += shipping_cost
-
-        # Save final total
         order.total = total
         order.save()
 
-        # Clear user’s cart
         cart_items.delete()
 
-        # Return the created order
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
@@ -548,3 +545,136 @@ class OrderDetailView(APIView):
 
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class AdminAnalyticsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        if not request.user.is_staff and not request.user.is_superuser:
+            return Response({"detail": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+
+        now = timezone.now().date()
+        date_14_days_ago = now - timedelta(days=13)
+
+        total_orders = Order.objects.count()
+        total_sales = Order.objects.aggregate(total=Sum('total'))['total'] or 0
+        total_customers = Customer.objects.count()
+
+        daily_sales_qs = (
+            Order.objects.filter(created_at__date__gte=date_14_days_ago)
+            .annotate(day=F('created_at__date'))
+            .values('day')
+            .annotate(revenue=Sum('total'), count=Count('id'))
+            .order_by('day')
+        )
+        daily_sales = []
+        for i in range(14):
+            d = date_14_days_ago + timedelta(days=i)
+            match = next((x for x in daily_sales_qs if x['day'] == d), None)
+            daily_sales.append({
+                "day": str(d),
+                "revenue": float(match['revenue']) if match else 0.0,
+                "orders": match['count'] if match else 0,
+            })
+
+        recent_orders = (
+            Order.objects.select_related('customer')
+            .order_by('-created_at')[:5]
+        )
+        recent_orders_data = []
+        for o in recent_orders:
+            recent_orders_data.append({
+                "id": o.id,
+                "customer_email": o.customer.email,
+                "total": float(o.total),
+                "status": o.status,
+                "created_at": o.created_at.isoformat(),
+            })
+
+
+        new_customers_qs = (
+            Customer.objects.filter(date_joined__date__gte=date_14_days_ago)
+            .annotate(day=TruncDate('date_joined'))
+            .values('day')
+            .annotate(count=Count('email'))
+            .order_by('day')
+        )
+        daily_signups = []
+        for i in range(14):
+            d = date_14_days_ago + timedelta(days=i)
+            match = next((x for x in new_customers_qs if x['day'] == d), None)
+            daily_signups.append({
+                "day": str(d),
+                "signups": match['count'] if match else 0,
+            })
+
+        content_types_map = {
+            "laptop": ContentType.objects.get_for_model(Laptop),
+            "pc": ContentType.objects.get_for_model(PC),
+            "tv": ContentType.objects.get_for_model(TV),
+            "phone": ContentType.objects.get_for_model(Phone),
+            "console": ContentType.objects.get_for_model(Console),
+            "video_game": ContentType.objects.get_for_model(Video_Game),
+            "accessory": ContentType.objects.get_for_model(Accessory),
+        }
+
+        category_revenue = {}
+        for key, ctype in content_types_map.items():
+            agg = (
+                OrderItem.objects.filter(content_type=ctype)
+                .aggregate(
+                    total_revenue=Sum(F('price')*F('quantity')),
+                    total_qty=Sum('quantity'),
+                )
+            )
+            rev = agg['total_revenue'] or 0
+            qty = agg['total_qty'] or 0
+            category_revenue[key] = {
+                "revenue": float(rev),
+                "units_sold": qty,
+            }
+
+        top_sellers = {}
+
+        def get_top_sellers_for_model(model_cls, model_str, limit=5):
+            ctype = content_types_map[model_str]
+            sales_data = (
+                OrderItem.objects.filter(content_type=ctype)
+                .values('object_id')
+                .annotate(total_qty=Sum('quantity'), total_revenue=Sum(F('price')*F('quantity')))
+                .order_by('-total_qty')[:limit]
+            )
+            results = []
+            for row in sales_data:
+                try:
+                    product_obj = model_cls.objects.get(id=row['object_id'])
+                    results.append({
+                        "id": product_obj.id,
+                        "name": product_obj.name,
+                        "total_qty": row['total_qty'],
+                        "total_revenue": float(row['total_revenue'] or 0),
+                        "price": float(product_obj.price),
+                    })
+                except model_cls.DoesNotExist:
+                    pass
+            return results
+
+        top_sellers["laptop"] = get_top_sellers_for_model(Laptop, "laptop")
+        top_sellers["pc"] = get_top_sellers_for_model(PC, "pc")
+        top_sellers["tv"] = get_top_sellers_for_model(TV, "tv")
+        top_sellers["phone"] = get_top_sellers_for_model(Phone, "phone")
+        top_sellers["console"] = get_top_sellers_for_model(Console, "console")
+        top_sellers["video_game"] = get_top_sellers_for_model(Video_Game, "video_game")
+        top_sellers["accessory"] = get_top_sellers_for_model(Accessory, "accessory")
+
+        data = {
+            "total_orders": total_orders,
+            "total_sales": float(total_sales),
+            "total_customers": total_customers,
+            "daily_sales": daily_sales,
+            "recent_orders": recent_orders_data,
+            "daily_signups": daily_signups,
+            "category_revenue": category_revenue,
+            "top_sellers": top_sellers,
+        }
+        return Response(data, status=status.HTTP_200_OK)

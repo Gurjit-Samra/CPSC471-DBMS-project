@@ -8,7 +8,9 @@ import {
   ListItem,
   ListItemText,
   Slide,
+  Link as MuiLink,
 } from "@mui/material";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -108,6 +110,26 @@ export default function ShoppingCart({ cart, open, onClose, onCheckout, onUpdate
             </List>
           )}
         </Box>
+
+        {/*"View Cart Page" Button*/}
+        {cart.length > 0 && (
+          <Box sx={{ px: 2, mb: 1 }}>
+            <Button
+              component={RouterLink}
+              to="/cart"
+              variant="outlined"
+              fullWidth
+              onClick={onClose}
+              sx={{
+                borderRadius: "999px",
+                fontWeight: 600,
+                mb: 2,
+              }}
+            >
+              View Cart Page
+            </Button>
+          </Box>
+        )}
 
         {/* Footer */}
         <Box

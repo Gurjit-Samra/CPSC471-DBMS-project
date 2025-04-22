@@ -11,6 +11,7 @@ import WriteReviewPage from "./WriteReviewPage"
 import WishlistPage from "./WishlistPage";
 import CheckoutPage from "./CheckoutPage";
 import OrderSuccessPage from "./OrderSuccessPage";
+import CartPage from "./CartPage";
 
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+          <Route path="/cart" element={<CartPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -240,26 +240,54 @@ export default function CheckoutPage() {
         pt: { xs: "64px", md: "93px" },
       }}
     >
-      {/* Back Button */}
-      <Button
-        startIcon={<ArrowBackIosNewIcon />}
+
+      {/* Back Buttons */}
+      <Box
         sx={{
           position: "absolute",
           top: { xs: 16, md: 32 },
           left: { xs: 16, md: 48 },
-          borderRadius: "999px",
-          fontWeight: 600,
           zIndex: 20,
-          minWidth: 0,
-          px: 2,
-          py: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: 1, // space between buttons
         }}
-        onClick={() => navigate("/products?cartOpen=true")}
-        color="primary"
-        variant="outlined"
       >
-        Back to Products
-      </Button>
+        {/* Button to go back to Cart */}
+        <Button
+          startIcon={<ArrowBackIosNewIcon />}
+          sx={{
+            borderRadius: "999px",
+            fontWeight: 600,
+            minWidth: 0,
+            px: 2,
+            py: 1,
+          }}
+          color="primary"
+          variant="contained"
+          onClick={() => navigate("/cart")}
+        >
+          Back to Cart
+        </Button>
+  
+        {/* Button to go back to Products */}
+        <Button
+          startIcon={<ArrowBackIosNewIcon />}
+          sx={{
+            borderRadius: "999px",
+            fontWeight: 600,
+            minWidth: 0,
+            px: 2,
+            py: 1,
+          }}
+          color="primary"
+          variant="outlined"
+          onClick={() => navigate("/products")}
+        >
+          Back to Products
+        </Button>
+      </Box>
+
       <Box
         sx={{
           width: "100%",
@@ -270,6 +298,7 @@ export default function CheckoutPage() {
           alignItems: "flex-start",
           justifyContent: "center",
         }}
+
       >
         {/* Main Checkout Form (Left) */}
         <Box sx={{ flex: 1, minWidth: 0, maxWidth: { md: 700 }, mr: { md: 4 }, width: "100%" }}>

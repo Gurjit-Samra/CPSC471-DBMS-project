@@ -18,6 +18,12 @@ import {
   Divider,
   TextField,
   Autocomplete,
+  Select,
+  InputLabel,
+  FormControl,
+  Checkbox,
+  ListItemText,
+  OutlinedInput,
 } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -29,9 +35,7 @@ import Link from "@mui/material/Link";
 import ShoppingCart from "./ShoppingCart";
 import { useAuth } from "./AuthContext";
 
-/**
- * Helper to retrieve CSRF token from cookies.
- */
+/** Helper to retrieve CSRF token from cookies. */
 function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== "") {
@@ -59,14 +63,18 @@ export default function ProductsPage() {
   const [suggestions, setSuggestions] = useState([]);
   const navigate = useNavigate();
 
-  // Filtering
-  const [filter, setFilter] = useState("All");
-  // Additional attribute filters:
-  const [brandFilter, setBrandFilter] = useState("");
+  // Additional attribute filters
+  // (We keep price, ram, screen_size as in original code)
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
-  const [ramFilter, setRamFilter] = useState(""); // for laptop/pc
-  const [screenSizeFilter, setScreenSizeFilter] = useState(""); // for phone/tv
+  const [ramFilter, setRamFilter] = useState("");
+  const [screenSizeFilter, setScreenSizeFilter] = useState("");
+
+  // Instead of one brandFilter string, we use an array of selected brand names:
+  const [selectedBrands, setSelectedBrands] = useState([]);
+
+  // We'll store the distinct brand options for the dropdown:
+  const [brandOptions, setBrandOptions] = useState([]);
 
   // Recommended or trending
   const [recMode, setRecMode] = useState(""); // "recommended" or "trending"
@@ -76,8 +84,9 @@ export default function ProductsPage() {
   const { user, setUser } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
 
-  // ----------------------------
-  //       USE EFFECTS
+  // Which "category" button is active
+  const [filter, setFilter] = useState("All");
+
   // ----------------------------
   // 1) If user is logged in, fetch cart & wishlist
   useEffect(() => {
@@ -116,9 +125,12 @@ export default function ProductsPage() {
   const fetchProducts = () => {
     let url = `/api/products/?search=${encodeURIComponent(search)}`;
 
-    if (brandFilter) {
-      url += `&brand=${encodeURIComponent(brandFilter)}`;
+    // If user selected brand(s) except "All"
+    if (selectedBrands.length > 0 && !selectedBrands.includes("All")) {
+      const joined = selectedBrands.join(",");
+      url += `&brand=${encodeURIComponent(joined)}`;
     }
+
     if (priceMin) {
       url += `&price_min=${encodeURIComponent(priceMin)}`;
     }
@@ -132,6 +144,7 @@ export default function ProductsPage() {
       url += `&screen_size=${encodeURIComponent(screenSizeFilter)}`;
     }
 
+    // GET from server
     fetch(url, { credentials: "include" })
       .then((res) => res.json())
       .then((data) => setProducts(data))
@@ -144,10 +157,22 @@ export default function ProductsPage() {
   // Re-fetch products whenever filters/search changes
   useEffect(() => {
     fetchProducts();
-  }, [search, brandFilter, priceMin, priceMax, ramFilter, screenSizeFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, priceMin, priceMax, ramFilter, screenSizeFilter, selectedBrands]);
+
+  // After products have loaded, gather unique brand names for the dropdown
+  useEffect(() => {
+    const uniqueBrands = new Set();
+    products.forEach((p) => {
+      if (p.brand && p.brand.trim() !== "") {
+        uniqueBrands.add(p.brand.trim());
+      }
+    });
+    setBrandOptions(Array.from(uniqueBrands).sort());
+  }, [products]);
 
   // ----------------------------
-  //       API HELPERS
+  // Wishlist & Cart API calls
   // ----------------------------
   const fetchWishlist = async () => {
     try {
@@ -273,7 +298,7 @@ export default function ProductsPage() {
 
     try {
       if (isWishlisted) {
-        // remove
+        // remove from wishlist
         await fetch("/api/wishlist/", {
           method: "DELETE",
           headers: {
@@ -296,7 +321,7 @@ export default function ProductsPage() {
           )
         );
       } else {
-        // add
+        // add to wishlist
         const res = await fetch("/api/wishlist/", {
           method: "POST",
           headers: {
@@ -348,7 +373,7 @@ export default function ProductsPage() {
     navigate("/");
   };
 
-  // Build category array
+  // For “category” buttons
   const categories = [
     "All",
     ...Array.from(new Set(products.map((p) => p.category || p.type || "Other"))),
@@ -370,6 +395,16 @@ export default function ProductsPage() {
     console: "Consoles",
     accessory: "Accessories",
     all: "All",
+  };
+
+  // Functions for brand multi-select
+  const handleSelectAllBrands = () => {
+    // "All" is a special value that means "no brand filtering"
+    setSelectedBrands(["All"]);
+  };
+  const handleSelectNoBrands = () => {
+    // empty array = do no brand filtering
+    setSelectedBrands([]);
   };
 
   return (
@@ -775,12 +810,44 @@ export default function ProductsPage() {
               borderRadius: 2,
             }}
           >
-            <TextField
-              label="Brand"
-              size="small"
-              value={brandFilter}
-              onChange={(e) => setBrandFilter(e.target.value)}
-            />
+            {/* MULTI-SELECT BRAND DROPDOWN */}
+            <FormControl sx={{ minWidth: 200 }}>
+              <InputLabel id="brand-filter-label">Brand(s)</InputLabel>
+              <Select
+                labelId="brand-filter-label"
+                multiple
+                value={selectedBrands}
+                onChange={(e) => setSelectedBrands(e.target.value)}
+                input={<OutlinedInput label="Brand(s)" />}
+                renderValue={(selected) => {
+                  if (selected.includes("All")) {
+                    return "All brands";
+                  }
+                  return selected.join(", ");
+                }}
+              >
+                {/* Special item for "All" */}
+                <MenuItem value="All" disabled={brandOptions.length === 0}>
+                  <Checkbox checked={selectedBrands.includes("All")} />
+                  <ListItemText primary="(Select All)" />
+                </MenuItem>
+                {/* Actual brand options */}
+                {brandOptions.map((b) => (
+                  <MenuItem key={b} value={b}>
+                    <Checkbox checked={selectedBrands.includes(b)} />
+                    <ListItemText primary={b} />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Button variant="outlined" onClick={handleSelectAllBrands}>
+              Select All
+            </Button>
+            <Button variant="outlined" onClick={handleSelectNoBrands}>
+              Select None
+            </Button>
+
             <TextField
               label="Min Price"
               size="small"
@@ -823,14 +890,6 @@ export default function ProductsPage() {
                 sx={{ maxWidth: 140 }}
               />
             )}
-
-            <Button
-              variant="contained"
-              onClick={fetchProducts}
-              sx={{ borderRadius: 8, ml: 1 }}
-            >
-              Apply Filters
-            </Button>
           </Box>
 
           {/* PRODUCT GRID */}

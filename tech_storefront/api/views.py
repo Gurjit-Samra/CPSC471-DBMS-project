@@ -221,13 +221,22 @@ class AllProductsView(APIView):
             accessories = accessories.filter(common_q)
 
         if brand_filter:
-            laptops = laptops.filter(brand__icontains=brand_filter)
-            pcs = pcs.filter(brand__icontains=brand_filter)
-            phones = phones.filter(brand__icontains=brand_filter)
-            tvs = tvs.filter(brand__icontains=brand_filter)
-            consoles = consoles.filter(brand__icontains=brand_filter)
-            video_games = video_games.filter(brand__icontains=brand_filter)
-            accessories = accessories.filter(brand__icontains=brand_filter)
+            brand_list = [b.strip() for b in brand_filter.split(",") if b.strip()]
+
+            if "All" not in brand_list and len(brand_list) > 0:
+                from django.db.models import Q
+
+                brand_q = Q()
+                for brand_item in brand_list:
+                    brand_q |= Q(brand__iexact=brand_item)
+
+                laptops = laptops.filter(brand_q)
+                pcs = pcs.filter(brand_q)
+                phones = phones.filter(brand_q)
+                tvs = tvs.filter(brand_q)
+                consoles = consoles.filter(brand_q)
+                video_games = video_games.filter(brand_q)
+                accessories = accessories.filter(brand_q)
 
         if price_min.isdigit():
             price_min_val = float(price_min)

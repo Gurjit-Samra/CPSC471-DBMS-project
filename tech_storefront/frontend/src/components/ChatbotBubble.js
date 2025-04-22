@@ -3,7 +3,23 @@ import React, { useState } from "react";
 import { IoChatbubblesSharp } from "react-icons/io5";
 import { FaTimes } from "react-icons/fa";
 
-export default function ChatbotBubble({ currentPage }) {
+// 1) Helper function to retrieve the CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+        }
+        }
+    }
+    return cookieValue;
+    }
+
+    export default function ChatbotBubble({ currentPage }) {
     const [isOpen, setIsOpen] = useState(false);
     const [conversation, setConversation] = useState([]);
     const [userInput, setUserInput] = useState("");
@@ -30,7 +46,12 @@ export default function ChatbotBubble({ currentPage }) {
         try {
         const resp = await fetch("/api/chatbot/", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            credentials: "include", // Important to include cookies
+            headers: {
+            "Content-Type": "application/json",
+            // Include the CSRF token
+            "X-CSRFToken": getCookie("csrftoken"),
+            },
             body: JSON.stringify({
             userMessage: userMessage,
             currentPage: currentPage || window.location.pathname,
@@ -42,18 +63,14 @@ export default function ChatbotBubble({ currentPage }) {
             setError(errData.error || "Error calling chatbot");
         } else {
             const data = await resp.json();
+            // Still check if !resp.ok inside the same block isn’t necessary,
+            // but we’ll keep it for consistency
             if (!resp.ok) {
-                setError(data.error || "Error calling chatbot");
+            setError(data.error || "Error calling chatbot");
             } else {
-                // Get only the text
-                const botReply = data.assistantReply || "(No reply)";
-            
-
-                setConversation((prev) => [
-                ...prev,
-                { role: "bot", text: botReply },
-                ]);
-        }
+            const botReply = data.assistantReply || "(No reply)";
+            setConversation((prev) => [...prev, { role: "bot", text: botReply }]);
+            }
         }
         } catch (err) {
         console.error(err);
@@ -63,7 +80,6 @@ export default function ChatbotBubble({ currentPage }) {
         }
     };
 
-    // Render
     return (
         <>
         {/* Chat Bubble Icon (when closed) */}
@@ -76,7 +92,7 @@ export default function ChatbotBubble({ currentPage }) {
                 width: "60px",
                 height: "60px",
                 borderRadius: "50%",
-                backgroundColor: "#1976d2", // your brand color
+                backgroundColor: "#1976d2",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -122,10 +138,7 @@ export default function ChatbotBubble({ currentPage }) {
                 }}
             >
                 <span style={{ fontWeight: "bold" }}>FGG Tech Chatbot</span>
-                <FaTimes
-                style={{ cursor: "pointer" }}
-                onClick={handleToggleChat}
-                />
+                <FaTimes style={{ cursor: "pointer" }} onClick={handleToggleChat} />
             </div>
 
             {/* Conversation Area */}

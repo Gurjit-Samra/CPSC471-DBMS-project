@@ -14,6 +14,7 @@ import OrderSuccessPage from "./OrderSuccessPage";
 import CartPage from "./CartPage";
 import MyOrdersPage from "./MyOrdersPage";
 import MyOrderDetailPage from "./MyOrderDetailPage";
+import AdminDashboardPage from "./AdminDashboardPage";
 
 export default function App() {
   return (
@@ -32,6 +33,8 @@ export default function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/my-orders" element={<MyOrdersPage />} />
           <Route path="/my-orders/:orderId" element={<MyOrderDetailPage />} />
+          <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>

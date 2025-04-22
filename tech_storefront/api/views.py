@@ -39,6 +39,7 @@ class CustomerRegistrationView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+"""
 class CustomerSignInView(APIView):
     def post(self, request):
         email = request.data.get('email')
@@ -60,17 +61,43 @@ class AdminSignInView(APIView):
             login(request, user) # create a new session
             return Response({'message': 'Admin sign in successful'}, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid admin credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+"""
+        
+class SignInView(APIView):
+    """
+    Unified sign-in: works for both Customer and Admin
+    """
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        user = authenticate(request, email=email, password=password)
+        if user is not None:
+            login(request, user)
+            return Response({'message': 'Sign in successful'}, status=status.HTTP_200_OK)
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class CurrentUserView(APIView):
     def get(self, request):
-        if request.user.is_authenticated:
-            # If the user is a customer, return full customer info
-            if Customer.objects.filter(email=request.user.email).exists():
-                customer = Customer.objects.get(email=request.user.email)
-                return Response(CustomerSerializer(customer).data)
-            # Otherwise, return basic user info
-            return Response(UserSerializer(request.user).data)
-        return Response({"email": None})
+        if not request.user.is_authenticated:
+            return Response({"email": None})
+
+        user = request.user
+
+        # Check if they're a Customer (based on your custom Customer model).
+        # If so, return detailed customer info.
+        if Customer.objects.filter(email=user.email).exists():
+            customer = Customer.objects.get(email=user.email)
+            data = CustomerSerializer(customer).data
+        else:
+            # Otherwise, just use the basic user fields
+            data = UserSerializer(user).data
+
+        # Add these so the frontend knows if they’re staff or superuser
+        data["is_staff"] = user.is_staff
+        data["is_superuser"] = user.is_superuser
+
+        return Response(data)
 
 class LogoutView(APIView):
     def post(self, request):

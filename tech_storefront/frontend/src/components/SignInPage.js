@@ -102,7 +102,11 @@ export default function SignInPage(props) {
       const userData = await userRes.json();
       setUser(userData);
 
-      navigate("/products"); // redirect to products page
+      if (userData.is_superuser || userData.is_staff) {
+        navigate("/admin-dashboard");
+      } else {
+        navigate("/products");
+      }
 
     } catch (error) {
       setServerError("Network error. Please try again.");

@@ -13,8 +13,11 @@ from .models.review_models import Review
 from django.contrib.contenttypes.models import ContentType
 from .serializers import WishlistItemSerializer
 from .models.order_models import Order, OrderItem
-from .serializers import OrderSerializer
+from .serializers import OrderSerializer, OrderItemSerializer
 from decimal import Decimal
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.contenttypes.models import ContentType
 
 
 PRODUCT_MODEL_MAP = {
@@ -489,3 +492,23 @@ class OrderView(APIView):
         # Return the created order
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+class OrderDetailView(APIView):
+    """
+    Retrieve details of a single order by ID,
+    ensuring the user can only view their own order.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+
+        # Ensure that only the owner of the order (or an admin) can view it
+        if order.customer != request.user and not request.user.is_superuser:
+            return Response(
+                {"error": "You do not have permission to view this order."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -221,9 +221,7 @@ export default function CheckoutPage() {
       }
       // If successful, we can navigate to a success page or show a message
       const orderData = await resp.json();
-      // For now just alert or redirect
-      alert(`Order #${orderData.id} placed successfully!`);
-      navigate("/products");
+      navigate(`/order-success/${orderData.id}`);
     } catch (error) {
       console.error(error);
       alert("Network error placing order.");

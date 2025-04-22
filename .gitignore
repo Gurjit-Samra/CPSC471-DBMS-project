@@ -45,3 +45,5 @@ yarn-error.log*
 # OS specific
 .DS_Store
 Thumbs.db
+tech_storefront/tech_storefront/settings.py
+*.pyc

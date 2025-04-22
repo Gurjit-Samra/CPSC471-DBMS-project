@@ -10,6 +10,7 @@ import ProductDetailsPage from "./ProductDetailsPage";
 import WriteReviewPage from "./WriteReviewPage"
 import WishlistPage from "./WishlistPage";
 import CheckoutPage from "./CheckoutPage";
+import OrderSuccessPage from "./OrderSuccessPage";
 
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/products/:type/:id/write-review" element={<WriteReviewPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -57,6 +57,7 @@ class AdminSignInView(APIView):
         user = authenticate(request, email=email, password=password)
         # Check if user is an instance of Admin
         if user is not None and Admin.objects.filter(email=user.email).exists():
+            login(request, user) # create a new session
             return Response({'message': 'Admin sign in successful'}, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid admin credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 

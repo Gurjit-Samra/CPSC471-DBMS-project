@@ -1,31 +1,50 @@
-from rest_framework import status, generics, permissions
-from .models.user_models import Customer, Admin
-from .models.cart_models import Cart_Includes, WishlistItem
-from .serializers import CreateCustomerSerializer, CustomerSerializer, UserSerializer, ReviewSerializer, CartItemSerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from django.contrib.auth import authenticate, login, logout
-from .models.product_models import Laptop, PC, TV, Phone, Console, Video_Game, Accessory, DiscountedProduct
-from .serializers import LaptopSerializer, PCSerializer, TVSerializer, PhoneSerializer, ConsoleSerializer, AccessorySerializer, VideoGameSerializer
-from django.db.models import Q
-from rest_framework.decorators import api_view
-from .models.review_models import Review
-from django.contrib.contenttypes.models import ContentType
-from .serializers import WishlistItemSerializer
-from .models.order_models import Order, OrderItem
-from .serializers import OrderSerializer, OrderItemSerializer
-from decimal import Decimal
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Sum, Count, F
-from django.utils import timezone
 from datetime import timedelta
+from decimal import Decimal
+
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count, F, Q, Sum
 from django.db.models.functions import TruncDate
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
+from rest_framework import generics, permissions, status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from .models.cart_models import Cart_Includes, WishlistItem
+from .models.order_models import Order, OrderItem
+from .models.product_models import (
+    Accessory,
+    Console,
+    DiscountedProduct,
+    Laptop,
+    PC,
+    Phone,
+    TV,
+    Video_Game,
+)
+from .models.review_models import Review
+from .models.user_models import Admin, Customer
 
+from .serializers import (
+    AccessorySerializer,
+    CartItemSerializer,
+    ConsoleSerializer,
+    CreateCustomerSerializer,
+    CustomerSerializer,
+    LaptopSerializer,
+    OrderItemSerializer,
+    OrderSerializer,
+    PCSerializer,
+    PhoneSerializer,
+    ReviewSerializer,
+    TVSerializer,
+    UserSerializer,
+    VideoGameSerializer,
+    WishlistItemSerializer,
+)
 
 PRODUCT_MODEL_MAP = {
     "laptop": (Laptop, LaptopSerializer),
@@ -320,11 +339,9 @@ class CartView(APIView):
     def post(self, request):
         data = request.data
 
-        product_type = data["product_type"]  # e.g., "laptop"
+        product_type = data["product_type"]
         product_id = data["product_id"]
         quantity = data["quantity"]
-
-        from api.models.product_models import Laptop, Phone, TV, PC, Video_Game, Accessory, Console
 
         model_map = {
         "laptop": Laptop,
@@ -504,7 +521,7 @@ class OrderView(APIView):
         # Create OrderItem for each cart item
         for cart_item in cart_items:
             product = cart_item.product
-            price = Decimal(str(product.price))  # make sure we have a Decimal
+            price = Decimal(str(product.price))
             quantity = cart_item.quantity
 
             OrderItem.objects.create(
@@ -536,7 +553,6 @@ class OrderDetailView(APIView):
     def get(self, request, order_id):
         order = get_object_or_404(Order, id=order_id)
 
-        # Ensure that only the owner of the order (or an admin) can view it
         if order.customer != request.user and not request.user.is_superuser:
             return Response(
                 {"error": "You do not have permission to view this order."},

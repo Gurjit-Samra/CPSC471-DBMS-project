@@ -27,9 +27,19 @@ cd tech_storefront/frontend
 npm install
 ```
 
-### Additional Frontend Libraries
+### Additional Frontend Libraries & Setup
+
 If you encounter missing packages, install them:
+
 ```sh
+npm init -y
+npm i webpack webpack-cli --save-dev
+npm i @babel/core babel-loader @babel/preset-env @babel/preset-react --save-dev
+npm i react react-dom --save-dev
+npm install @mui/material @emotion/react @emotion/styled
+npm install @babel/plugin-proposal-class-properties
+npm install react-router-dom
+npm install @mui/icons-material
 npm install recharts react-icons
 ```
 
@@ -50,7 +60,7 @@ The backend will be available at [http://localhost:8000](http://localhost:8000).
 In a new terminal:
 ```sh
 cd tech_storefront/frontend
-npm start
+npm run dev
 ```
 The frontend will be available at [http://localhost:3000](http://localhost:3000).
 

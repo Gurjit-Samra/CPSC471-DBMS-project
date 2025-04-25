@@ -56,7 +56,7 @@ From the project root:
 ```sh
 cd tech_storefront
 python manage.py migrate
-python manage.py runserver
+python manage.py runserver 0.0.0.0:8000
 ```
 The backend will be available at [http://localhost:8000](http://localhost:8000).
 
@@ -67,6 +67,10 @@ cd tech_storefront/frontend
 npm run dev
 ```
 The frontend will be available at [http://localhost:3000](http://localhost:3000).
+
+### Visiting the Storefront
+
+Once the Backend and the Frontend have been configured, you can now visit http://127.0.0.1:8000/ to play with the site!
 
 ---
 
@@ -86,3 +90,27 @@ The frontend will be available at [http://localhost:3000](http://localhost:3000)
 - Make sure both backend and frontend servers are running for full functionality.
 - If you add new Python or JS dependencies, update `requirements.txt` or run `npm install <package>` as needed.
 - For any issues, check the terminal output for errors and install missing dependencies as prompted.
+
+## Bonuses
+
+### Configuring the AI
+
+This techfront can be configured to include an AI support chatbot for customers. The Chatbot is tailored and has access to the non-sensitive parts of the database, the website structure, the support email, etc.
+
+- Head over to https://platform.openai.com/api-keys and create a new secret key.
+- Log in to the techfront with an admin user, and head over to the admin dashboard
+- At the very bottom, you can set your respective Open AI API Key to power the tailored the Chatbot!
+
+### The Mobile App
+
+As seen in the final report, this techfront also has a companion app.
+
+To use the companion app, you will need to download Android Studio and all it's respective dependencies from here: https://developer.android.com/studio
+
+- Load Android Studio and load/compile the app files in \TechFrontMobile.
+- This time, when running the backend, use `py manage.py runserver 0.0.0.0:8000`, this makes it so that the Android Studio emulator can interact with the local database.
+- Now click the green play button on the middle top of the screen on Android Studio, this should boot up one of your virtual devices (it should prompt you to create one if you don't already have one created).
+- Once the phone boots up, the app might either automatically open, or you will have to find the app icon, if it is the latter, please refer to the final report *Screenshots of the UI* section to see the app icon.
+- Now you will have the app fully installed on your virtual device, and everything is synced with other devices as well! For example, if you log into the account on your PC's Chrome, and add something to the wishlist, this change is also reflected on the app!
+
+Note: Configuring this app may lead to some issues depending on your machine, for example, firewall/security configurations may not allow the emulator to interact with http://127.0.0.1:8000/, etc. I did not experience this, but I am referencing it just in case.

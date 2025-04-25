@@ -1,5 +1,7 @@
 # CPSC471-DBMS-project
 
+NOTE: All the project functionalities can be found in our Final Report with images included (in the visual interface section).
+
 ## Setup
 
 ### Download Requirements

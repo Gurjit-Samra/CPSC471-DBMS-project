@@ -111,18 +111,17 @@ To use the companion app, you will need to download Android Studio and all it's 
 
 - Load Android Studio and load/compile the app files in \TechFrontMobile.
 - This time, when running the backend, use `py manage.py runserver 0.0.0.0:8000`, this makes it so that the Android Studio emulator can interact with the local database.
-- You must also have capacitor-android and capcitor-cordova-android-plugins within this director (they are not included because they are big files), so install them within your project root 
-``
+- You must also have capacitor-android and capcitor-cordova-android-plugins within this director (they are not included because they are big files), so install them within your project root:
+```
 npm install @capacitor/android @capacitor/cli
 npm install @capacitor/cordova-android-plugins
-``
-Then sync
-``
+```
+- Then sync:
+```
 npx cap add android
 npx cap sync android
-``
-Then assemble/build the app in Android Studio
-
+```
+- Then assemble/build the app in Android Studio.
 - Now click the green play button on the middle top of the screen on Android Studio, this should boot up one of your virtual devices (it should prompt you to create one if you don't already have one created).
 - Once the phone boots up, the app might either automatically open, or you will have to find the app icon, if it is the latter, please refer to the final report *Screenshots of the UI* section to see the app icon.
 - Now you will have the app fully installed on your virtual device, and everything is synced with other devices as well! For example, if you log into the account on your PC's Chrome, and add something to the wishlist, this change is also reflected on the app!

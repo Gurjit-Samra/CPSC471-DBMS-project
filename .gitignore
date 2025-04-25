@@ -47,5 +47,3 @@ yarn-error.log*
 Thumbs.db
 tech_storefront/tech_storefront/settings.py
 *.pyc
-/TechFrontMobile
-*.pyc

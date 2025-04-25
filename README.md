@@ -6,6 +6,7 @@
 
 #### Backend (Django)
 - Python 3.10+
+- MySQL
 - pip
 - [Recommended] Create a virtual environment:
   ```sh
@@ -48,6 +49,9 @@ npm install recharts react-icons
 ## Running the Project
 
 ### Backend (Django)
+
+Make sure you have edited `settings.py` (tech_storefront\tech_storefront\settings.py) to configure your current MySQL database details before continuing!
+
 From the project root:
 ```sh
 cd tech_storefront

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TechFront</string>
+    <string name="title_activity_main">TechFront</string>
+    <string name="package_name">com.yourcompany.techfront</string>
+    <string name="custom_url_scheme">com.yourcompany.techfront</string>
+</resources>

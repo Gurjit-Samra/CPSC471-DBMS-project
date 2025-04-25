@@ -103,7 +103,7 @@ This techfront can be configured to include an AI support chatbot for customers.
 
 ### The Mobile App
 
-As seen in the final report, this techfront also has a companion app.
+As seen in the final report, this techfront also has a companion app. We have developed this companion app with Capacitor (https://capacitorjs.com/).
 
 To use the companion app, you will need to download Android Studio and all it's respective dependencies from here: https://developer.android.com/studio
 

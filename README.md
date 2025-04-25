@@ -114,3 +114,7 @@ To use the companion app, you will need to download Android Studio and all it's 
 - Now you will have the app fully installed on your virtual device, and everything is synced with other devices as well! For example, if you log into the account on your PC's Chrome, and add something to the wishlist, this change is also reflected on the app!
 
 Note: Configuring this app may lead to some issues depending on your machine, for example, firewall/security configurations may not allow the emulator to interact with http://127.0.0.1:8000/, etc. I did not experience this, but I am referencing it just in case.
+
+### MySQL Workbench
+
+Once the database is configured, you can use MySQL Workbench to easily inspect the relational model of the database.

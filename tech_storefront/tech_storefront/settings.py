@@ -90,13 +90,13 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'techstore',
         'USER': 'root',
-        'PASSWORD': 'Pp#J^kl%XW8So8',
+        'PASSWORD': 'CPSC471',
         'HOST': 'localhost',
         'PORT': '3306'
     }
 }
 
-
+ALLOWED_HOSTS = ["10.0.2.2", "127.0.0.1", "localhost"]
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

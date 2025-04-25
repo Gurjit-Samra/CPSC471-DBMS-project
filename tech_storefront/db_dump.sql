@@ -425,7 +425,7 @@ CREATE TABLE `api_sitesettings` (
 
 LOCK TABLES `api_sitesettings` WRITE;
 /*!40000 ALTER TABLE `api_sitesettings` DISABLE KEYS */;
-INSERT INTO `api_sitesettings` VALUES (1,'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','faris1.salhi@gmail.com');
+INSERT INTO `api_sitesettings` VALUES (1,'replace-with-your-openai-key','faris1.salhi@gmail.com');
 /*!40000 ALTER TABLE `api_sitesettings` ENABLE KEYS */;
 UNLOCK TABLES;
 

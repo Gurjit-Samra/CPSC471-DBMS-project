@@ -89,7 +89,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'techstore',
-        'USER': 'root',
+        'USER': 'techstore_user', # replace with your MySQL username
         'PASSWORD': 'CPSC471', # replace with your MySQL password
         'HOST': 'localhost',
         'PORT': '3306'

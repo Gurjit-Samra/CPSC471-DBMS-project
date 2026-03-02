@@ -1,0 +1,1 @@
+web: gunicorn --chdir tech_storefront tech_storefront.wsgi:application

@@ -1,0 +1,696 @@
+[
+{
+  "model": "api.laptop",
+  "pk": 1,
+  "fields": {
+    "name": "MacBook Pro 16-inch (M3 Max)",
+    "description": "SUPERCHARGED BY M3 PRO OR M3 MAX—The Apple M3 Pro chip, with a 12-core CPU and 18-core GPU using hardware-accelerated ray tracing, delivers amazing performance for demanding workflows like manipulating gigapixel panoramas or compiling millions of lines of code. M3 Max, with an up to 16-core CPU and up to 40-core GPU, drives extreme performance for the most advanced workflows like rendering intricate 3D content or developing transformer models with billions of parameters.\r\nBUILT FOR APPLE INTELLIGENCE — Apple Intelligence helps you write, express yourself, and get things done effortlessly. It draws on your personal context while setting a brand-new standard for privacy in AI. Coming in beta in U.S. English later this year.\r\nUP TO 22 HOURS OF BATTERY LIFE—Go all day thanks to the power-efficient design of Apple silicon. MacBook Pro delivers the same exceptional performance whether it’s running on battery or plugged in.",
+    "price": "3499.00",
+    "brand": "Apple",
+    "image": "product_images/MacBook_Pro_16-inch_M3_Max.jpeg",
+    "ram": 64,
+    "graphics_card": "Apple 40-core GPU",
+    "proccessor": "Apple M3 Max",
+    "screen_size": 16,
+    "resolution": "3456x2234"
+  }
+},
+{
+  "model": "api.laptop",
+  "pk": 2,
+  "fields": {
+    "name": "Dell XPS 16 (2024)",
+    "description": "Ultra-premium Windows laptop with Intel Core Ultra 9, RTX 4070, and InfinityEdge OLED display.",
+    "price": "2899.00",
+    "brand": "Dell",
+    "image": "product_images/Dell_XPS_16_2024.jpg",
+    "ram": 32,
+    "graphics_card": "NVIDIA RTX 4070",
+    "proccessor": "Intel Core Ultra 9 185H",
+    "screen_size": 16,
+    "resolution": "3840x2400"
+  }
+},
+{
+  "model": "api.laptop",
+  "pk": 3,
+  "fields": {
+    "name": "Razer Blade 16 (2024)",
+    "description": "Gaming powerhouse with Mini-LED dual-mode display, perfect for both creatives and gamers.",
+    "price": "3199.00",
+    "brand": "Razer",
+    "image": "product_images/Razer_Blade_16_2024.jpg",
+    "ram": 32,
+    "graphics_card": "NVIDIA RTX 4090",
+    "proccessor": "Intel Core i9-14900HX",
+    "screen_size": 16,
+    "resolution": "3840x2400"
+  }
+},
+{
+  "model": "api.laptop",
+  "pk": 4,
+  "fields": {
+    "name": "HP Spectre x360 14 (2024)",
+    "description": "Sleek 2-in-1 with OLED touchscreen, excellent portability, and long battery life.",
+    "price": "1699.00",
+    "brand": "HP",
+    "image": "product_images/HP_Spectre_x360_14_2024.jpg",
+    "ram": 16,
+    "graphics_card": "Intel Iris Xe",
+    "proccessor": "Intel Core Ultra 7 155H",
+    "screen_size": 14,
+    "resolution": "3000x2000"
+  }
+},
+{
+  "model": "api.laptop",
+  "pk": 5,
+  "fields": {
+    "name": "ASUS ROG Zephyrus G14 (2024)",
+    "description": "Ultra-portable gaming laptop with AMD Ryzen 9 and RTX 4070, in a sleek magnesium alloy chassis.",
+    "price": "1999.00",
+    "brand": "Asus",
+    "image": "product_images/ASUS_ROG_Zephyrus_G14_2024.png",
+    "ram": 32,
+    "graphics_card": "NVIDIA RTX 4070",
+    "proccessor": "AMD Ryzen 9 8945HS",
+    "screen_size": 14,
+    "resolution": "2560x1600"
+  }
+},
+{
+  "model": "api.phone",
+  "pk": 1,
+  "fields": {
+    "name": "iPhone 15 Pro Max",
+    "description": "Apple’s flagship with the A17 Pro chip, titanium design, and ProMotion OLED display.",
+    "price": "1199.00",
+    "brand": "Apple",
+    "image": "product_images/iphone_15_pro_max_1.jpg",
+    "screen_size": 7,
+    "resolution": "2796x1290"
+  }
+},
+{
+  "model": "api.phone",
+  "pk": 2,
+  "fields": {
+    "name": "Samsung Galaxy S24 Ultra",
+    "description": "Samsung’s latest with Snapdragon 8 Gen 3, S Pen support, and a 200MP camera.",
+    "price": "1299.99",
+    "brand": "Samsung",
+    "image": "product_images/samsung_galaxy_s24_ultra_1.jpg",
+    "screen_size": 7,
+    "resolution": "3088x1440"
+  }
+},
+{
+  "model": "api.phone",
+  "pk": 3,
+  "fields": {
+    "name": "Google Pixel 8 Pro",
+    "description": "Pixel’s AI-powered smartphone with Tensor G3, great camera software, and a smooth OLED screen.",
+    "price": "999.00",
+    "brand": "Google",
+    "image": "product_images/google_pixel_8_pro_1.jpg",
+    "screen_size": 7,
+    "resolution": "2992x1344"
+  }
+},
+{
+  "model": "api.phone",
+  "pk": 4,
+  "fields": {
+    "name": "OnePlus 12",
+    "description": "Flagship killer with Snapdragon 8 Gen 3, fast charging, and a 120Hz AMOLED display.",
+    "price": "799.00",
+    "brand": "OnePlus",
+    "image": "product_images/oneplus_12_1.png",
+    "screen_size": 7,
+    "resolution": "3168x1440"
+  }
+},
+{
+  "model": "api.phone",
+  "pk": 5,
+  "fields": {
+    "name": "Xiaomi 14 Pro",
+    "description": "Premium build, Leica-tuned cameras, and Snapdragon 8 Gen 3 under the hood.",
+    "price": "899.00",
+    "brand": "Xiaomi",
+    "image": "product_images/xiaomi_14_pro_1.jpg",
+    "screen_size": 7,
+    "resolution": "3200x1440"
+  }
+},
+{
+  "model": "api.phone",
+  "pk": 6,
+  "fields": {
+    "name": "Sony Xperia 1 VI",
+    "description": "A flagship for creatives with a 4K OLED display, pro-grade camera tools, and Snapdragon 8 Gen 3.",
+    "price": "1199.00",
+    "brand": "Sony",
+    "image": "product_images/sony_xperia_1_vi.jpg",
+    "screen_size": 6,
+    "resolution": "3840x1644"
+  }
+},
+{
+  "model": "api.tv",
+  "pk": 1,
+  "fields": {
+    "name": "LG G3 OLED evo 65-Inch (2023)",
+    "description": "Flagship OLED TV designed for wall-mounting with an ultra-slim \"Gallery\" profile\r\nFeatures LG’s Alpha 9 Gen6 AI Processor, delivering deep learning-based upscaling and dynamic tone mapping\r\nBrightness Booster Max for improved luminance — significantly brighter than previous OLED generations\r\nSelf-lit OLED pixels deliver perfect blacks, infinite contrast, and stunning color accuracy\r\nDolby Vision IQ, HDR10, and HLG support for cinematic picture quality\r\nHDMI 2.1 ports with support for 120Hz refresh rate, VRR, ALLM, and G-Sync/FreeSync for next-gen gaming\r\nWebOS smart platform with support for Netflix, Apple TV+, Disney+, Prime Video, and more\r\nMagic Remote with voice control via Google Assistant and Amazon Alexa",
+    "price": "3299.99",
+    "brand": "LG",
+    "image": "product_images/LG_G3_OLED_evo_65-Inch_2023.jpeg",
+    "screen_size": 65,
+    "resolution": "3840x2160"
+  }
+},
+{
+  "model": "api.tv",
+  "pk": 2,
+  "fields": {
+    "name": "Samsung S95C OLED 65-Inch (2023)",
+    "description": "Samsung’s flagship QD-OLED TV combining OLED blacks with quantum dot color\r\n\r\nNeural Quantum Processor 4K for scene-by-scene AI optimization\r\n\r\n144Hz refresh rate — ideal for high-frame-rate gaming on PC or console\r\n\r\nUltra-slim One Connect box for minimal cable clutter\r\n\r\nSupports HDR10+, HLG, and Filmmaker Mode\r\n\r\nDolby Atmos and Object Tracking Sound+ for immersive audio",
+    "price": "3299.99",
+    "brand": "Samsung",
+    "image": "product_images/Samsung_S95C_OLED_65-Inch_2023.jpg",
+    "screen_size": 65,
+    "resolution": "3840x2160"
+  }
+},
+{
+  "model": "api.tv",
+  "pk": 3,
+  "fields": {
+    "name": "Sony A95L BRAVIA XR OLED 65-Inch (2024)",
+    "description": "Premium QD-OLED panel with cognitive XR processor for realistic image reproduction\r\n\r\nXR Triluminos Max technology for expanded color volume and brightness\r\n\r\nAuto HDR Tone Mapping and Auto Genre Picture Mode for PS5\r\n\r\nGoogle TV smart platform with built-in Google Assistant and Chromecast\r\n\r\nDolby Vision, Dolby Atmos, and IMAX Enhanced certified",
+    "price": "3499.99",
+    "brand": "Sony",
+    "image": "product_images/Sony_A95L_BRAVIA_XR_OLED_65-Inch_2023.jpg",
+    "screen_size": 65,
+    "resolution": "3840x2160"
+  }
+},
+{
+  "model": "api.console",
+  "pk": 1,
+  "fields": {
+    "name": "PlayStation 5",
+    "description": "Sony’s latest console with ultra-fast SSD, stunning graphics, and immersive DualSense controller.",
+    "price": "499.99",
+    "brand": "Sony",
+    "image": "product_images/ps5.jpg"
+  }
+},
+{
+  "model": "api.console",
+  "pk": 2,
+  "fields": {
+    "name": "PlayStation 5 Digital Edition",
+    "description": "A disc-less version of the PS5 with all the same performance in a sleeker form factor.",
+    "price": "449.99",
+    "brand": "Sony",
+    "image": "product_images/ps5_digital.jpg"
+  }
+},
+{
+  "model": "api.console",
+  "pk": 3,
+  "fields": {
+    "name": "Xbox Series X",
+    "description": "Microsoft’s most powerful console yet, delivering 4K gaming, fast load times, and Game Pass support.",
+    "price": "499.99",
+    "brand": "Microsoft",
+    "image": "product_images/xbox_series_x.jpg"
+  }
+},
+{
+  "model": "api.console",
+  "pk": 4,
+  "fields": {
+    "name": "Xbox Series S",
+    "description": "A compact, all-digital console offering next-gen speed and performance at a lower price.",
+    "price": "299.99",
+    "brand": "Microsoft",
+    "image": "product_images/xbox_series_s.jpg"
+  }
+},
+{
+  "model": "api.console",
+  "pk": 5,
+  "fields": {
+    "name": "Nintendo Switch OLED",
+    "description": "Hybrid console with a vibrant OLED screen, improved audio, and enhanced kickstand.",
+    "price": "349.99",
+    "brand": "Nintendo",
+    "image": "product_images/nintendo_swtich_oled.jpg"
+  }
+},
+{
+  "model": "api.console",
+  "pk": 6,
+  "fields": {
+    "name": "Steam Deck OLED (1TB)",
+    "description": "Valve’s handheld gaming PC with an OLED screen, custom AMD APU, and access to your entire Steam library.",
+    "price": "649.00",
+    "brand": "Valve",
+    "image": "product_images/steam_deck_oled.jpg"
+  }
+},
+{
+  "model": "api.video_game",
+  "pk": 1,
+  "fields": {
+    "name": "Death Stranding Director's Cut - Playstation 5",
+    "description": "Remastered for the Playstation 5 console - Take on the trials of Sam bridges with advanced combat, more character actions, and a competitive ranking system for special player challenges\r\nExpanded content: use additional weapons and vehicles, take on new types of enemies, and explore new locations like the shooting range and racetrack, with additional missions and minigames\r\nNew discoveries: Experience an extended story through new missions in an expanded area",
+    "price": "59.99",
+    "brand": "Playstation 5",
+    "image": "product_images/death_stranding.jpg",
+    "age_rating": "Mature",
+    "genre": "Strand-Type Game"
+  }
+},
+{
+  "model": "api.video_game",
+  "pk": 2,
+  "fields": {
+    "name": "God of War Ragnarök - PlayStation 5",
+    "description": "Feel your journey through the Norse realms, made possible by immersive haptic feedback and adaptive trigger functionality.\r\nTake advantage of multidirectional 3D Audio; hear enemies approaching from any direction. (3D audio with stereo headphones (analog or USB))\r\nBask in the beautiful worlds you travel through, brought to life by precise art direction and arresting attention to detail.\r\nSwitch between full 4K resolution at a targeted 30 frames per second, or dynamic resolution upscaled to 4K at a targeted 60fps. (4K resolution requires a compatible 4K TV or display)",
+    "price": "89.99",
+    "brand": "Playstation 5",
+    "image": "product_images/god_of_war.jpg",
+    "age_rating": "Mature",
+    "genre": "Action Adventure"
+  }
+},
+{
+  "model": "api.video_game",
+  "pk": 3,
+  "fields": {
+    "name": "Forza Horizon 5 Standard Edition - Xbox",
+    "description": "Explore a world of striking contrast and beauty. Discover living deserts, lush jungles, historic cities, hidden ruins, pristine beaches, vast canyons, and a towering snow-capped volcano.\r\nImmerse yourself in a deep campaign with hundreds of challenges that reward you for engaging in the activities you love. Meet new characters and choose the outcomes of their Horizon Story missions.\r\nTake on awe-inspiring weather events such as towering dust storms and intense tropical storms as Mexico’s unique, dynamic seasons change the world every week\r\nPlay on Xbox Series X|S and Xbox One consoles, and PC on Windows 10 and Steam. With Xbox Game Pass Ultimate, download and play it directly on your Xbox console or Windows 10 PC\r\nForza Horizon 5 is optimized for Xbox Series X|S. Games optimized for Xbox Series X|S will showcase unparalleled load-times, heightened visuals, and steadier framerates.",
+    "price": "89.99",
+    "brand": "Xbox Series X/S",
+    "image": "product_images/forza.jpg",
+    "age_rating": "Everyone",
+    "genre": "Racing"
+  }
+},
+{
+  "model": "api.video_game",
+  "pk": 4,
+  "fields": {
+    "name": "Cyberpunk 2077: Phantom Liberty",
+    "description": "Spy-thriller DLC for Cyberpunk 2077 set in the war-torn district of Dogtown\r\n\r\nNew story, characters (including Idris Elba), and gameplay mechanics\r\n\r\nMajor improvements to AI, skill trees, and police response system\r\n\r\nAdds new vehicles, weapons, and tech-enhanced combat tools\r\n\r\nRequires base game",
+    "price": "69.99",
+    "brand": "Playstation 5",
+    "image": "product_images/Cyberpunk_2077-_Phantom_Liberty_Expansion.jpg",
+    "age_rating": "Mature",
+    "genre": "RPG / Open World"
+  }
+},
+{
+  "model": "api.video_game",
+  "pk": 5,
+  "fields": {
+    "name": "The Legend of Zelda: Tears of the Kingdom",
+    "description": "Sequel to Breath of the Wild with massive open-world sandbox exploration\r\n\r\nIntroduces new sky islands and underground realms to Hyrule\r\n\r\nPlayers can craft vehicles, manipulate time, and fuse weapons creatively\r\n\r\nMasterfully blends physics puzzles, combat, and discovery\r\n\r\nOne of Nintendo's most critically acclaimed titles",
+    "price": "69.99",
+    "brand": "Nintendo",
+    "image": "product_images/The_Legend_of_Zelda-_Tears_of_the_Kingdom.jpg",
+    "age_rating": "Everyone",
+    "genre": "Action-Adventure / Open W"
+  }
+},
+{
+  "model": "api.video_game",
+  "pk": 6,
+  "fields": {
+    "name": "Call of Duty: Modern Warfare III",
+    "description": "Latest in the rebooted Modern Warfare series with high-octane campaign and multiplayer\r\n\r\nIncludes the new Open Combat Missions offering player choice in how to approach objectives\r\n\r\nRevamped Zombies mode set in a massive open-world environment\r\n\r\nIntegrates with Warzone and cross-progression\r\n\r\nFast-paced gameplay with high realism",
+    "price": "69.99",
+    "brand": "Xbox Series X/S",
+    "image": "product_images/Call_of_Duty-_Modern_Warfare_III.jpg",
+    "age_rating": "Mature",
+    "genre": "FPS / Shooter"
+  }
+},
+{
+  "model": "api.pc",
+  "pk": 1,
+  "fields": {
+    "name": "HydraX Xtreme RTX Edition",
+    "description": "The HydraX Xtreme RTX Edition is a no-compromise desktop engineered for the elite gamer, the relentless creator, and the uncompromising perfectionist. Clad in a tempered glass and matte-black aluminum case, it pulses with synchronized RGB lighting like a living, breathing entity. Inside, it boasts the latest components — bleeding-edge tech cooled by a custom triple-loop liquid cooling system. This is a machine that doesn’t flinch under pressure, whether you’re rendering 8K footage, compiling massive codebases, or crushing 360 fps in competitive shooters. Every inch of its architecture is tuned for silence, speed, and stunning visual performance. It doesn’t just run your world — it rules it.",
+    "price": "4999.00",
+    "brand": "HydraX Systems",
+    "image": "product_images/HydraX_Xtreme_RTX_Edition.png",
+    "ram": 128,
+    "graphics_card": "NVIDIA GeForce RTX 4090 24GB GDDR6X",
+    "proccessor": "Intel Core i9-14900KS 6.2GHz"
+  }
+},
+{
+  "model": "api.accessory",
+  "pk": 1,
+  "fields": {
+    "name": "SteelSeries Arctis Nova Pro Wireless",
+    "description": "Dual wireless system: connect via 2.4GHz and Bluetooth simultaneously\r\n\r\nActive Noise Cancellation + Transparency Mode\r\n\r\nHot-swappable dual battery system for uninterrupted play\r\n\r\nHigh-fidelity audio with Sonar software suite for 360° spatial sound\r\n\r\nMulti-platform support: PC, PS5, PS4, and more",
+    "price": "349.99",
+    "brand": "SteelSeries",
+    "image": "product_images/SteelSeries_Arctis_Nova_Pro_Wireless.jpg"
+  }
+},
+{
+  "model": "api.accessory",
+  "pk": 2,
+  "fields": {
+    "name": "Xbox Elite Wireless Controller Series 2",
+    "description": "Adjustable-tension thumbsticks and shorter hair trigger locks\r\n\r\nSwappable thumbsticks, D-pads, and paddles for customization\r\n\r\nUp to 40 hours of battery life per charge\r\n\r\nFully remappable buttons with Xbox Accessories app\r\n\r\nCompatible with Xbox Series X|S, Xbox One, and Windows",
+    "price": "179.99",
+    "brand": "Microsoft",
+    "image": "product_images/Xbox_Elite_Wireless_Controller_Series_2.jpg"
+  }
+},
+{
+  "model": "api.accessory",
+  "pk": 3,
+  "fields": {
+    "name": "Sony DualSense Edge Wireless Controller",
+    "description": "Customizable back buttons and adjustable trigger sensitivity\r\n\r\nInterchangeable stick modules and profiles for pro-level control\r\n\r\nBuilt-in microphone and adaptive triggers with haptic feedback\r\n\r\nPremium case with USB braided cable and multiple swappable parts\r\n\r\nFully compatible with PS5 and PC",
+    "price": "199.99",
+    "brand": "Sony",
+    "image": "product_images/Sony_DualSense_Edge_Wireless_Controller.jpg"
+  }
+},
+{
+  "model": "api.accessory",
+  "pk": 4,
+  "fields": {
+    "name": "Razer Iskur Gaming Chair",
+    "description": "Ergonomic lumbar support system designed for extended play\r\n\r\nMulti-layered synthetic leather with high-density foam cushioning\r\n\r\n4D adjustable armrests and steel-reinforced body\r\n\r\nDesigned for optimal posture during gaming sessions",
+    "price": "499.99",
+    "brand": "Razer",
+    "image": "product_images/Razer_Iskur_Gaming_Chair.jpg"
+  }
+},
+{
+  "model": "api.review",
+  "pk": 2,
+  "fields": {
+    "review_text": "Looks sleek, runs fast — just like me when someone FaceTimes. But bro, the fan kicked in like it was trying to take off. Not cool. Literally.",
+    "rating": 3,
+    "customer": "john.pork@gmail.com",
+    "product_type": "laptop",
+    "product_id": 2
+  }
+},
+{
+  "model": "api.review",
+  "pk": 4,
+  "fields": {
+    "review_text": "Elegant, precise, and powerful — a machine worthy of a mentat. Its silence is a virtue, its display a window to unseen futures. But beware: it grows hot, like the dunes at noon.",
+    "rating": 4,
+    "customer": "muadib@arrakis.com",
+    "product_type": "laptop",
+    "product_id": 2
+  }
+},
+{
+  "model": "api.review",
+  "pk": 5,
+  "fields": {
+    "review_text": "It moves with the stillness of a Fremen blade — silent, exact, unwavering. The M3 Max is not a chip; it is prescience in silicon. This is no machine. It is a tool of prophecy.",
+    "rating": 5,
+    "customer": "muadib@arrakis.com",
+    "product_type": "laptop",
+    "product_id": 1
+  }
+},
+{
+  "model": "api.review",
+  "pk": 6,
+  "fields": {
+    "review_text": "A lonely journey through desolation and silence… yet somehow, I felt understood. The burden of connection, the weight of destiny — it is not a game. It is a vision. I saw sand, but I felt rain.",
+    "rating": 5,
+    "customer": "muadib@arrakis.com",
+    "product_type": "video_game",
+    "product_id": 1
+  }
+},
+{
+  "model": "api.review",
+  "pk": 7,
+  "fields": {
+    "review_text": "Pretty good but the fingerprint sensor isn't ultrasonic",
+    "rating": 4,
+    "customer": "john.pork@gmail.com",
+    "product_type": "phone",
+    "product_id": 3
+  }
+},
+{
+  "model": "api.review",
+  "pk": 8,
+  "fields": {
+    "review_text": "Impressive. Most impressive. The camera quality rivals even Imperial surveillance. But it lacks a dark mode… truly dark.",
+    "rating": 4,
+    "customer": "vader@empire.gov",
+    "product_type": "phone",
+    "product_id": 1
+  }
+},
+{
+  "model": "api.review",
+  "pk": 9,
+  "fields": {
+    "review_text": "The power is insignificant compared to the flagship. The UI is cluttered, the ads are... disturbing. I find your lack of polish disappointing.",
+    "rating": 2,
+    "customer": "vader@empire.gov",
+    "product_type": "phone",
+    "product_id": 5
+  }
+},
+{
+  "model": "api.review",
+  "pk": 10,
+  "fields": {
+    "review_text": "A marvel fit for a sovereign. Swift as a charger at Agincourt, and twice as sharp. I FaceTime my nobles with nary a hitch.",
+    "rating": 5,
+    "customer": "kinghenryv@houseoflancaster.uk",
+    "product_type": "phone",
+    "product_id": 1
+  }
+},
+{
+  "model": "api.review",
+  "pk": 11,
+  "fields": {
+    "review_text": "Excellent entertainment for weary knights. The controller, however, is too small for hands that once gripped a sword.",
+    "rating": 4,
+    "customer": "kinghenryv@houseoflancaster.uk",
+    "product_type": "console",
+    "product_id": 1
+  }
+},
+{
+  "model": "api.review",
+  "pk": 12,
+  "fields": {
+    "review_text": "This machine is mighty. Were it present at Harfleur, the walls would have crumbled at its rendering speed alone.",
+    "rating": 5,
+    "customer": "kinghenryv@houseoflancaster.uk",
+    "product_type": "laptop",
+    "product_id": 1
+  }
+},
+{
+  "model": "api.review",
+  "pk": 13,
+  "fields": {
+    "review_text": "Valiant attempt, yet lacks refinement. A noble squire, not yet a knight.",
+    "rating": 3,
+    "customer": "kinghenryv@houseoflancaster.uk",
+    "product_type": "phone",
+    "product_id": 5
+  }
+},
+{
+  "model": "api.review",
+  "pk": 14,
+  "fields": {
+    "review_text": "A curious device! Portable and potent — ideal for campaign travels. Still, the fan doth make quite the noise.",
+    "rating": 4,
+    "customer": "kinghenryv@houseoflancaster.uk",
+    "product_type": "console",
+    "product_id": 6
+  }
+},
+{
+  "model": "api.review",
+  "pk": 15,
+  "fields": {
+    "review_text": "Bro. I charged it for hours — HOURS — and it still died on me mid–Mario Kart. The Joy-Cons drift like they’re trying to run away from responsibility. This ain’t portable gaming, it’s portable pain. Fix it, Nintendo.",
+    "rating": 1,
+    "customer": "john.pork@gmail.com",
+    "product_type": "console",
+    "product_id": 5
+  }
+},
+{
+  "model": "api.review",
+  "pk": 16,
+  "fields": {
+    "review_text": "A masterstroke of engineering — swift, elegant, and ruthlessly efficient. Much like my campaign across Europe, it conquers all with ease. I dictate my legacy from this device.",
+    "rating": 5,
+    "customer": "emperor@elba.fr",
+    "product_type": "phone",
+    "product_id": 1
+  }
+},
+{
+  "model": "api.review",
+  "pk": 17,
+  "fields": {
+    "review_text": "Powerful, yes. Refined, no. Like many generals I've outwitted, it boasts strength but lacks charisma. Still, it earns my respect — barely.",
+    "rating": 4,
+    "customer": "emperor@elba.fr",
+    "product_type": "laptop",
+    "product_id": 2
+  }
+},
+{
+  "model": "api.review",
+  "pk": 18,
+  "fields": {
+    "review_text": "A child's toy masquerading as innovation. The display is vivid, yet the controls feel like they were designed for peasants. I did not cross the Alps for this.",
+    "rating": 2,
+    "customer": "emperor@elba.fr",
+    "product_type": "console",
+    "product_id": 5
+  }
+},
+{
+  "model": "api.review",
+  "pk": 19,
+  "fields": {
+    "review_text": "Mon Dieu. I find myself in rare agreement with a pig in a hoodie. John Pork, your fury is justified, though your language lacks tact. The Switch is unfit for campaign or leisure. I suggest we storm Kyoto together.",
+    "rating": 1,
+    "customer": "emperor@elba.fr",
+    "product_type": "console",
+    "product_id": 5
+  }
+},
+{
+  "model": "api.review",
+  "pk": 20,
+  "fields": {
+    "review_text": "It’s... exquisite. The titanium frame is cold, immaculate. 200 megapixels — absurd, yet necessary. I used it to take a photo of my business card. Crisp. Perfection.",
+    "rating": 5,
+    "customer": "pbusiness@pierceandpierce.nyc",
+    "product_type": "phone",
+    "product_id": 2
+  }
+},
+{
+  "model": "api.review",
+  "pk": 21,
+  "fields": {
+    "review_text": "It tries too hard. 4K on a phone? That’s like wearing a Valentino suit to the gym. Respectable on paper, but in practice? Unbalanced. There’s no identity.",
+    "rating": 3,
+    "customer": "pbusiness@pierceandpierce.nyc",
+    "product_type": "phone",
+    "product_id": 6
+  }
+},
+{
+  "model": "api.review",
+  "pk": 22,
+  "fields": {
+    "review_text": "It’s a black monolith. Sleek. Minimal. Powerful. I appreciate that. The performance is excellent — almost clinical. Still, I prefer physical media. It has… texture.",
+    "rating": 4,
+    "customer": "pbusiness@pierceandpierce.nyc",
+    "product_type": "console",
+    "product_id": 3
+  }
+},
+{
+  "model": "api.review",
+  "pk": 23,
+  "fields": {
+    "review_text": "Raw, brutal, and surprisingly emotional. Kratos reminds me of someone. The violence is poetic — deliberate. Controlled. Like a perfect morning routine… or a sharpened axe.",
+    "rating": 5,
+    "customer": "pbusiness@pierceandpierce.nyc",
+    "product_type": "video_game",
+    "product_id": 2
+  }
+},
+{
+  "model": "api.review",
+  "pk": 24,
+  "fields": {
+    "review_text": "Ohhhhhhhhhh the DIGITAL edition. No disc. No plastic. Just pure, unfiltered code. Ones and zeroes, dancing around in their cold, lifeless ballet while I sit here — controller in hand — pretending this isn’t all just some beautiful, high-resolution illusion.\n\nYou know what I miss, Sony? I miss the click. The snap. The theatrical little drama of inserting a disc — of physically committing to madness. But no, not here. The Digital Edition is clean. Sterile. Sanitized. It’s like Arkham’s therapy sessions: all smooth walls and no sharp corners. Nothing to hold onto. Nothing to bite.\n\nThey say it’s the same as the standard PS5, just without the disc. HAHAHA! Sure, and I’m just a \"funny man with makeup.\" No — it’s more than that. It’s philosophy. It’s trusting a corporation to cradle your fragile little childhood in their cloud. It’s giving up control and calling it progress. You don’t own your games anymore, darling — you’re just renting smiles from the void.\n\nAnd don’t get me started on storage. 667 GB usable space? What am I supposed to do, install one game and just stare at the menu screen laughing for 30 hours? Wait… actually… I did do that. But that’s beside the point!\n\nThe console is quiet, yes. Fast? Sure. It’s a marvel. But it’s also a mirror — and when I look into it, I don’t see me. I see you. The consumer. Numb. Clicking. Subscribing. Forever downloading happiness like it’s just another patch update.\n\nSo yes, dear Sony, thank you for your gleaming white coffin of convenience. I laugh not because it’s funny… but because it’s all so very digital.\n\nHAHAHAHAHAHAHAHAHAHA—",
+    "rating": 2,
+    "customer": "why_so_serious@chaosmail.com",
+    "product_type": "console",
+    "product_id": 2
+  }
+},
+{
+  "model": "api.review",
+  "pk": 25,
+  "fields": {
+    "review_text": "he Razer Blade 16 is no mere machine. It is a weapon, forged not in fire but in precision — sleek, sharp, and unrelentingly powerful. From the moment I laid my eyes upon its obsidian shell, I knew this was a device worthy of a queen.\n\nIts display is breathtaking. The dual-mode Mini-LED screen sings with color — vibrant as the banners of the Great Houses, shifting seamlessly between creative clarity and gaming ferocity. One moment I am overseeing the rise of my empire in 4K, the next I am razing cities in 240Hz — and not once does the screen falter. It does not kneel.\n\nAnd the internals — dracarys. The Intel i9 and RTX 4090 tear through my commands like Drogon through a fleet of slavers. There is no lag, no hesitation, no mercy. Everything yields. The fans roar beneath the metal, not unlike my dragons once did, but never in rebellion — only in loyalty, only in service.\n\nI have seen many machines built for conquest, but few that walk such a line between elegance and devastation. The Razer Blade is not adorned in gaudy excess; its beauty lies in restraint — in knowing its own strength and choosing when to wield it.\n\nYet, no crown is without weight. The heat, like the fire of my children, must be respected. The cost is high — as all thrones are. And the battery, while respectable, is not eternal. Even queens must return to their charger.\n\nStill, I would ride into battle with this device. I would trust it to carry the weight of my vision — to build, to destroy, to rule. It does not whisper. It does not break. It endures. And in this ever-changing digital realm, that is a rare and precious thing.\n\nI do not buy machines. I liberate them. And this one? This one was born to conquer.",
+    "rating": 5,
+    "customer": "queen@dragonstone.essos",
+    "product_type": "laptop",
+    "product_id": 3
+  }
+},
+{
+  "model": "api.review",
+  "pk": 26,
+  "fields": {
+    "review_text": "Feels like home. Tight mechanics, proper punch to the guns. The campaign’s got grit — not just running and gunning, but actual tactics. Reminds me of a Tuesday. Multiplayer’s a war zone, but that’s where the fun is. One gripe: too many kids screaming in my ear. Otherwise? Lock, load, and keep your back to the wall.",
+    "rating": 4,
+    "customer": "jstatham@toughmail.uk",
+    "product_type": "video_game",
+    "product_id": 6
+  }
+},
+{
+  "model": "api.review",
+  "pk": 27,
+  "fields": {
+    "review_text": "Nice",
+    "rating": 5,
+    "customer": "muadib@arrakis.com",
+    "product_type": "tv",
+    "product_id": 1
+  }
+},
+{
+  "model": "api.discountedproduct",
+  "pk": 1,
+  "fields": {
+    "product_type": "laptop",
+    "product_id": 1,
+    "admin": "faris1.salhi@gmail.com",
+    "percent_discount": "10.00"
+  }
+},
+{
+  "model": "api.discountedproduct",
+  "pk": 3,
+  "fields": {
+    "product_type": "console",
+    "product_id": 3,
+    "admin": "faris1.salhi@gmail.com",
+    "percent_discount": "25.00"
+  }
+}
+]
